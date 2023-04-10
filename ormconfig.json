@@ -1,0 +1,5 @@
+{
+    "seeds": [
+        "src/database/seeds/**/*seed{.ts,.js}"
+    ]
+}
