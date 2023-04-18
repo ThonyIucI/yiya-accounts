@@ -5,6 +5,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class RentalStatus implements IRentalStatus {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column()
+
+  @Column({ unique: true })
   name: string;
 }

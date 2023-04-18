@@ -6,18 +6,18 @@ import { IRentalStatus } from './rentalStatus.interface';
 
 export interface IRental extends ModelBase {
   rentalNumber: string;
-  clientId: number;
-  comboId: number;
+  client?: number | null;
+  combo?: number | null;
   priceRent: number;
   rentalDate: Date;
   returnDate: Date;
-  statusId: number;
+  status?: number | null;
   createdBy: number;
   updatedBy: number;
   deletedBy: number;
   //   Relations
-  rentalStatus: IRentalStatus;
-  client: IClient;
-  profiles?: IProfile[];
-  combo?: ICombo;
+  // rentalStatus: IRentalStatus;
+  // client: IClient;
+  // profiles?: IProfile[];
+  // combo?: ICombo;
 }

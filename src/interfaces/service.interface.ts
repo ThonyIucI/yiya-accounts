@@ -5,8 +5,8 @@ import { IProfile } from './profile.interface';
 export interface IService extends ModelBase {
   name: string;
   logo: string;
-  originalPurchasePrice: string;
+  originalPurchasePrice: number;
   //Relations
-  profiles?: IProfile[];
-  combos?: ICombo[];
+  // profiles?: IProfile[];
+  // combos?: ICombo[];
 }

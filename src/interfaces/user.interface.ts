@@ -8,5 +8,5 @@ export interface IUser extends ModelBase {
   password: string;
   roleId?: number;
   // Relations
-  role: IRole;
+  // role: IRole;
 }

@@ -3,13 +3,13 @@ import { ModelBase } from './base.interface';
 import { IRental } from './rental.interface';
 
 export interface IProfile extends ModelBase {
-  accountId: number;
-  rentalId: number | null;
+  accountId?: number | null;
+  rentalId?: number | null;
   available: boolean;
   pin: string;
   priceRent: number;
   profileName: string;
   // Relations
-  account: IAccount;
-  rental?: IRental;
+  // account: IAccount;
+  // rental?: IRental;
 }

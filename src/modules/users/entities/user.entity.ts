@@ -7,13 +7,19 @@ import { BaseModelEntity } from 'src/modules/data/entities/base.entity';
 export class User extends BaseModelEntity implements IUser {
   @Column()
   name: string;
+
   @Column()
   lastName: string;
+
   @Column({ unique: true })
   email: string;
+
   @Column()
   password: string;
 
+  // Clave foránea a User
+  @Column({ name: 'roleId' })
+  roleId: number;
   // Relations
   @ManyToOne(() => Role)
   @JoinColumn({ name: 'roleId' })

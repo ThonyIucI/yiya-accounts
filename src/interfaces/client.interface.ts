@@ -10,5 +10,5 @@ export interface IClient extends ModelBase {
   description: string | null;
   others: string | null;
   //   Relations
-  rentals?: IRental[];
+  // rentals?: IRental[];
 }

@@ -6,5 +6,5 @@ export interface ISupplier extends ModelBase {
   phone: string;
   notes: string;
   // Relations
-  accounts: IAccount[];
+  // accounts: IAccount[];
 }
