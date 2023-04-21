@@ -36,3 +36,6 @@ lerna-debug.log*
 
 # ENVIRONMENT
 .env
+
+#docker-data
+/postgres_data
