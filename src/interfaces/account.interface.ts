@@ -14,7 +14,7 @@ export interface IAccount extends ModelBase {
   purchaseDate: Date;
   expirationDate: Date;
   // Relations
-  profiles: IProfile[];
-  service: IService;
-  supplier: ISupplier;
+  profiles?: IProfile[];
+  service?: IService;
+  supplier?: ISupplier;
 }

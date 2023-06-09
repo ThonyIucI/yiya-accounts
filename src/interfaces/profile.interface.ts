@@ -10,6 +10,6 @@ export interface IProfile extends ModelBase {
   priceRent: number;
   profileName: string;
   // Relations
-  account: IAccount;
+  account?: IAccount;
   rental?: IRental;
 }
