@@ -5,73 +5,80 @@ import { Repository } from 'typeorm';
 import { Account } from './entities/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ErrorManager } from 'src/utils/error.manager';
+import { Profile } from '../profiles/entities/profile.entity';
+import {
+  createdMessage,
+  deletedMessage,
+  updatedMessage,
+} from 'src/utils/message.manager';
 
 @Injectable()
 export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountRepository: Repository<Account>,
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>, // @InjectRepository(Profile) // private readonly profileRepository: Repository<Profile>,
   ) {}
   async create(createAccountDto: CreateAccountDto) {
     try {
-      const item = await this.accountRepository.insert(createAccountDto);
-      if (item) return 'Información guardada exitosamente';
+      const item = await this.accountRepository.save(createAccountDto);
+      if (item) {
+        const account = await this.findOne(item.id);
+        // Crear los respectivos perfiles para cada cuenta
+        for (let index = 0; index < account.service.profilesNumber; index++) {
+          await this.profileRepository.save({
+            accountId: account.id,
+            profileName: `${account.service.name} ${index + 1}`,
+            priceRent: account.profilePrice,
+          });
+        }
+        return createdMessage(item);
+      }
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
   async findAll() {
     try {
       return await this.accountRepository.find({
-        relations: ['supplier', 'service'],
+        relations: ['service'],
       });
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
   async findOne(id: number) {
     try {
-      const item = await this.accountRepository.findOne({
+      return await this.accountRepository.findOneOrFail({
         where: { id },
+        relations: ['supplier', 'service', 'profiles'],
       });
-      if (!item) {
-        throw new ErrorManager({
-          type: 'NOT_FOUND',
-          message: 'No se encontró el elemento',
-        });
-      }
-      return item;
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
   async update(id: number, updateAccountDto: UpdateAccountDto) {
     try {
-      const exists = await this.findOne(id);
-      if (exists) {
-        const item = await this.accountRepository.update(id, updateAccountDto);
-        if (item.affected === 0) {
-          throw new ErrorManager({
-            type: 'BAD_REQUEST',
-            message: 'No se pudo actualizar la información',
-          });
-        }
-        return 'Información actualizada exitosamente';
-      }
+      await this.accountRepository.update(id, updateAccountDto);
+      const item = await this.accountRepository.findOneOrFail({
+        where: { id },
+      });
+      return updatedMessage(item);
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
   async remove(id: number) {
     try {
       await this.accountRepository.delete(id);
-      return 'Información eliminada exitosamente';
+      return deletedMessage();
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 }

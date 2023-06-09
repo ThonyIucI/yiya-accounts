@@ -1,8 +1,10 @@
+import { Type } from 'class-transformer';
 import { IAccount } from 'src/interfaces';
 import { BaseModelEntity } from 'src/modules/data/entities/base.entity';
+import { Profile } from 'src/modules/profiles/entities/profile.entity';
 import { Service } from 'src/modules/services/entities/service.entity';
 import { Supplier } from 'src/modules/suppliers/entities/supplier.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 @Entity()
 export class Account extends BaseModelEntity implements IAccount {
   @Column()
@@ -18,15 +20,14 @@ export class Account extends BaseModelEntity implements IAccount {
   purchasePrice: number;
 
   @Column()
-  profilesNumber: number;
-
-  @Column()
   profilePrice: number;
 
-  @Column()
+  @Type(() => Date)
+  @Column('text')
   purchaseDate: Date;
 
-  @Column()
+  @Type(() => Date)
+  @Column('text')
   expirationDate: Date;
 
   @Column({ name: 'supplierId' })
@@ -46,4 +47,9 @@ export class Account extends BaseModelEntity implements IAccount {
   })
   @JoinColumn({ name: 'serviceId' })
   service: Service;
+
+  @OneToMany(() => Profile, (profile) => profile.account, {
+    cascade: ['soft-remove'],
+  })
+  profiles: Profile[];
 }
