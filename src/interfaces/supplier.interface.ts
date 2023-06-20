@@ -4,7 +4,7 @@ import { ModelBase } from './base.interface';
 export interface ISupplier extends ModelBase {
   name: string;
   phone: string;
-  notes: string;
+  notes: string | null;
   // Relations
-  // accounts: IAccount[];
+  accounts?: IAccount[];
 }

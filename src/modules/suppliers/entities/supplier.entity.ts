@@ -4,7 +4,7 @@ import { BaseModelEntity } from 'src/modules/data/entities/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 @Entity()
 export class Supplier extends BaseModelEntity implements ISupplier {
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column({ nullable: true })
