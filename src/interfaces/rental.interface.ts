@@ -1,23 +1,23 @@
 import { ModelBase } from './base.interface';
-import { IClient } from './client.interface';
 import { ICombo } from './combo.interface';
 import { IProfile } from './profile.interface';
 import { IRentalStatus } from './rentalStatus.interface';
+import { IUser } from './user.interface';
 
 export interface IRental extends ModelBase {
-  rentalNumber: string;
-  client?: number | null;
-  combo?: number | null;
+  rentalCode: string;
   priceRent: number;
   rentalDate: Date;
   returnDate: Date;
-  status?: number | null;
+  userId: number;
+  comboId: number | null;
+  statusId: number;
   createdBy: number;
   updatedBy: number;
   deletedBy: number;
   //   Relations
   // rentalStatus: IRentalStatus;
-  // client: IClient;
+  // user?: IUser;
   // profiles?: IProfile[];
   // combo?: ICombo;
 }
