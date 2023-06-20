@@ -10,7 +10,6 @@ import { AccountsModule } from './modules/accounts/accounts.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { CombosModule } from './modules/combos/combos.module';
 import { RentalsModule } from './modules/rentals/rentals.module';
-import { ClientsModule } from './modules/clients/clients.module';
 
 @Module({
   imports: [
@@ -28,7 +27,6 @@ import { ClientsModule } from './modules/clients/clients.module';
     ProfilesModule,
     CombosModule,
     RentalsModule,
-    ClientsModule,
   ],
 })
 export class AppModule {}
