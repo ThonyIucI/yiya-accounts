@@ -7,6 +7,9 @@ export class Service extends BaseModelEntity implements IService {
   @Column({ unique: true })
   name: string;
 
+  @Column()
+  profilesNumber: number;
+
   @Column({ nullable: true })
   logo: string;
 

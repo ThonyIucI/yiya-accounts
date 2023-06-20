@@ -26,13 +26,15 @@ export class AccountsService {
       if (item) {
         const account = await this.findOne(item.id);
         // Crear los respectivos perfiles para cada cuenta
+        const profilesToInsert = [];
         for (let index = 0; index < account.service.profilesNumber; index++) {
-          await this.profileRepository.save({
+          profilesToInsert.push({
             accountId: account.id,
             profileName: `${account.service.name} ${index + 1}`,
             priceRent: account.profilePrice,
           });
         }
+        await this.profileRepository.insert(profilesToInsert);
         return createdMessage(item);
       }
     } catch (error) {
