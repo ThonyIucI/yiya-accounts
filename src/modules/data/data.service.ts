@@ -5,6 +5,18 @@ import { RentalStatus } from './entities/rentalStatus.entity';
 import { Role } from './entities/role.entity';
 import { Service } from '../services/entities/service.entity';
 import { ErrorManager } from 'src/utils/error.manager';
+import {
+  accounts,
+  admins,
+  clients,
+  rentalStatuses,
+  roles,
+  services,
+  suppliers,
+} from './data.seed';
+import { User } from '../users/entities/user.entity';
+import { Supplier } from '../suppliers/entities/supplier.entity';
+import { AccountsService } from '../accounts/accounts.service';
 
 @Injectable()
 export class DataService {
@@ -15,51 +27,42 @@ export class DataService {
     private readonly rentalStatusRepository: Repository<RentalStatus>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Supplier)
+    private readonly supplierRepository: Repository<Supplier>,
+    private readonly accountsService: AccountsService,
   ) {}
-  create() {
+  async create() {
     try {
       // Creating Roles
-      const roles = [{ name: 'admin' }, { name: 'client' }];
-      this.roleRepository.upsert(roles, ['name']);
+      await this.roleRepository.upsert(roles, ['name']);
 
       // Creating rentalStatuses
-      const rentalStatuses = [{ name: 'paid' }, { name: 'pending' }];
-      this.rentalStatusRepository.upsert(rentalStatuses, ['name']);
+      await this.rentalStatusRepository.upsert(rentalStatuses, ['name']);
 
-      const services = [
-        {
-          name: 'Netflix Premium',
-          originalPurchasePrice: 45,
-        },
-        {
-          name: 'HBO',
-          originalPurchasePrice: 26.63,
-        },
-        {
-          name: 'Star+',
-          originalPurchasePrice: 44.9,
-        },
-        {
-          name: 'Disney+',
-          originalPurchasePrice: 44.9,
-        },
-        {
-          name: 'Amazon Prime',
-          originalPurchasePrice: 57.82,
-        },
-        {
-          name: 'Spotify',
-          originalPurchasePrice: 18.9,
-        },
-        {
-          name: 'Youtube Premium',
-          originalPurchasePrice: 20.9,
-        },
-      ];
-      this.serviceRepository.upsert(services, ['name']);
+      // Creating services
+      await this.serviceRepository.upsert(services, ['name']);
+
+      // Creating admins
+      await this.userRepository.upsert(admins, ['email']);
+
+      // Creating clients
+      await this.userRepository.upsert(clients, ['phone']);
+
+      // Creating suppliers
+      await this.supplierRepository.upsert(suppliers, ['name']);
+
+      // Creating accounts
+      await Promise.all(
+        accounts.map(async (account) => {
+          await this.accountsService.create(account);
+        }),
+      );
+
       return 'Data created succesfully';
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
@@ -67,14 +70,21 @@ export class DataService {
     try {
       return this.roleRepository.find();
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
+    }
+  }
+  findAllServices() {
+    try {
+      return this.serviceRepository.find();
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error);
     }
   }
   findAllRentalStatuses() {
     try {
       return this.rentalStatusRepository.find();
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 }

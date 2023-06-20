@@ -9,13 +9,16 @@ export class DataController {
   create() {
     return this.dataService.create();
   }
-
   @Get('roles')
   findAllRoles() {
     return this.dataService.findAllRoles();
   }
-  @Get('roles-statuses')
+  @Get('rental-statuses')
   findAllRentalStatuses() {
     return this.dataService.findAllRentalStatuses();
+  }
+  @Get('services')
+  findAllServices() {
+    return this.dataService.findAllServices();
   }
 }
