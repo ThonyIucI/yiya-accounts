@@ -5,6 +5,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ErrorManager } from 'src/utils/error.manager';
+import {
+  createdMessage,
+  deletedMessage,
+  updatedMessage,
+} from 'src/utils/message.manager';
 
 @Injectable()
 export class UsersService {
@@ -12,29 +17,50 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     try {
       // return createUserDto;
-      const user = this.userRepository.insert(createUserDto);
-      if (user) return 'Usuario creado exitosamente';
+      const item = await this.userRepository.save(createUserDto);
+      if (item) return createdMessage(item);
     } catch (error) {
-      throw ErrorManager.createSignatureError(error.message);
+      throw ErrorManager.createSignatureError(error);
     }
   }
 
   async findAll() {
-    return await this.userRepository.find({ relations: ['role'] });
+    try {
+      return await this.userRepository.find({ relations: ['role'] });
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error);
+    }
+  }
+  async findOne(id: number) {
+    try {
+      return await this.userRepository.findOneOrFail({
+        where: { id },
+        relations: ['rentals', 'role'],
+      });
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      await this.userRepository.update(id, updateUserDto);
+      const item = await this.findOne(id);
+      return updatedMessage(item);
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error);
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    try {
+      await this.userRepository.delete(id);
+      return deletedMessage();
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error);
+    }
   }
 }
