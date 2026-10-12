@@ -60,4 +60,5 @@ Y entras en http://localhost:3010/login.
 ## Más
 
 - [docs/despliegue.md](docs/despliegue.md) — primera vez en Cloudflare y cada deploy.
+- [docs/usuarios.md](docs/usuarios.md) — roles y cómo dar acceso a un cliente.
 - [docs/reemplazo-del-stack.md](docs/reemplazo-del-stack.md) — por qué se dejó Nest/Next y dónde quedó.

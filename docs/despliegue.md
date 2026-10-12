@@ -36,6 +36,11 @@ Si pregunta:
 Copia el `database_id` que imprime y pégalo en `apps/server/wrangler.jsonc`, en lugar de
 `PEGAR_AQUI_EL_DATABASE_ID`. Ese bloque no debe tener `"remote": true`.
 
+Si ya habías levantado la base local antes de pegar el ID, vuelve a correr
+`pnpm db:migrate:local` y el seed del superadmin: la base local se guarda según el
+`database_id`, así que al cambiarlo `pnpm dev` arranca con una base vacía y el login da
+500 (`no such table: user` en la terminal de wrangler).
+
 ### 2. Secrets del Worker
 
 ```bash
@@ -70,6 +75,10 @@ curl -s https://streaming-api.gaiamundo.com/api/v1/health    # 200
 pnpm --filter web exec wrangler pages project create yiya-streaming --production-branch main
 pnpm deploy:web
 ```
+
+`deploy:web` publica con `--branch=main` a propósito: sin eso, wrangler usa el nombre de tu
+rama de git (`master`), y como no es la de producción el deploy queda como *preview* y
+`streaming.gaiamundo.com` muestra «Nothing is here yet».
 
 Si Cloudflare te asigna otro subdominio de `pages.dev` (porque `yiya-streaming` estaba tomado),
 cámbialo en `CORS_ORIGIN` de `apps/server/wrangler.jsonc` y vuelve a correr `pnpm deploy:server`.

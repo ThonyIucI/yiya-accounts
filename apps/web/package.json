@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "deploy:pages": "vite build && wrangler pages deploy dist --project-name=yiya-streaming",
+    "deploy:pages": "vite build && wrangler pages deploy dist --project-name=yiya-streaming --branch=main",
     "serve": "vite preview",
     "start": "vite",
     "check-types": "vite build && tsc --noEmit",

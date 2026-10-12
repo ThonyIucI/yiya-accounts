@@ -11,6 +11,7 @@ import { fail } from "./lib/response";
 import { healthRoutes } from "./routes/health";
 import { internalRoutes } from "./routes/internal";
 import { meRoutes } from "./routes/me";
+import { userRoutes } from "./routes/users";
 
 const AUTH_PATH = "/api/auth";
 const PUBLIC_SIGN_UP_PATH = `${AUTH_PATH}/sign-up/*`;
@@ -46,6 +47,7 @@ app
   .basePath(API_PREFIX)
   .route("/", healthRoutes)
   .route("/", meRoutes)
+  .route("/", userRoutes)
   .route("/", internalRoutes);
 
 app.notFound((context) => fail(context, "Recurso no encontrado.", 404));
