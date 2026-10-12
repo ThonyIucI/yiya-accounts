@@ -1,37 +1,44 @@
 // Configuración del Worker de la API. Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "streaming-api",
-  // Misma cuenta de Cloudflare que electrolitos (la de gaiamundo.com).
-  "account_id": "bf8727310476f9ee0c3f768920d7194a",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-08-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "observability": { "enabled": true },
-  "preview_urls": false,
-  "dev": { "port": 3011 },
-
-  // `wrangler deploy` conecta el subdominio y crea el DNS + certificado solo. Ver docs/despliegue.md.
-  "routes": [{ "pattern": "streaming-api.gaiamundo.com", "custom_domain": true }],
-
-  // Variables NO secretas de producción. En local las pisa `.dev.vars`.
-  "vars": {
-    "BETTER_AUTH_URL": "https://streaming-api.gaiamundo.com",
-    // Orígenes permitidos, separados por coma. Se incluye pages.dev porque Cloudflare
-    // Pages publica ahí antes de que el dominio propio quede conectado. Si al crear el
-    // proyecto Pages te asigna otro subdominio (`yiya-streaming-xxx.pages.dev`), cámbialo acá.
-    "CORS_ORIGIN": "https://streaming.gaiamundo.com,https://yiya-streaming.pages.dev"
-  },
-
-  // Secrets (BETTER_AUTH_SECRET, SEED_TOKEN) se cargan con `wrangler secret put <NOMBRE>`.
-
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "streaming-db",
-      // Sale de `wrangler d1 create streaming-db` (ver docs/despliegue.md, primera vez).
-      "database_id": "PEGAR_AQUI_EL_DATABASE_ID",
-      "migrations_dir": "../../packages/db/src/migrations"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "streaming-api",
+	// Misma cuenta de Cloudflare que electrolitos (la de gaiamundo.com).
+	"account_id": "bf8727310476f9ee0c3f768920d7194a",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true
+	},
+	"preview_urls": false,
+	"dev": {
+		"port": 3011
+	},
+	// `wrangler deploy` conecta el subdominio y crea el DNS + certificado solo. Ver docs/despliegue.md.
+	"routes": [
+		{
+			"pattern": "streaming-api.gaiamundo.com",
+			"custom_domain": true
+		}
+	],
+	// Variables NO secretas de producción. En local las pisa `.dev.vars`.
+	"vars": {
+		"BETTER_AUTH_URL": "https://streaming-api.gaiamundo.com",
+		// Orígenes permitidos, separados por coma. Se incluye pages.dev porque Cloudflare
+		// Pages publica ahí antes de que el dominio propio quede conectado. Si al crear el
+		// proyecto Pages te asigna otro subdominio (`yiya-streaming-xxx.pages.dev`), cámbialo acá.
+		"CORS_ORIGIN": "https://streaming.gaiamundo.com,https://yiya-streaming.pages.dev"
+	},
+	// Secrets (BETTER_AUTH_SECRET, SEED_TOKEN) se cargan con `wrangler secret put <NOMBRE>`.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "streaming-db",
+			// Sale de `wrangler d1 create streaming-db` (ver docs/despliegue.md, primera vez).
+			"database_id": "166b936a-1e70-4729-8f10-94aa6b77ed7e",
+			"migrations_dir": "../../packages/db/src/migrations"
+		}
+	]
 }

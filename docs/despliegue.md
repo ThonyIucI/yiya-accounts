@@ -25,8 +25,16 @@ Todo desde la raíz del repo, con `wrangler login` ya hecho (lo hiciste para ele
 pnpm --filter server exec wrangler d1 create streaming-db
 ```
 
+Si pregunta:
+
+- *«For local dev, do you want to connect to the remote resource…?»* → **N**. Con `N` el
+  desarrollo local usa su propia base en `apps/server/.wrangler/`, separada de producción.
+  Con `y` tu `pnpm dev` escribiría en la base real.
+- *«Would you like Wrangler to add it on your behalf?»* → **N**. El bloque `d1_databases` ya
+  existe; si dices que sí agrega uno duplicado.
+
 Copia el `database_id` que imprime y pégalo en `apps/server/wrangler.jsonc`, en lugar de
-`PEGAR_AQUI_EL_DATABASE_ID`.
+`PEGAR_AQUI_EL_DATABASE_ID`. Ese bloque no debe tener `"remote": true`.
 
 ### 2. Secrets del Worker
 
@@ -112,8 +120,16 @@ curl -s https://streaming-api.gaiamundo.com/api/v1/me        # 401 si está al d
 
 ## Respaldo de la base
 
-D1 guarda 7 días de historial (Time Travel) en el plan gratis. Antes de una migración que
-borre o renombre columnas, además:
+Los datos **no caducan**. Lo que dura 7 días (plan gratis) es **Time Travel**: poder volver
+la base entera a como estaba en cualquier momento de esa semana. Más atrás, ya no se puede.
+
+```bash
+# Volver la base a como estaba en una fecha/hora (UTC) de los últimos 7 días
+pnpm --filter server exec wrangler d1 time-travel restore streaming-db --timestamp=2026-10-12T15:00:00Z
+```
+
+Antes de una migración que borre o renombre columnas, además guarda una copia propia, que
+no vence:
 
 ```bash
 pnpm --filter server db:backup     # deja backup.sql
