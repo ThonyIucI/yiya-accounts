@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, isNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty } from 'class-validator';
 
 export class CreateRentalDto {
   @IsNotEmpty({ message: 'El cliente es requerido' })

@@ -29,7 +29,7 @@ export class UsersService {
 
   async findAll() {
     try {
-      return await this.userRepository.find({ relations: ['role'] });
+      return await this.userRepository.find({ relations: ['rentals'] });
     } catch (error) {
       throw ErrorManager.createSignatureError(error);
     }
