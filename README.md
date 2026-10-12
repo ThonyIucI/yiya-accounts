@@ -59,6 +59,8 @@ Y entras en http://localhost:3010/login.
 
 ## Más
 
-- [docs/despliegue.md](docs/despliegue.md) — primera vez en Cloudflare y cada deploy.
-- [docs/usuarios.md](docs/usuarios.md) — roles y cómo dar acceso a un cliente.
-- [docs/reemplazo-del-stack.md](docs/reemplazo-del-stack.md) — por qué se dejó Nest/Next y dónde quedó.
+Toda la documentación está en [docs/](docs/README.md), separada en negocio, diseño y técnico:
+
+- [Despliegue](docs/tecnico/despliegue.md): primera vez en Cloudflare y cada deploy.
+- [Negocios y usuarios](docs/negocio/negocios-y-usuarios.md): roles y cómo dar acceso a un cliente.
+- [Hoja de ruta](docs/negocio/hoja-de-ruta.md): qué está hecho y qué sigue.

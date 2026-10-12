@@ -1,4 +1,12 @@
-# Reemplazo del stack (2026-10)
+# Stack: por qué y cómo se reemplazó (2026-10)
+
+## Decisión (2026-10-11, no reabrir)
+
+- Mismo stack y flujo de deploy que `~/own/amautas/electrolitos`, del que se copió la base.
+- Monorepo pnpm: `apps/web` (Vite + React 19 + TanStack Router + Tailwind v4 + shadcn) y
+  `apps/server` (Hono + Drizzle + better-auth). Paquetes `@yiya/{shared,db,auth,env,ui,config}`.
+- Cloudflare Workers + D1 (API) y Pages (web), plan gratis, misma cuenta que electrolitos.
+- Sin Nest, sin repositorios abstractos, sin CQRS: ruta → handler → query Drizzle.
 
 ## Qué cambió
 

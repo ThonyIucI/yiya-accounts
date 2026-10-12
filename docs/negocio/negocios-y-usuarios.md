@@ -5,7 +5,7 @@ su correo y su contraseña.
 
 | Rol de plataforma (`user.role`) | Quién | Qué ve |
 |---|---|---|
-| `SUPERADMIN` | Tú. Se crea con `seed-superadmin` (ver [despliegue.md](despliegue.md)) | Panel, **Negocios**, **Usuarios** |
+| `SUPERADMIN` | Tú. Se crea con `seed-superadmin` (ver [despliegue](../tecnico/despliegue.md)) | Panel, **Negocios**, **Usuarios** |
 | `USER` | El dueño (o, más adelante, ayudante) de un negocio | Panel de su negocio |
 
 El rol **dentro** del negocio va en la membresía: `OWNER` (dueño) o `HELPER` (ayudante, aún
