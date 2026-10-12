@@ -1,7 +1,9 @@
 import { createDb } from "@yiya/db";
 import { user } from "@yiya/db/schema/auth";
+import { service } from "@yiya/db/schema/services";
 import { env } from "@yiya/env/server";
 import { EUserRole } from "@yiya/shared/roles";
+import { toServiceNameKey } from "@yiya/shared/services";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
@@ -9,11 +11,14 @@ import { z } from "zod";
 
 import type { TAppEnv } from "../lib/app-env";
 import { forbidden } from "../lib/errors";
+import { newId } from "../lib/ids";
 import { ok } from "../lib/response";
+import { INITIAL_SERVICE_CATALOG } from "../lib/service-catalog";
 import { validateJson } from "../lib/validator";
 
 export const INTERNAL_ROUTES = {
   SEED_SUPERADMIN: "/internal/seed-superadmin",
+  SEED_SERVICES: "/internal/seed-services",
 } as const;
 
 const SEED_TOKEN_HEADER = "x-seed-token";
@@ -41,23 +46,57 @@ const requireSeedToken = createMiddleware(async (context, next) => {
   await next();
 });
 
-export const internalRoutes = new Hono<TAppEnv>().post(
-  INTERNAL_ROUTES.SEED_SUPERADMIN,
-  requireSeedToken,
-  validateJson(seedSuperadminSchema),
-  async (context) => {
-    const { email, password, name } = context.req.valid("json");
+export const internalRoutes = new Hono<TAppEnv>()
+  .post(
+    INTERNAL_ROUTES.SEED_SUPERADMIN,
+    requireSeedToken,
+    validateJson(seedSuperadminSchema),
+    async (context) => {
+      const { email, password, name } = context.req.valid("json");
+      const db = createDb();
+      const auth = context.var.auth;
+
+      const existing = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.email, email))
+        .get();
+
+      const userId = existing
+        ? existing.id
+        : (await auth.api.signUpEmail({ body: { email, password, name } })).user.id;
+
+      await db.update(user).set({ role: EUserRole.SUPERADMIN }).where(eq(user.id, userId));
+
+      return ok(
+        context,
+        { id: userId, email, role: EUserRole.SUPERADMIN, created: !existing },
+        201,
+      );
+    },
+  )
+
+  /**
+   * Carga el catálogo inicial de servicios. Idempotente: los que ya existen (por nombre, sin
+   * importar mayúsculas) se saltan, así que correrlo dos veces no duplica nada.
+   *
+   * Uso:  curl -X POST <api>/api/v1/internal/seed-services -H "x-seed-token: $SEED_TOKEN"
+   */
+  .post(INTERNAL_ROUTES.SEED_SERVICES, requireSeedToken, async (context) => {
     const db = createDb();
-    const auth = context.var.auth;
 
-    const existing = await db.select({ id: user.id }).from(user).where(eq(user.email, email)).get();
+    const created = await db
+      .insert(service)
+      .values(
+        INITIAL_SERVICE_CATALOG.map((item) => ({
+          id: newId(),
+          name: item.name,
+          nameKey: toServiceNameKey(item.name),
+          profilesPerAccount: item.profilesPerAccount,
+        })),
+      )
+      .onConflictDoNothing({ target: service.nameKey })
+      .returning({ name: service.name });
 
-    const userId = existing
-      ? existing.id
-      : (await auth.api.signUpEmail({ body: { email, password, name } })).user.id;
-
-    await db.update(user).set({ role: EUserRole.SUPERADMIN }).where(eq(user.id, userId));
-
-    return ok(context, { id: userId, email, role: EUserRole.SUPERADMIN, created: !existing }, 201);
-  },
-);
+    return ok(context, { created: created.map((item) => item.name) }, 201);
+  });

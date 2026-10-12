@@ -164,7 +164,9 @@ user (better-auth)
 - Los precios se redondean a 2 decimales al guardar. Las sumas (ganancia, paso 5) se
   redondean a 2 decimales al mostrarse.
 - `service_id` usa `restrict`: un servicio con precios no se puede borrar.
-- La unicidad de `name` sin mayúsculas va con un índice sobre `lower(name)`.
+- La unicidad del nombre va en una columna `name_key` (`toServiceNameKey`: sin mayúsculas
+  ni espacios dobles o en los bordes) con índice único. Así el seed puede usar
+  `onConflictDoNothing`.
 - `active_business_id` va en `user` y no lo conoce better-auth: solo lo lee
   `requireBusiness` y solo lo cambia el endpoint de la sección 7. No lleva FK porque el
   esquema de negocios importa el de auth; si el negocio ya no existe, se cae al primero.
@@ -253,13 +255,12 @@ Copia el catálogo de cultivos del saas (`~/own/saas/front/src/modules/admin-con
 
 **Card de celular** (referencia: productos de id-pos):
 
-- **Arriba:** switch, imagen y nombre a la izquierda; `⋯` con «Editar» a la derecha (solo
-  el superadmin).
-- **Medio:** «5 perfiles por cuenta».
-- **Abajo, lado a lado:** «Compra (cuenta)» y «Venta (perfil/mes)», con prefijo `S/` y
+- **Arriba:** imagen, nombre y «5 perfiles por cuenta» a la izquierda; a la derecha el
+  switch y `⋯` con «Editar» (solo el superadmin). Es el mismo orden que la card de Negocios.
+- **Medio, lado a lado:** «Compra (cuenta)» y «Venta (perfil/mes)», con prefijo `S/` y
   teclado decimal (`inputMode="decimal"`).
-- **Pie:** «Cuenta llena: S/ 37.50 · ganancia S/ 17.50», o «Pon los dos precios para
-  activarlo».
+- **Pie:** «Cuenta llena: S/ 37.50 · ganancia S/ 17.50» (o «Pon los dos precios para
+  activarlo»), «Activo en N negocios» para el superadmin, y el estado en texto.
 
 **Tabla de escritorio:** Servicio · Perfiles · Compra · Venta · Ganancia por cuenta · Activo ·
 acciones. Los precios son campos editables en la celda.

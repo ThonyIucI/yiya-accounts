@@ -16,6 +16,7 @@ import { businessRoutes } from "./routes/businesses";
 import { healthRoutes } from "./routes/health";
 import { internalRoutes } from "./routes/internal";
 import { meRoutes } from "./routes/me";
+import { serviceRoutes } from "./routes/services";
 import { userRoutes } from "./routes/users";
 
 const AUTH_PATH = "/api/auth";
@@ -60,6 +61,7 @@ app
   .route("/", meRoutes)
   .route("/", userRoutes)
   .route("/", businessRoutes)
+  .route("/", serviceRoutes)
   .route("/", internalRoutes);
 
 app.notFound((context) => fail(context, "Recurso no encontrado.", 404));

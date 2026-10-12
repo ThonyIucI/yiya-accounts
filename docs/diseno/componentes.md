@@ -32,6 +32,26 @@ que lo justifiquen.
 - **En celular**, un panel que se abre desde el borde. **En escritorio**, fijo a la
   izquierda.
 
+## Listados largos: buscador y paginado (acordado 2026-10-12)
+
+Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referencia en Yiya:
+`routes/_app/servicios.tsx`.
+
+- Buscador (`SearchInput`) dentro de `StickyToolbar`: al bajar se pega bajo el encabezado y
+  se vuelve vidrio con sombra.
+- `ResultsCounter` («Mostrando 1–10 de 24») arriba de la lista.
+- `ListPagination` con filas por página (10, 20, 50): dentro de la card de la tabla en
+  escritorio, en su propia barra con sombra en celular.
+- Paginado en el front con `usePagination` mientras la lista sea chica.
+
+## Datos editables en la fila (acordado 2026-10-12)
+
+- Un dato que se cambia seguido, como un precio, se edita **ahí mismo** en la card o en la
+  fila, sin abrir una modal (`modules/services/components/price-field.tsx`).
+- Se guarda al salir del campo o con Enter, y con Escape se descarta. El error queda debajo
+  y el campo vuelve al valor guardado.
+- Si el switch necesita datos que faltan, no llama al server: marca el campo que falta.
+
 ## Modal (`common/components/modal.tsx`)
 
 - Hoja inferior en celular, tarjeta centrada en escritorio. Una sola superficie.

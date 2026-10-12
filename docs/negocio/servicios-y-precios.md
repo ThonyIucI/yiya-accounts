@@ -1,0 +1,36 @@
+# Servicios y precios
+
+Acordado el 2026-10-12. El detalle de lo que se construyó está en la
+[ERS del paso 2](../planes/02-servicios-y-precios.md).
+
+## Reglas
+
+- **El catálogo es global** y lo mantiene el superadmin: nombre, perfiles por cuenta y link
+  de imagen (un PNG alojado afuera, opcional). Un negocio no crea servicios: los pide.
+- **Crear un servicio no lo activa en ningún negocio.** Cada negocio activa los que trabaja.
+- **Dos precios por servicio y negocio**, en soles con dos decimales:
+
+  | Precio | Qué es | Ejemplo |
+  |---|---|---|
+  | Compra | Lo que le cuesta **una cuenta** al negocio | S/ 20.00 |
+  | Venta | A cuánto alquila **un perfil por un mes** | S/ 7.50 |
+
+- **Sin los dos precios no se activa**, y a un servicio activo no se le puede borrar un
+  precio. Desactivar no borra los precios.
+- **Solo se venden perfiles**, nunca cuentas completas.
+- Perfiles por cuenta: entero desde 1, sin tope. Es el valor por defecto para las cuentas.
+- Cambiar un precio vale para lo que se registre después; lo ya alquilado no cambia.
+
+## Quién hace qué en **Servicios**
+
+| | Superadmin | Dueño |
+|---|---|---|
+| Crear y editar servicios | Sí | No |
+| Activar y poner precios | En el negocio elegido en su menú lateral | En su negocio |
+| Ve en cuántos negocios está activo cada uno | Sí | No |
+
+## Pendiente con el cliente
+
+- Confirmar el catálogo inicial y cuántos perfiles vende de verdad por cuenta.
+- Si el precio de compra cambia según el proveedor (lo resolvemos en el paso 3).
+- Promociones y planes de 3, 6 y 12 meses: paso 4 ([alquileres](alquileres.md)).

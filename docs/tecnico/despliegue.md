@@ -101,6 +101,16 @@ curl -X POST https://streaming-api.gaiamundo.com/api/v1/internal/seed-superadmin
 
 Es idempotente: si ya existe, no crea otro.
 
+### 6. Cargar el catálogo inicial de servicios
+
+```bash
+curl -X POST https://streaming-api.gaiamundo.com/api/v1/internal/seed-services \
+  -H "x-seed-token: $SEED_TOKEN"
+```
+
+Carga los servicios de `apps/server/src/lib/service-catalog.ts`. También es idempotente:
+los que ya existen (por nombre) se saltan. Las imágenes se pegan después en **Servicios**.
+
 ---
 
 ## Cada despliegue
