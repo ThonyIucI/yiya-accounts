@@ -1,73 +1,62 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Yiya Accounts
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Plataforma para negocios de **alquiler de perfiles de cuentas de streaming** (Netflix,
+Disney+…): inventario de cuentas, perfiles libres/alquilados, clientes y vencimientos.
+Multi-negocio: cada negocio ve solo sus datos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+| | Local | Producción |
+|---|---|---|
+| Front | http://localhost:3010 | https://streaming.gaiamundo.com |
+| API | http://localhost:3011 | https://streaming-api.gaiamundo.com |
 
-## Description
+Puertos distintos a electrolitos (3008/3009) para poder correr los dos a la vez.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Stack
 
-## Installation
+| Parte | Tecnología | Dónde corre |
+|---|---|---|
+| `apps/web` | Vite + React 19 + TanStack Router + Tailwind v4 + shadcn | Cloudflare Pages |
+| `apps/server` | Hono + Drizzle + better-auth | Cloudflare Workers |
+| Base de datos | Cloudflare D1 (SQLite) | Cloudflare |
+| `packages/shared` | Enums, tipos de API y utilidades compartidas back/front | — |
+| `packages/db` | Schema Drizzle + migraciones generadas | — |
+| `packages/auth` | Configuración de better-auth | — |
+| `packages/ui` | Primitivas shadcn compartidas y `globals.css` (tokens) | — |
 
-```bash
-$ npm install
-```
+Requiere **Node 24** (`nvm use 24`) y **pnpm 12**.
 
-## Running the app
+## Levantar en local
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+nvm use 24
+pnpm install
+cp apps/server/.dev.vars.example apps/server/.dev.vars
+pnpm db:generate           # solo si cambió el schema (genera SQL en packages/db/src/migrations)
+pnpm db:migrate:local      # crea/actualiza las tablas de la base local. Idempotente
+pnpm dev                   # front 3010 · API 3011
 ```
 
-## Test
+Crear tu usuario (superadmin) en la base local:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+curl -X POST localhost:3011/api/v1/internal/seed-superadmin \
+  -H "x-seed-token: seed-local-dev-token" -H "content-type: application/json" \
+  -d '{"email":"admin@gmail.com","password":"admin123","name":"Thony"}'
 ```
 
-## Support
+Y entras en http://localhost:3010/login.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Comandos
 
-## Stay in touch
+| Qué | Comando |
+|---|---|
+| Front + API | `pnpm dev` |
+| Tests de la API | `pnpm test` |
+| Tipos | `pnpm check-types` |
+| Generar migración | `pnpm db:generate` |
+| Migrar local / producción | `pnpm db:migrate:local` / `pnpm db:migrate:remote` |
+| Deploy API / front | `pnpm deploy:server` / `pnpm deploy:web` |
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Más
 
-## License
-
-Nest is [MIT licensed](LICENSE).
+- [docs/despliegue.md](docs/despliegue.md) — primera vez en Cloudflare y cada deploy.

@@ -1,0 +1,8 @@
+{
+  "extends": "@yiya/config/tsconfig.base.json",
+  "compilerOptions": {
+    "types": [],
+    "noEmit": true
+  },
+  "include": ["src"]
+}

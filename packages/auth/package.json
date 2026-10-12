@@ -1,0 +1,24 @@
+{
+  "name": "@yiya/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@yiya/db": "workspace:*",
+    "@yiya/env": "workspace:*",
+    "@yiya/shared": "workspace:*",
+    "better-auth": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@yiya/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

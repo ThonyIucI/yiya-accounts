@@ -1,0 +1,26 @@
+{
+  "name": "@yiya/db",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@yiya/env": "workspace:*",
+    "@yiya/shared": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@yiya/config": "workspace:*",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "catalog:"
+  }
+}

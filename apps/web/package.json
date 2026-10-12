@@ -1,0 +1,50 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "deploy:pages": "vite build && wrangler pages deploy dist --project-name=yiya-streaming",
+    "serve": "vite preview",
+    "start": "vite",
+    "check-types": "vite build && tsc --noEmit",
+    "generate-pwa-assets": "pwa-assets-generator",
+    "dev": "sh ../../scripts/free-port.sh 3010 && vite dev",
+    "dev:bare": "vite dev"
+  },
+  "dependencies": {
+    "@yiya/env": "workspace:*",
+    "@yiya/shared": "workspace:*",
+    "@yiya/ui": "workspace:*",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-form": "^1.33.2",
+    "@tanstack/react-router": "^1.170.18",
+    "better-auth": "catalog:",
+    "dayjs": "catalog:",
+    "dotenv": "catalog:",
+    "lucide-react": "catalog:",
+    "motion": "catalog:",
+    "next-themes": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sonner": "catalog:",
+    "vite-plugin-pwa": "^1.3.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@yiya/config": "workspace:*",
+    "@tanstack/react-router-devtools": "^1.167.0",
+    "@tanstack/router-plugin": "^1.168.23",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "@vitejs/plugin-react": "^6.0.4",
+    "postcss": "^8.5.24",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "^8.1.5",
+    "wrangler": "^4.129.1"
+  }
+}

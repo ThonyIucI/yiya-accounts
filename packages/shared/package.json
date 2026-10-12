@@ -1,0 +1,16 @@
+{
+  "name": "@yiya/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@yiya/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

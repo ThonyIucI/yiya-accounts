@@ -1,0 +1,250 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@source "../../../apps/**/*.{ts,tsx}";
+@source "../**/*.{ts,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  PENDIENTE: estos tokens vienen tal cual de electrolitos (Amautas) como punto de partida.
+  Yiya todavía no tiene identidad visual propia: se reemplazan cuando se defina.
+
+  Tokens del design system de Amautas (planning/DESIGN_SYSTEM.md).
+  Paleta tomada del logo: la chakana de cuatro cuadrantes — verde #007A2C, ámbar #F8B000,
+  rojo #F5001E, azul #0066F5 — sobre el azul marino del lettering (#001848).
+  Los valores viven SOLO aquí: los componentes consumen bg-primary, text-spark, etc.
+  Nunca escribir hex en un componente. Todos los pares verificados en contraste AA.
+*/
+
+:root {
+  /* Papel frío, del blanco sobre el que vive el logo */
+  --background: oklch(0.9787 0.0057 264.53);
+  --foreground: oklch(0.2285 0.0954 260.42);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2285 0.0954 260.42);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2285 0.0954 260.42);
+
+  /* Azul del cuadrante inferior derecho: acciones */
+  --primary: oklch(0.5549 0.2286 260.18);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.9447 0.0262 264.44);
+  --secondary-foreground: oklch(0.4416 0.1877 261.76);
+
+  --muted: oklch(0.9574 0.0116 264.51);
+  --muted-foreground: oklch(0.508 0.0628 269.54);
+  --accent: oklch(0.9547 0.0199 267.29);
+  --accent-foreground: oklch(0.2285 0.0954 260.42);
+
+  /* Chispa (ámbar del logo), Circuito (verde), Señal, Cortocircuito */
+  --spark: oklch(0.8046 0.1671 79.02);
+  --spark-foreground: oklch(0.2418 0.0497 83.05);
+  --success: oklch(0.5051 0.1481 147.5);
+  --success-foreground: oklch(1 0 0);
+  --info: oklch(0.5384 0.0912 210.81);
+  --info-foreground: oklch(1 0 0);
+  /* Un punto más oscuro que el rojo del logo para llegar a AA con texto blanco */
+  --destructive: oklch(0.5708 0.2319 25.85);
+  --destructive-foreground: oklch(1 0 0);
+
+  --border: oklch(0.9054 0.0235 264.45);
+  --input: oklch(0.9054 0.0235 264.45);
+  --ring: oklch(0.5549 0.2286 260.18);
+
+  --radius: 1rem;
+
+  /* Sombra "sticker": borde inferior duro, sensación de pieza física */
+  --shadow-sticker: 0 2px 0 oklch(0.23 0.095 260 / 0.16);
+  --shadow-sticker-md: 0 6px 16px oklch(0.23 0.095 260 / 0.16);
+
+  /*
+    Casas = los cuatro cuadrantes de la chakana, en su color exacto del logo.
+    Son dato de identidad: no se re-tematizan en dark ni se ajustan por contraste
+    (siempre van con ícono + nombre, nunca color a secas).
+  */
+  --house-green: oklch(0.5051 0.1481 147.5);
+  --house-yellow: oklch(0.8046 0.1671 79.02);
+  --house-red: oklch(0.6103 0.2485 26.72);
+  --house-blue: oklch(0.5549 0.2286 260.18);
+  --house-purple: oklch(0.6056 0.2189 292.72);
+  --house-orange: oklch(0.7049 0.1867 47.6);
+
+  /* Niveles: dato */
+  --level-recluta: oklch(0.6765 0.0469 266.7);
+  --level-tecnico: oklch(0.8276 0.1013 230.32);
+  --level-ingeniero: oklch(0.8046 0.1671 79.02);
+  --level-jefe: oklch(0.709 0.1592 293.54);
+
+  --chart-1: var(--house-blue);
+  --chart-2: var(--house-green);
+  --chart-3: var(--house-yellow);
+  --chart-4: var(--house-red);
+  --chart-5: var(--house-purple);
+
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.2285 0.0954 260.42);
+  --sidebar-primary: oklch(0.5549 0.2286 260.18);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9547 0.0199 267.29);
+  --sidebar-accent-foreground: oklch(0.2285 0.0954 260.42);
+  --sidebar-border: oklch(0.9054 0.0235 264.45);
+  --sidebar-ring: oklch(0.5549 0.2286 260.18);
+}
+
+.dark {
+  /* Noche azul marino, del lettering del logo llevado a fondo */
+  --background: oklch(0.1942 0.057 263.55);
+  --foreground: oklch(0.9432 0.0154 269.98);
+  --card: oklch(0.2502 0.0747 264.45);
+  --card-foreground: oklch(0.9432 0.0154 269.98);
+  --popover: oklch(0.2502 0.0747 264.45);
+  --popover-foreground: oklch(0.9432 0.0154 269.98);
+
+  --primary: oklch(0.7236 0.1443 258.39);
+  --primary-foreground: oklch(0.188 0.0538 262.35);
+  --secondary: oklch(0.3016 0.0823 262.86);
+  --secondary-foreground: oklch(0.8822 0.0571 266.64);
+
+  --muted: oklch(0.2312 0.0664 264.5);
+  --muted-foreground: oklch(0.7518 0.0436 268.92);
+  --accent: oklch(0.315 0.0845 264.13);
+  --accent-foreground: oklch(0.9432 0.0154 269.98);
+
+  --spark: oklch(0.8474 0.161 83.38);
+  --spark-foreground: oklch(0.2418 0.0497 83.05);
+  --success: oklch(0.8003 0.1821 151.71);
+  --success-foreground: oklch(0.2235 0.0515 152.48);
+  --info: oklch(0.8247 0.1052 206.9);
+  --info-foreground: oklch(0.2634 0.042 213.19);
+  --destructive: oklch(0.7638 0.1417 15.59);
+  --destructive-foreground: oklch(0.1874 0.0658 17.33);
+
+  --border: oklch(1 0 0 / 14%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.7236 0.1443 258.39);
+
+  --shadow-sticker: 0 2px 0 oklch(0 0 0 / 0.45);
+  --shadow-sticker-md: 0 6px 18px oklch(0 0 0 / 0.5);
+
+  --sidebar: oklch(0.2502 0.0747 264.45);
+  --sidebar-foreground: oklch(0.9432 0.0154 269.98);
+  --sidebar-primary: oklch(0.7236 0.1443 258.39);
+  --sidebar-primary-foreground: oklch(0.188 0.0538 262.35);
+  --sidebar-accent: oklch(0.315 0.0845 264.13);
+  --sidebar-accent-foreground: oklch(0.9432 0.0154 269.98);
+  --sidebar-border: oklch(1 0 0 / 14%);
+  --sidebar-ring: oklch(0.7236 0.1443 258.39);
+}
+
+@theme inline {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Baloo 2", "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "Geist Mono", "SFMono-Regular", monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-spark: var(--spark);
+  --color-spark-foreground: var(--spark-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-house-red: var(--house-red);
+  --color-house-blue: var(--house-blue);
+  --color-house-green: var(--house-green);
+  --color-house-yellow: var(--house-yellow);
+  --color-house-purple: var(--house-purple);
+  --color-house-orange: var(--house-orange);
+
+  --color-level-recluta: var(--level-recluta);
+  --color-level-tecnico: var(--level-tecnico);
+  --color-level-ingeniero: var(--level-ingeniero);
+  --color-level-jefe: var(--level-jefe);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-sticker: var(--shadow-sticker);
+  --shadow-sticker-md: var(--shadow-sticker-md);
+
+  /* Cinta de pastillas de la portada: media vuelta y repite, con la lista duplicada. */
+  --animate-marquee: marquee 26s linear infinite;
+
+  /*
+    Escala exclusiva de la portada pública (`/`). El resto de la app mantiene body 18 px:
+    la portada la leen apoderados en una sola pasada, la app la usan los chicos en clase.
+  */
+  --text-landing-body: 0.875rem;
+  --text-landing-body--line-height: 1.6;
+  --text-landing-title: 1rem;
+  --text-landing-title--line-height: 1.4;
+  --text-landing-display: 1.25rem;
+  --text-landing-display--line-height: 1.25;
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+  --radius-4xl: calc(var(--radius) + 24px);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    /* Body 18 px y nunca peso 300: se lee en un celular barato y a contraluz. */
+    @apply bg-background font-sans text-lg font-medium text-foreground antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading font-bold;
+  }
+}
