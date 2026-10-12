@@ -11,12 +11,9 @@ interface IServiceProfitProps {
 export default function ServiceProfit({ service, className }: IServiceProfitProps) {
   const result = fullAccountProfit(service);
 
+  /* Sin los dos precios no hay nada que mostrar: los campos vacíos ya lo dicen. */
   if (!result) {
-    return (
-      <p className={cn("text-sm text-muted-foreground", className)}>
-        Pon los dos precios para activarlo
-      </p>
-    );
+    return null;
   }
 
   return (

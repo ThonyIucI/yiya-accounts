@@ -11,8 +11,6 @@ import {
 import type { ReactNode } from "react";
 
 import RowActions from "@/common/components/row-actions";
-import StatusBadge from "@/common/components/status-badge";
-import { useActivationGuard } from "@/modules/services/hooks/use-activation-guard";
 import {
   type IServiceListHandlers,
   type IServiceRow,
@@ -50,7 +48,7 @@ export default function ServiceTable({ services, isLoading, footer, ...handlers 
                 <TableHead className="w-36">{PRICE_LABELS.purchasePrice}</TableHead>
                 <TableHead className="w-36">{PRICE_LABELS.profilePrice}</TableHead>
                 <TableHead>Ganancia por cuenta</TableHead>
-                <TableHead className="text-center">Estado</TableHead>
+                <TableHead className="text-center">Activo</TableHead>
               </>
             )}
             {isSuperadmin && (
@@ -95,8 +93,6 @@ function ServiceTableRow({
   onToggleActive,
   onSavePrice,
 }: IServiceTableRowProps) {
-  const guard = useActivationGuard(service, (isActive) => onToggleActive(service, isActive));
-
   return (
     <TableRow>
       <TableCell>
@@ -111,40 +107,40 @@ function ServiceTableRow({
 
       {canManageBusiness && (
         <>
+          {/* Los precios se editan solo con el servicio activo; se ponen al activarlo (modal). */}
           <TableCell className="align-top">
-            <PriceField
-              id={`purchase-${service.id}`}
-              label={`${PRICE_LABELS.purchasePrice} de ${service.name}`}
-              value={service.purchasePrice}
-              isRequired={service.isActive}
-              hint={guard.purchaseHint}
-              isCompact
-              onSave={(value) => onSavePrice(service, "purchasePrice", value)}
-            />
+            {service.isActive && (
+              <PriceField
+                id={`purchase-${service.id}`}
+                label={`${PRICE_LABELS.purchasePrice} de ${service.name}`}
+                value={service.purchasePrice}
+                isRequired
+                isCompact
+                onSave={(value) => onSavePrice(service, "purchasePrice", value)}
+              />
+            )}
           </TableCell>
           <TableCell className="align-top">
-            <PriceField
-              id={`profile-${service.id}`}
-              label={`${PRICE_LABELS.profilePrice} de ${service.name}`}
-              value={service.profilePrice}
-              isRequired={service.isActive}
-              hint={guard.profileHint}
-              isCompact
-              onSave={(value) => onSavePrice(service, "profilePrice", value)}
-            />
+            {service.isActive && (
+              <PriceField
+                id={`profile-${service.id}`}
+                label={`${PRICE_LABELS.profilePrice} de ${service.name}`}
+                value={service.profilePrice}
+                isRequired
+                isCompact
+                onSave={(value) => onSavePrice(service, "profilePrice", value)}
+              />
+            )}
           </TableCell>
+          <TableCell>{service.isActive && <ServiceProfit service={service} />}</TableCell>
           <TableCell>
-            <ServiceProfit service={service} />
-          </TableCell>
-          <TableCell>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex justify-center">
               <Switch
                 checked={service.isActive}
                 disabled={togglingId === service.id}
                 aria-label={service.isActive ? `Desactivar ${service.name}` : `Activar ${service.name}`}
-                onCheckedChange={guard.handleToggle}
+                onCheckedChange={(isActive) => onToggleActive(service, isActive)}
               />
-              <StatusBadge isActive={service.isActive} />
             </div>
           </TableCell>
         </>

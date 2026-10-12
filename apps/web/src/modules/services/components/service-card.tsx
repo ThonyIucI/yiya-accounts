@@ -1,9 +1,8 @@
 import { Skeleton } from "@yiya/ui/components/skeleton";
 import { Switch } from "@yiya/ui/components/switch";
+import { fullAccountProfit } from "@yiya/shared/services";
 
 import RowActions from "@/common/components/row-actions";
-import StatusBadge from "@/common/components/status-badge";
-import { useActivationGuard } from "@/modules/services/hooks/use-activation-guard";
 import {
   type IServiceListHandlers,
   type IServiceRow,
@@ -21,8 +20,8 @@ interface IServiceCardProps extends IServiceListHandlers {
 
 /**
  * Card de listado en celular (referencia: productos de id-pos). Arriba la identidad y, a la
- * derecha, el switch y el menú; en el medio los dos precios editables; abajo lo que deja
- * una cuenta llena y el estado.
+ * derecha, el switch (que ya dice si está activo) y el menú. Solo si está activo: los dos
+ * precios editables y lo que deja una cuenta llena. Desactivado, la card queda compacta.
  */
 export default function ServiceCard({
   service,
@@ -33,8 +32,10 @@ export default function ServiceCard({
   onToggleActive,
   onSavePrice,
 }: IServiceCardProps) {
-  const guard = useActivationGuard(service, (isActive) => onToggleActive(service, isActive));
   const actions = buildActions(service);
+  const showPrices = canManageBusiness && service.isActive;
+  const hasProfit = showPrices && fullAccountProfit(service) !== null;
+  const hasActiveCount = isSuperadmin && service.activeInCount !== undefined;
 
   return (
     <article className="rounded-2xl bg-card p-4 shadow-card">
@@ -55,45 +56,44 @@ export default function ServiceCard({
               checked={service.isActive}
               disabled={togglingId === service.id}
               aria-label={service.isActive ? `Desactivar ${service.name}` : `Activar ${service.name}`}
-              onCheckedChange={guard.handleToggle}
+              onCheckedChange={(isActive) => onToggleActive(service, isActive)}
             />
           )}
           {actions.length > 0 && <RowActions actions={actions} />}
         </div>
       </div>
 
-      {canManageBusiness && (
+      {/* Los precios se editan solo con el servicio activo; se ponen al activarlo (modal). */}
+      {showPrices && (
         <div className="mt-4 grid grid-cols-2 gap-3">
           <PriceField
             id={`purchase-${service.id}`}
             label={PRICE_LABELS.purchasePrice}
             value={service.purchasePrice}
-            isRequired={service.isActive}
-            hint={guard.purchaseHint}
+            isRequired
             onSave={(value) => onSavePrice(service, "purchasePrice", value)}
           />
           <PriceField
             id={`profile-${service.id}`}
             label={PRICE_LABELS.profilePrice}
             value={service.profilePrice}
-            isRequired={service.isActive}
-            hint={guard.profileHint}
+            isRequired
             onSave={(value) => onSavePrice(service, "profilePrice", value)}
           />
         </div>
       )}
 
-      <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
-        <div className="min-w-0 space-y-0.5">
-          {canManageBusiness && <ServiceProfit service={service} />}
-          {isSuperadmin && service.activeInCount !== undefined && (
+      {/* El pie solo aparece si tiene algo que decir: sin precios no queda una línea vacía. */}
+      {(hasProfit || hasActiveCount) && (
+        <div className="mt-3 space-y-0.5 border-t border-border/60 pt-3">
+          {hasProfit && <ServiceProfit service={service} />}
+          {hasActiveCount && (
             <p className="text-sm text-muted-foreground">
-              Activo en {pluralize(service.activeInCount, "negocio", "negocios")}
+              Activo en {pluralize(service.activeInCount ?? 0, "negocio", "negocios")}
             </p>
           )}
         </div>
-        {canManageBusiness && <StatusBadge isActive={service.isActive} />}
-      </div>
+      )}
     </article>
   );
 }

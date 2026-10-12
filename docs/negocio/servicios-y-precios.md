@@ -15,8 +15,10 @@ Acordado el 2026-10-12. El detalle de lo que se construyó está en la
   | Compra | Lo que le cuesta **una cuenta** al negocio | S/ 20.00 |
   | Venta | A cuánto alquila **un perfil por un mes** | S/ 7.50 |
 
-- **Sin los dos precios no se activa**, y a un servicio activo no se le puede borrar un
-  precio. Desactivar no borra los precios.
+- **Sin los dos precios no se activa**: al activar se piden (o confirman) los dos en una
+  ventana y recién al confirmar queda activo. Los precios solo se ven y se editan mientras
+  el servicio está activo. A un servicio activo no se le puede borrar
+  un precio. Desactivar no borra los precios.
 - **Solo se venden perfiles**, nunca cuentas completas.
 - Perfiles por cuenta: entero desde 1, sin tope. Es el valor por defecto para las cuentas.
 - Cambiar un precio vale para lo que se registre después; lo ya alquilado no cambia.

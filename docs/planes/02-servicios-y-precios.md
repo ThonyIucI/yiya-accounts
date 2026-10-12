@@ -76,10 +76,10 @@ Sin esto no se pueden registrar cuentas (paso 3) ni alquilar perfiles (paso 4).
 | ID | Requisito |
 |---|---|
 | RF-11 | `/servicios` lista **todo el catálogo**. Cada servicio dice si está activo **en ese negocio** y muestra sus precios. |
-| RF-12 | Cada card (o fila) tiene **dos campos de precio**, editables ahí mismo: **precio de compra** (lo que le cuesta la cuenta al negocio) y **precio de venta por perfil al mes**. |
-| RF-13 | Un precio se guarda al salir del campo o con Enter, solo si cambió y es válido. Si falla, el error aparece debajo del campo y se vuelve al valor anterior. |
+| RF-12 | **Solo con el servicio activo**, la card (o fila) muestra **dos campos de precio** editables ahí mismo: **precio de compra** (lo que le cuesta la cuenta al negocio) y **precio de venta por perfil al mes**. Desactivado, los campos se ocultan (acordado 2026-10-12). |
+| RF-13 | Un precio se guarda solo al dejar de escribir (debounce de 0,7 s), y al salir del campo o con Enter se guarda en el momento. Solo si cambió y es válido. Si falla, el error aparece debajo del campo y se vuelve al valor anterior. |
 | RF-14 | El switch activa o desactiva el servicio **solo en ese negocio**. |
-| RF-15 | Para activar un servicio tienen que estar los **dos precios**. Sin ellos el switch no se activa, y al tocarlo se marca el campo que falta con «Pon el precio para activarlo». |
+| RF-15 | **Activar siempre pasa por una modal** con los dos precios (ya puestos si estaban guardados) y la ganancia en vivo; recién al confirmar se guardan y se activa. Desactivar es directo (acordado 2026-10-12). |
 | RF-16 | No se puede vaciar un precio de un servicio activo. |
 | RF-17 | Desactivar no borra los precios: al volver a activarlo, siguen ahí. |
 | RF-18 | Con los dos precios, la card muestra lo que deja una cuenta llena: «Cuenta llena: S/ 37.50 · ganancia S/ 17.50» (perfiles × venta − compra). |
@@ -257,10 +257,11 @@ Copia el catálogo de cultivos del saas (`~/own/saas/front/src/modules/admin-con
 
 - **Arriba:** imagen, nombre y «5 perfiles por cuenta» a la izquierda; a la derecha el
   switch y `⋯` con «Editar» (solo el superadmin). Es el mismo orden que la card de Negocios.
-- **Medio, lado a lado:** «Compra (cuenta)» y «Venta (perfil/mes)», con prefijo `S/` y
+- **Medio, lado a lado (solo si está activo):** «Compra (cuenta)» y «Venta (perfil/mes)», con prefijo `S/` y
   teclado decimal (`inputMode="decimal"`).
-- **Pie:** «Cuenta llena: S/ 37.50 · ganancia S/ 17.50» (o «Pon los dos precios para
-  activarlo»), «Activo en N negocios» para el superadmin, y el estado en texto.
+- **Pie:** «Cuenta llena: S/ 37.50 · ganancia S/ 17.50» y, para el superadmin, «Activo en N
+  negocios». Sin nada que mostrar, no hay pie. El estado lo dice el switch: sin texto
+  «Activo/Inactivo» ni aviso de precios faltantes (acordado 2026-10-12, eran redundantes).
 
 **Tabla de escritorio:** Servicio · Perfiles · Compra · Venta · Ganancia por cuenta · Activo ·
 acciones. Los precios son campos editables en la celda.

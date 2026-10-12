@@ -1,6 +1,6 @@
 import { Button } from "@yiya/ui/components/button";
 import { EUserRole } from "@yiya/shared/roles";
-import type { ICatalogServiceResource } from "@yiya/shared/services";
+import type { IBusinessServiceResource, ICatalogServiceResource } from "@yiya/shared/services";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Pencil, Plus, Search, Store, Tv } from "lucide-react";
 import { type ChangeEvent, useEffect, useState } from "react";
@@ -14,6 +14,7 @@ import StickyToolbar from "@/common/components/sticky-toolbar";
 import { useBoolean } from "@/common/hooks/use-boolean";
 import { usePagination } from "@/common/hooks/use-pagination";
 import { useActiveBusiness } from "@/modules/businesses/context/active-business";
+import ActivateServiceModal from "@/modules/services/components/activate-service-modal";
 import ServiceFormModal from "@/modules/services/components/service-form-modal";
 import ServiceMobileList from "@/modules/services/components/service-mobile-list";
 import ServiceTable from "@/modules/services/components/service-table";
@@ -56,6 +57,8 @@ function ServicesPage() {
 
   const [editTarget, setEditTarget] = useState<ICatalogServiceResource | undefined>();
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [activateTarget, setActivateTarget] = useState<IServiceRow | null>(null);
+  const showActivate = useBoolean();
   const [search, setSearch] = useState("");
 
   const currentBusinessId = isSuperadmin ? (ActiveBusiness.current?.id ?? null) : OWN_BUSINESS;
@@ -137,16 +140,28 @@ function ServicesPage() {
     showForm.on();
   };
 
+  const applySaved = (previous: IServiceRow, saved: IBusinessServiceResource) => {
+    BusinessServices.onUpsert(saved);
+    if (isSuperadmin && saved.isActive !== previous.isActive) {
+      Catalog.onActiveCountChange(saved.id, saved.isActive ? 1 : -1);
+    }
+  };
+
+  /*
+    Activar siempre pasa por la modal de precios (con los guardados ya puestos, si los hay):
+    recién al confirmar se activa. Desactivar es directo.
+  */
   const handleToggleActive = async (service: IServiceRow, isActive: boolean) => {
+    if (isActive) {
+      setActivateTarget(service);
+      showActivate.on();
+      return;
+    }
     setTogglingId(service.id);
     const saved = await UpdateBusinessService.handler(service.id, { isActive });
     setTogglingId(null);
-    if (!saved) {
-      return;
-    }
-    BusinessServices.onUpsert(saved);
-    if (isSuperadmin && saved.isActive !== service.isActive) {
-      Catalog.onActiveCountChange(service.id, saved.isActive ? 1 : -1);
+    if (saved) {
+      applySaved(service, saved);
     }
   };
 
@@ -263,6 +278,13 @@ function ServicesPage() {
           )}
         </>
       )}
+
+      <ActivateServiceModal
+        open={showActivate.active}
+        service={activateTarget}
+        onActivated={(saved) => activateTarget && applySaved(activateTarget, saved)}
+        onClose={showActivate.off}
+      />
 
       {isSuperadmin && (
         <ServiceFormModal

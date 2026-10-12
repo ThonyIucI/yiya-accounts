@@ -15,7 +15,8 @@ de cards genéricas.
 - `PageHeader`: título, contadores («3 negocios · 2 activos») y la acción «Crear».
 - `EmptyState`: ícono, título y la acción para salir del vacío («Crear el primero»).
 - Skeletons con la forma de la fila o de la card, no un spinner.
-- El estado también va en texto («Activo / Desactivado»), no solo con el switch.
+- El estado también va en texto («Activo / Desactivado») cuando no hay un control que lo
+  muestre. Si la fila ya tiene su switch, no se repite (ver «No repetir lo que ya se ve»).
 - Acciones de fila con `RowActions` (`common/components/row-actions.tsx`).
 - Referencia en Yiya: `apps/web/src/modules/businesses`.
 
@@ -47,10 +48,17 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
 ## Datos editables en la fila (acordado 2026-10-12)
 
 - Un dato que se cambia seguido, como un precio, se edita **ahí mismo** en la card o en la
-  fila, sin abrir una modal (`modules/services/components/price-field.tsx`).
-- Se guarda al salir del campo o con Enter, y con Escape se descarta. El error queda debajo
-  y el campo vuelve al valor guardado.
-- Si el switch necesita datos que faltan, no llama al server: marca el campo que falta.
+  fila, sin abrir una modal, y **solo mientras el registro está activo**: desactivado, los
+  campos se ocultan (`modules/services/components/price-field.tsx`).
+- Se guarda **con debounce** al dejar de escribir; al salir del campo o con Enter, en el
+  momento. Con Escape se descarta. El error queda debajo y, al salir, el campo vuelve al
+  valor guardado.
+- Activar con el switch abre una modal con esos campos (ya llenos si había datos) y recién
+  al confirmar activa (`activate-service-modal.tsx`).
+- **No repetir lo que ya se ve** (acordado 2026-10-12): si el switch ya dice si está activo,
+  no va además un texto «Activo/Inactivo»; si los campos vacíos ya dicen que falta el
+  precio, no va un aviso. La regla de «estado también en texto» de Listados vale solo donde
+  no hay un control que lo muestre.
 
 ## Modal (`common/components/modal.tsx`)
 

@@ -1,10 +1,14 @@
-import { Input } from "@yiya/ui/components/input";
 import { INVALID_SOLES_MESSAGE, parseSoles, toSolesInput } from "@yiya/shared/money";
 import { cn } from "@yiya/ui/lib/utils";
-import { Loader2 } from "lucide-react";
-import { type KeyboardEvent, useState } from "react";
+import { type KeyboardEvent, useRef, useState } from "react";
+
+import { useDebouncedCallback } from "@/common/hooks/use-debounced-callback";
+
+import SolesInput from "./soles-input";
 
 const ACTIVE_NEEDS_PRICE_MESSAGE = "Un servicio activo necesita sus dos precios.";
+/** Pausa al escribir antes de guardar: no se manda un request por cada tecla. */
+const SAVE_DEBOUNCE_MS = 700;
 
 interface IPriceFieldProps {
   id: string;
@@ -12,24 +16,22 @@ interface IPriceFieldProps {
   value: number | null;
   /** Si el servicio está activo: entonces no se puede vaciar. */
   isRequired: boolean;
-  /** Aviso del switch cuando se intentó activar sin este precio. */
-  hint?: string | null;
   isCompact?: boolean;
-  /** Guarda el precio; `false` si falló (el campo vuelve al valor anterior). */
+  /** Guarda el precio; `false` si falló (el campo vuelve al valor guardado). */
   onSave: (value: number | null) => Promise<boolean>;
 }
 
 /**
- * Precio en soles editable ahí mismo, en la card o en la fila. Se guarda al salir del
- * campo o con Enter, solo si cambió y es válido; con Escape se descarta. Si algo falla, el
- * error queda debajo y el campo vuelve al valor guardado.
+ * Precio en soles editable ahí mismo, en la card o en la fila. Se guarda solo al dejar de
+ * escribir (debounce), y al salir del campo o con Enter se guarda en el momento. Con Escape
+ * se descarta. Si algo no es válido, el error queda debajo; al salir, el campo vuelve al
+ * valor guardado.
  */
 export default function PriceField({
   id,
   label,
   value,
   isRequired,
-  hint,
   isCompact = false,
   onSave,
 }: IPriceFieldProps) {
@@ -37,28 +39,41 @@ export default function PriceField({
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /*
+    Lo último que se mandó a guardar mientras se edita. Evita mandar dos veces lo mismo
+    cuando el debounce ya guardó y después llega el blur, antes de que vuelva `value`.
+  */
+  const lastSentRef = useRef<number | null | undefined>(undefined);
+  /* Escape: el blur que sigue no guarda nada. */
+  const isDiscardingRef = useRef(false);
 
   /* Mientras no se edita, el campo muestra lo guardado: nunca un texto viejo. */
   const shownText = isEditing ? text : toSolesInput(value);
-  const message = error ?? (shownText === "" ? hint : null) ?? null;
   const messageId = `${id}-message`;
 
   const save = async (next: number | null) => {
+    lastSentRef.current = next;
     setIsSaving(true);
-    await onSave(next);
+    const isSaved = await onSave(next);
     setIsSaving(false);
+    if (!isSaved) {
+      lastSentRef.current = undefined;
+    }
   };
 
-  const commit = async () => {
-    const trimmed = text.trim();
-    setIsEditing(false);
+  /** `isFinal`: al salir del campo. Mientras se escribe, un campo vacío todavía no es error. */
+  const commit = async (raw: string, isFinal: boolean) => {
+    const trimmed = raw.trim();
+    const baseline = lastSentRef.current !== undefined ? lastSentRef.current : value;
 
     if (trimmed === "") {
-      if (value === null) {
+      if (baseline === null) {
         return;
       }
       if (isRequired) {
-        setError(ACTIVE_NEEDS_PRICE_MESSAGE);
+        if (isFinal) {
+          setError(ACTIVE_NEEDS_PRICE_MESSAGE);
+        }
         return;
       }
       await save(null);
@@ -70,17 +85,19 @@ export default function PriceField({
       setError(INVALID_SOLES_MESSAGE);
       return;
     }
-    if (parsed !== value) {
+    if (parsed !== baseline) {
       await save(parsed);
     }
   };
+
+  const debounced = useDebouncedCallback((raw: string) => commit(raw, false), SAVE_DEBOUNCE_MS);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.currentTarget.blur();
     }
     if (event.key === "Escape") {
-      setText(toSolesInput(value));
+      isDiscardingRef.current = true;
       event.currentTarget.blur();
     }
   };
@@ -93,48 +110,38 @@ export default function PriceField({
       >
         {label}
       </label>
-      <div className="relative">
-        <span
-          aria-hidden
-          className={cn(
-            "pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 font-semibold text-muted-foreground",
-            isCompact ? "text-base" : "text-lg",
-          )}
-        >
-          S/
-        </span>
-        <Input
-          id={id}
-          inputMode="decimal"
-          autoComplete="off"
-          placeholder="0.00"
-          value={shownText}
-          disabled={isSaving}
-          aria-invalid={message !== null}
-          aria-describedby={message ? messageId : undefined}
-          className={cn("pr-9 pl-10 tabular-nums", isCompact && "h-11 text-base")}
-          onFocus={() => {
-            setText(toSolesInput(value));
-            setIsEditing(true);
-            setError(null);
-          }}
-          onChange={(event) => {
-            setText(event.target.value);
-            setError(null);
-          }}
-          onBlur={commit}
-          onKeyDown={handleKeyDown}
-        />
-        {isSaving && (
-          <Loader2
-            aria-hidden
-            className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground motion-reduce:animate-none"
-          />
-        )}
-      </div>
-      {message && (
+      <SolesInput
+        id={id}
+        isCompact={isCompact}
+        isSaving={isSaving}
+        value={shownText}
+        aria-invalid={error !== null}
+        aria-describedby={error ? messageId : undefined}
+        onFocus={() => {
+          setText(toSolesInput(value));
+          setIsEditing(true);
+          setError(null);
+          lastSentRef.current = undefined;
+        }}
+        onChange={(event) => {
+          setText(event.target.value);
+          setError(null);
+          debounced.schedule(event.target.value);
+        }}
+        onBlur={() => {
+          debounced.cancel();
+          setIsEditing(false);
+          if (isDiscardingRef.current) {
+            isDiscardingRef.current = false;
+            return;
+          }
+          commit(text, true);
+        }}
+        onKeyDown={handleKeyDown}
+      />
+      {error && (
         <p id={messageId} className="text-sm font-bold text-destructive">
-          {message}
+          {error}
         </p>
       )}
     </div>
