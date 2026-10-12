@@ -59,6 +59,17 @@
   --shadow-sticker-md: 0 6px 16px oklch(0.23 0.095 260 / 0.16);
 
   /*
+    Elevación suave (low-spread, como el saas): separa superficies con sombra, no con
+    bordes marcados. card = en reposo · elevated = hover/menús · sheet = modales.
+    edge-* = la sombra que asoma bajo el encabezado / sobre el pie de una modal con scroll.
+  */
+  --shadow-card: 0 1px 2px oklch(0.23 0.095 260 / 0.06), 0 4px 12px oklch(0.23 0.095 260 / 0.06);
+  --shadow-elevated: 0 4px 12px oklch(0.23 0.095 260 / 0.1);
+  --shadow-sheet: 0 12px 32px oklch(0.23 0.095 260 / 0.16);
+  --shadow-edge-bottom: 0 6px 10px -6px oklch(0.23 0.095 260 / 0.18);
+  --shadow-edge-top: 0 -6px 10px -6px oklch(0.23 0.095 260 / 0.18);
+
+  /*
     Casas = los cuatro cuadrantes de la chakana, en su color exacto del logo.
     Son dato de identidad: no se re-tematizan en dark ni se ajustan por contraste
     (siempre van con ícono + nombre, nunca color a secas).
@@ -126,6 +137,12 @@
 
   --shadow-sticker: 0 2px 0 oklch(0 0 0 / 0.45);
   --shadow-sticker-md: 0 6px 18px oklch(0 0 0 / 0.5);
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 4px 12px oklch(0 0 0 / 0.25);
+  --shadow-elevated: 0 4px 12px oklch(0 0 0 / 0.4);
+  --shadow-sheet: 0 12px 32px oklch(0 0 0 / 0.55);
+  --shadow-edge-bottom: 0 6px 10px -6px oklch(0 0 0 / 0.6);
+  --shadow-edge-top: 0 -6px 10px -6px oklch(0 0 0 / 0.6);
 
   --sidebar: oklch(0.2502 0.0747 264.45);
   --sidebar-foreground: oklch(0.9432 0.0154 269.98);
@@ -197,6 +214,11 @@
 
   --shadow-sticker: var(--shadow-sticker);
   --shadow-sticker-md: var(--shadow-sticker-md);
+  --shadow-card: var(--shadow-card);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-sheet: var(--shadow-sheet);
+  --shadow-edge-bottom: var(--shadow-edge-bottom);
+  --shadow-edge-top: var(--shadow-edge-top);
 
   /* Cinta de pastillas de la portada: media vuelta y repite, con la lista duplicada. */
   --animate-marquee: marquee 26s linear infinite;

@@ -2,7 +2,15 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      interactive-widget=resizes-content: en Chrome/Brave Android el teclado encoge el layout
+      en vez de solo el visual viewport. Sin esto el navegador desplaza la página para mostrar
+      el campo enfocado y la hoja inferior queda despegada, flotando sobre el teclado.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+    />
     <title>Yiya Accounts</title>
 
     <!-- Íconos pendientes hasta tener logo (`pnpm --filter web generate-pwa-assets`). -->

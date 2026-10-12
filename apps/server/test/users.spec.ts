@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { postJson, request, signInAsSuperadmin } from "./helpers";
+import { postJson, request, signIn, signInAsSuperadmin } from "./helpers";
 
 interface IUserBody {
   success: boolean;
@@ -9,11 +9,6 @@ interface IUserBody {
 }
 
 const CLIENT = { name: "Cliente Uno", email: "cliente@test.local", password: "password123" };
-
-const signIn = async (email: string, password: string) => {
-  const response = await postJson("/api/auth/sign-in/email", { email, password });
-  return response.headers.get("set-cookie") ?? "";
-};
 
 describe("/users", () => {
   let superadminCookie = "";

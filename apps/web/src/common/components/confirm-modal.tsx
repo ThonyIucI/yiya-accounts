@@ -78,12 +78,12 @@ export default function ConfirmModal({
               ...hidden,
               transition: prefersReducedMotion
                 ? { duration: 0 }
-                : { duration: 0.18, ease: "easeIn" },
+                : { duration: 0.18, ease: [0.23, 1, 0.32, 1] },
             }}
             transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
           >
             {/* Escritorio: una sola tarjeta con los botones en fila. */}
-            <div className="hidden rounded-3xl border-2 border-border bg-card p-6 text-foreground shadow-sticker-md sm:block">
+            <div className="hidden rounded-3xl bg-card p-6 text-foreground shadow-sheet sm:block">
               <h2 className="font-heading text-lg font-extrabold text-foreground">{title}</h2>
               {description && <p className="mt-2 text-base text-muted-foreground">{description}</p>}
 
@@ -99,7 +99,7 @@ export default function ConfirmModal({
 
             {/* Celular: hoja de acción. Cuerpo y botón principal juntos; cancelar aparte. */}
             <div className="flex flex-col gap-2 sm:hidden">
-              <div className="overflow-hidden rounded-3xl border-2 border-border bg-card text-foreground shadow-sticker-md">
+              <div className="overflow-hidden rounded-3xl bg-card text-foreground shadow-sheet">
                 <div className="px-6 pt-7 pb-5 text-center">
                   <h2 className="font-heading text-lg font-extrabold text-foreground">{title}</h2>
                   {description && (
@@ -119,7 +119,7 @@ export default function ConfirmModal({
                 </div>
               </div>
 
-              <div className="rounded-3xl border-2 border-border bg-card p-1.5 shadow-sticker-md">
+              <div className="rounded-3xl bg-card p-1.5 shadow-sheet">
                 <Button
                   size="xl"
                   variant="ghost"

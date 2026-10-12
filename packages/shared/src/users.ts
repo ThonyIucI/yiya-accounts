@@ -6,6 +6,8 @@ export interface IUserResource {
   name: string;
   email: string;
   role: TUserRole;
+  /** El negocio al que pertenece; `null` si todavía no se le asignó uno. */
+  business: { id: string; name: string } | null;
   createdAt: string;
 }
 

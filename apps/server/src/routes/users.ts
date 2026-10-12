@@ -1,5 +1,6 @@
 import { createDb } from "@yiya/db";
 import { user } from "@yiya/db/schema/auth";
+import { business, membership } from "@yiya/db/schema/businesses";
 import { USER_MIN_PASSWORD_LENGTH, type IUserResource } from "@yiya/shared/users";
 import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -23,24 +24,41 @@ const createUserSchema = z.object({
     .min(USER_MIN_PASSWORD_LENGTH, "La contraseña debe tener al menos 8 caracteres."),
 });
 
-const toUserResource = (row: typeof user.$inferSelect): IUserResource => ({
+type TUserRow = typeof user.$inferSelect;
+type TUserBusiness = IUserResource["business"];
+
+const toUserResource = (row: TUserRow, userBusiness: TUserBusiness = null): IUserResource => ({
   id: row.id,
   name: row.name,
   email: row.email,
   role: row.role,
+  business: userBusiness,
   createdAt: row.createdAt.toISOString(),
 });
 
 /**
  * Usuarios de la plataforma. Solo el SUPERADMIN los ve y los crea: no hay registro público.
- * Por ahora todo usuario nuevo es USER; cuando existan negocios se le asignará el suyo.
+ * Todo usuario nuevo es USER y nace sin negocio; se le asigna uno al crear el negocio.
  */
 export const userRoutes = new Hono<TAppEnv>()
   .get(USER_ROUTES.USERS, requireSuperadmin, async (context) => {
     const db = createDb();
-    const rows = await db.select().from(user).orderBy(desc(user.createdAt));
+    const rows = await db
+      .select({ user, businessId: business.id, businessName: business.name })
+      .from(user)
+      .leftJoin(membership, eq(membership.userId, user.id))
+      .leftJoin(business, eq(business.id, membership.businessId))
+      .orderBy(desc(user.createdAt));
 
-    return ok(context, rows.map(toUserResource));
+    return ok(
+      context,
+      rows.map((row) =>
+        toUserResource(
+          row.user,
+          row.businessId && row.businessName ? { id: row.businessId, name: row.businessName } : null,
+        ),
+      ),
+    );
   })
 
   .post(

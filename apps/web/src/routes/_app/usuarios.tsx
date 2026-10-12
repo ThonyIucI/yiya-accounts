@@ -1,12 +1,14 @@
 import { Button } from "@yiya/ui/components/button";
-import { Skeleton } from "@yiya/ui/components/skeleton";
-import { EUserRole, userRoleLabels } from "@yiya/shared/roles";
+import { EUserRole } from "@yiya/shared/roles";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Plus, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { formatShortDate } from "@/common/utils/format-date";
+import EmptyState from "@/common/components/empty-state";
+import PageHeader from "@/common/components/page-header";
+import { useBoolean } from "@/common/hooks/use-boolean";
 import UserFormModal from "@/modules/users/components/user-form-modal";
+import UserList from "@/modules/users/components/user-list";
 import { useUsers } from "@/modules/users/hooks/use-users";
 
 export const Route = createFileRoute("/_app/usuarios")({
@@ -20,70 +22,53 @@ export const Route = createFileRoute("/_app/usuarios")({
 });
 
 function UsersPage() {
-  const UserList = useUsers();
-  const [isCreating, setIsCreating] = useState(false);
+  const UserListRequest = useUsers();
+  const showForm = useBoolean();
 
   useEffect(() => {
     const controller = new AbortController();
-    UserList.handler(controller.signal);
+    UserListRequest.handler(controller.signal);
     return () => controller.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isEmpty = !UserList.loading && UserList.users.length === 0;
+  const { users } = UserListRequest;
+  const isLoading = UserListRequest.loading && users.length === 0;
+  const withoutBusiness = users.filter(
+    (user) => user.role === EUserRole.USER && user.business === null,
+  ).length;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-6">
-      <header className="mb-6">
-        <h1 className="font-heading text-3xl font-extrabold text-foreground">Usuarios</h1>
-        <p className="mt-1 text-base text-muted-foreground">
-          Quienes pueden entrar a la plataforma. Tú creas sus accesos.
-        </p>
-      </header>
+    <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-6">
+      <PageHeader
+        title="Usuarios"
+        subtitle={
+          users.length > 0
+            ? `${users.length} ${users.length === 1 ? "usuario" : "usuarios"} · ${withoutBusiness} sin negocio`
+            : undefined
+        }
+        isLoadingSubtitle={isLoading}
+        action={
+          <Button type="button" onClick={showForm.on}>
+            <Plus />
+            Crear
+          </Button>
+        }
+      />
 
-      <Button className="w-full" onClick={() => setIsCreating(true)}>
-        <Plus />
-        Nuevo usuario
-      </Button>
-
-      {UserList.loading && UserList.users.length === 0 && (
-        <div className="mt-6 space-y-3">
-          <Skeleton className="h-20 w-full rounded-3xl" />
-          <Skeleton className="h-20 w-full rounded-3xl" />
-        </div>
+      {!isLoading && users.length === 0 ? (
+        <EmptyState icon={Users} title="Aún no hay usuarios" />
+      ) : (
+        <UserList users={users} isLoading={isLoading} />
       )}
-
-      {isEmpty && (
-        <div className="mt-6 flex flex-col items-center rounded-3xl border-2 border-dashed border-border px-6 py-12 text-center">
-          <Users className="size-10 text-muted-foreground" strokeWidth={1.5} />
-          <p className="mt-3 font-heading text-lg font-bold text-foreground">Aún no hay usuarios</p>
-        </div>
-      )}
-
-      <ul className="mt-6 space-y-3">
-        {UserList.users.map((user) => (
-          <li
-            key={user.id}
-            className="rounded-3xl border-2 border-border bg-card p-5 shadow-sticker"
-          >
-            <p className="font-heading text-lg font-bold break-words text-foreground">
-              {user.name}
-            </p>
-            <p className="truncate text-base text-muted-foreground">{user.email}</p>
-            <p className="mt-2 text-sm font-bold text-muted-foreground uppercase">
-              {userRoleLabels[user.role]} · desde {formatShortDate(user.createdAt)}
-            </p>
-          </li>
-        ))}
-      </ul>
 
       <UserFormModal
-        open={isCreating}
-        onClose={() => setIsCreating(false)}
+        open={showForm.active}
+        onClose={showForm.off}
         onSubmit={async (payload) => {
-          const created = await UserList.create(payload);
+          const created = await UserListRequest.create(payload);
           if (created) {
-            setIsCreating(false);
+            showForm.off();
           }
         }}
       />

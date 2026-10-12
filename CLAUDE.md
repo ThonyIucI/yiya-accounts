@@ -58,6 +58,35 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`), que aplican igual:
   - Cualquier otro error inesperado: el genérico «Ocurrió un error inesperado…» de `index.ts`.
   - En el front, los mensajes de respaldo de `lib/api.ts` y los `toast` también en español.
 
+## Listados en la web
+
+Mismo patrón que el saas (`~/own/saas/front/src/modules/admin-config/crop-types`), nada de
+cards genéricas:
+- Escritorio: tabla (`@yiya/ui/components/table`, `hidden md:block`). Celular: cards
+  (`md:hidden`) con identidad arriba a la izquierda, switch + `RowActions` arriba a la
+  derecha y los detalles abajo tras un `border-t`.
+- `PageHeader` (título + contadores + «Crear»), `EmptyState` con CTA, skeletons con la forma
+  de la fila/card, estado en texto además del switch.
+- Hooks de una acción (`use-list-x`, `use-create-x`, `use-update-x`); el de lista expone
+  `onUpsert`. Referencia en Yiya: `apps/web/src/modules/businesses`.
+
+## Superficies, selects y motion
+
+Antes de tocar UI, leer `~/own/saas/front/DESIGN_SYSTEM.md` y la skill `emil-design-eng`.
+- **Sombras, no bordes marcados.** Cards, tablas y modales se separan del fondo con
+  `shadow-card` / `shadow-elevated` / `shadow-sheet` (tokens en `globals.css`), sin
+  `border-2`. Dentro de una superficie, si hace falta separar: espacio, o como mucho una
+  línea fina `border-border/60`.
+- **Modal** (`common/components/modal.tsx`): una sola superficie. Encabezado = solo título
+  (la descripción va en el cuerpo, para que con el teclado abierto el campo tenga alto).
+  El pie **siempre** se separa con sombra hacia arriba (`shadow-edge-top`, como el saas);
+  el encabezado, solo cuando hay scroll. Ninguno con borde.
+- **Selects:** `common/components/select.tsx` (react-select, como el saas) para todo lo que
+  crece (usuarios, clientes, cuentas). `<select>` nativo solo para listas cortas y fijas.
+- **Motion:** curvas `[0.23, 1, 0.32, 1]` (entrar) y `[0.32, 0.72, 0, 1]` (hoja); nunca
+  `easeIn`; salida más rápida que la entrada; < 300 ms; animar con `transform` en string
+  (no `x`/`y`/`scale` sueltos); respetar `useReducedMotion()`.
+
 ## Comandos
 
 Thony corre todos los comandos (install, tests, build, migraciones, deploy). Claude escribe

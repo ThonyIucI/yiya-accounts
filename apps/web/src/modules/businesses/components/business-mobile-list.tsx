@@ -1,0 +1,69 @@
+import type { IBusinessResource } from "@yiya/shared/businesses";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+
+import type { IRowAction } from "@/common/components/row-actions";
+
+import BusinessCard, { BusinessCardSkeleton } from "./business-card";
+
+const SKELETON_COUNT = 3;
+const STAGGER_SECONDS = 0.04;
+const MAX_STAGGERED = 8;
+
+interface IBusinessMobileListProps {
+  businesses: IBusinessResource[];
+  isLoading: boolean;
+  buildActions: (business: IBusinessResource) => IRowAction[];
+  togglingId: string | null;
+  onToggleActive: (business: IBusinessResource) => void;
+}
+
+/** Cards en celular. Oculta desde `md`: allí se usa `BusinessTable`. */
+export default function BusinessMobileList({
+  businesses,
+  isLoading,
+  buildActions,
+  togglingId,
+  onToggleActive,
+}: IBusinessMobileListProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (isLoading) {
+    return (
+      <ul className="space-y-3 md:hidden">
+        {Array.from({ length: SKELETON_COUNT }, (_, index) => (
+          <li key={index}>
+            <BusinessCardSkeleton />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <ul className="space-y-3 md:hidden">
+      <AnimatePresence initial={false} mode="popLayout">
+        {businesses.map((business, index) => (
+          <motion.li
+            key={business.id}
+            layout
+            initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, transform: "translateY(8px)" }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, transform: "translateY(0px)" }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, transform: "scale(0.97)" }}
+            transition={{
+              duration: prefersReducedMotion ? 0 : 0.22,
+              ease: [0.23, 1, 0.32, 1],
+              delay: prefersReducedMotion ? 0 : Math.min(index, MAX_STAGGERED) * STAGGER_SECONDS,
+            }}
+          >
+            <BusinessCard
+              business={business}
+              actions={buildActions(business)}
+              isToggling={togglingId === business.id}
+              onToggleActive={() => onToggleActive(business)}
+            />
+          </motion.li>
+        ))}
+      </AnimatePresence>
+    </ul>
+  );
+}
