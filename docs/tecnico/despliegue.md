@@ -127,6 +127,10 @@ pnpm deploy:web            # 3. Pages
    existen y devuelve «Ocurrió un error inesperado».
 2. Si despliegas solo el front, la web nueva le habla a una API vieja y las rutas nuevas
    responden `404 Recurso no encontrado`, aunque la pantalla se vea bien.
+3. Una pestaña que quedó abierta con la versión anterior puede pedir un archivo que ya no
+   existe («Failed to fetch dynamically imported module»): el service worker de la PWA
+   borró los viejos. Desde el 2026-10-12 la web se recarga sola una vez
+   (`src/lib/new-version.ts`); si igual aparece «Algo salió mal», basta con recargar.
 
 ## Verificar qué hay publicado
 
