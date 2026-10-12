@@ -1,7 +1,6 @@
 import { createDb } from "@yiya/db";
 import { user } from "@yiya/db/schema/auth";
 import { USER_MIN_PASSWORD_LENGTH, type IUserResource } from "@yiya/shared/users";
-import { zValidator } from "@hono/zod-validator";
 import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -9,6 +8,7 @@ import { z } from "zod";
 import type { TAppEnv } from "../lib/app-env";
 import { conflict } from "../lib/errors";
 import { ok } from "../lib/response";
+import { validateJson } from "../lib/validator";
 import { requireSuperadmin } from "../middleware/require-role";
 
 export const USER_ROUTES = {
@@ -46,7 +46,7 @@ export const userRoutes = new Hono<TAppEnv>()
   .post(
     USER_ROUTES.USERS,
     requireSuperadmin,
-    zValidator("json", createUserSchema),
+    validateJson(createUserSchema),
     async (context) => {
       const { name, email, password } = context.req.valid("json");
       const db = createDb();

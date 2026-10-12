@@ -49,7 +49,14 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`), que aplican igual:
 - Validación con `zod` (`@hono/zod-validator`). Salida `{ success, data, error }`.
 - Esquema Drizzle en `packages/db/src/schema/<tabla>.ts`; migraciones **solo** con
   `drizzle-kit generate`, nunca SQL a mano. Aplicar con `wrangler d1 migrations apply`.
-- Mensajes de error en español, sin IDs técnicos.
+- **Todo error que ve la persona va en español y se entiende**: dice qué pasó y, si se
+  puede, qué hacer. Nunca inglés, IDs, códigos ni texto de librerías. Cómo se garantiza:
+  - better-auth: `lib/auth-errors.ts` traduce sus respuestas por `code` (agregar ahí los
+    códigos nuevos que aparezcan, p. ej. al sumar un plugin).
+  - Validación: usar siempre `validateJson` (`lib/validator.ts`), nunca `zValidator` directo.
+    Cada campo de un esquema lleva su mensaje; lo que no, sale con `z.locales.es()`.
+  - Cualquier otro error inesperado: el genérico «Ocurrió un error inesperado…» de `index.ts`.
+  - En el front, los mensajes de respaldo de `lib/api.ts` y los `toast` también en español.
 
 ## Comandos
 

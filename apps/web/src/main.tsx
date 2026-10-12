@@ -1,8 +1,12 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { z } from "zod";
 
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
+
+/** Mensajes de validación de zod en español (los que un esquema no define a mano). */
+z.config(z.locales.es());
 
 const router = createRouter({
   routeTree,

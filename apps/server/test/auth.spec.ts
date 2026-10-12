@@ -82,6 +82,41 @@ describe("seed de superadmin", () => {
   });
 });
 
+describe("errores en español", () => {
+  it("traduce el error de better-auth al iniciar sesión con datos incorrectos", async () => {
+    // Arrange
+    await signInAsSuperadmin();
+
+    // Act
+    const response = await postJson("/api/auth/sign-in/email", {
+      email: "super@test.local",
+      password: "otra-contraseña",
+    });
+    const body = await response.json<{ code: string; message: string }>();
+
+    // Assert
+    expect(response.status).toBe(401);
+    expect(body.code).toBe("INVALID_EMAIL_OR_PASSWORD");
+    expect(body.message).toBe("Correo o contraseña incorrectos.");
+  });
+
+  it("un cuerpo inválido responde el sobre estándar con el mensaje del esquema", async () => {
+    const response = await seedSuperadmin({ email: "no-es-correo", password: "password123", name: "Ana" });
+    const body = await response.json<{ success: boolean; data: null; error: string }>();
+
+    expect(response.status).toBe(400);
+    expect(body).toEqual({ success: false, data: null, error: "Correo inválido." });
+  });
+
+  it("un campo faltante sin mensaje propio sale en español", async () => {
+    const response = await seedSuperadmin({ email: "ana@test.local" } as never);
+    const body = await response.json<{ error: string }>();
+
+    expect(response.status).toBe(400);
+    expect(body.error).not.toMatch(/invalid|expected|required/i);
+  });
+});
+
 describe("/me", () => {
   it("exige sesión", async () => {
     const response = await request("/api/v1/me");

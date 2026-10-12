@@ -2,7 +2,6 @@ import { createDb } from "@yiya/db";
 import { user } from "@yiya/db/schema/auth";
 import { env } from "@yiya/env/server";
 import { EUserRole } from "@yiya/shared/roles";
-import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
@@ -11,6 +10,7 @@ import { z } from "zod";
 import type { TAppEnv } from "../lib/app-env";
 import { forbidden } from "../lib/errors";
 import { ok } from "../lib/response";
+import { validateJson } from "../lib/validator";
 
 export const INTERNAL_ROUTES = {
   SEED_SUPERADMIN: "/internal/seed-superadmin",
@@ -44,7 +44,7 @@ const requireSeedToken = createMiddleware(async (context, next) => {
 export const internalRoutes = new Hono<TAppEnv>().post(
   INTERNAL_ROUTES.SEED_SUPERADMIN,
   requireSeedToken,
-  zValidator("json", seedSuperadminSchema),
+  validateJson(seedSuperadminSchema),
   async (context) => {
     const { email, password, name } = context.req.valid("json");
     const db = createDb();
