@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `active_business_id` text;

@@ -7,6 +7,7 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
 
 | Si vas a… | Lee |
 |---|---|
+| Empezar un paso de la hoja de ruta | Su ERS en [docs/planes/](docs/planes/). Si no existe, se escribe primero y se revisa con Thony |
 | Tocar el dominio (cuentas, perfiles, alquileres…) | [docs/negocio/](docs/negocio/) — sobre todo [modelo](docs/negocio/modelo.md) y [hoja de ruta](docs/negocio/hoja-de-ruta.md) |
 | Diseñar o tocar UI | [docs/diseno/](docs/diseno/) **y** `~/own/saas/front/DESIGN_SYSTEM.md` **y** la skill `emil-design-eng` |
 | Escribir código de API, base o front | [docs/tecnico/convenciones.md](docs/tecnico/convenciones.md) |
@@ -22,7 +23,8 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
 - **UI como en el saas:** sombras en vez de bordes marcados, react-select para listas que
   crecen, listados con tabla en escritorio y card de listado en celular. «Como en el saas»
   = abrir el componente del saas y copiarlo tal cual.
-- Dinero en céntimos enteros. Contraseñas de cuentas cifradas. Migraciones solo con
+- Dinero en soles con 2 decimales (`7.50`), nunca céntimos (acordado 2026-10-12).
+- Contraseñas de cuentas cifradas. Migraciones solo con
   `drizzle-kit generate`.
 - **Thony corre todos los comandos.** Claude escribe el código y dice qué correr, aclarando
   qué no está verificado.

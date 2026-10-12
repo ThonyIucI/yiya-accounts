@@ -23,6 +23,13 @@ export const patchJson = (path: string, body: unknown, headers: Record<string, s
     body: JSON.stringify(body),
   });
 
+export const putJson = (path: string, body: unknown, headers: Record<string, string> = {}) =>
+  request(path, {
+    method: "PUT",
+    headers: { ...JSON_HEADERS, ...headers },
+    body: JSON.stringify(body),
+  });
+
 /** Inicia sesión y devuelve la cookie para mandarla en el header `cookie`. */
 export const signIn = async (email: string, password: string) => {
   const response = await postJson("/api/auth/sign-in/email", { email, password });

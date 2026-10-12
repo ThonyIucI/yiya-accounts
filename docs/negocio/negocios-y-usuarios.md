@@ -8,6 +8,11 @@ su correo y su contraseña.
 | `SUPERADMIN` | Tú. Se crea con `seed-superadmin` (ver [despliegue](../tecnico/despliegue.md)) | Panel, **Negocios**, **Usuarios** |
 | `USER` | El dueño (o, más adelante, ayudante) de un negocio | Panel de su negocio |
 
+**El superadmin ve todo; el dueño, solo su negocio** (acordado 2026-10-12). El superadmin
+**siempre está dentro de un negocio** (por defecto, el primero de la lista), lo cambia
+desde un select en su menú lateral y ahí hace todo lo que haría el dueño. Solo queda sin
+negocio cuando no existe ninguno. La elección queda guardada aunque vuelva a entrar.
+
 El rol **dentro** del negocio va en la membresía: `OWNER` (dueño) o `HELPER` (ayudante, aún
 sin uso). Un usuario pertenece a un solo negocio.
 
@@ -31,4 +36,5 @@ no se borra nada. Al volver a encenderlo, entra de nuevo.
 |---|---|
 | `GET /api/v1/users`, `POST /api/v1/users` | superadmin |
 | `GET /api/v1/businesses`, `POST /api/v1/businesses`, `PATCH /api/v1/businesses/:id` | superadmin |
-| `GET /api/v1/my-business` | usuario con negocio activo |
+| `GET /api/v1/my-business` | dueño con negocio activo, o superadmin (el negocio que eligió) |
+| `PUT /api/v1/me/active-business` | superadmin: cambia de negocio |

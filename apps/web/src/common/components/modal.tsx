@@ -4,15 +4,13 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
+import { EASE_DRAWER, EASE_OUT } from "@/common/constants/motion";
 import { useMediaQuery } from "@/common/hooks/use-media-query";
 import { useVisualViewport } from "@/common/hooks/use-visual-viewport";
 
 /** El mismo corte que el `sm:` de Tailwind, para que la animación siga al layout. */
 const DESKTOP_QUERY = "(min-width: 640px)";
 
-/* Curvas del design system (Emil): ease-out fuerte para entrar, curva de drawer iOS para la hoja. */
-const EASE_OUT = [0.23, 1, 0.32, 1] as const;
-const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 const ENTER_SECONDS = 0.28;
 /* Salir siempre más rápido que entrar. */
 const EXIT_SECONDS = 0.18;

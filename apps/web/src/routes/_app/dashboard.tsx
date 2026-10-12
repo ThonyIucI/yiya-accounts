@@ -1,5 +1,5 @@
 import { Skeleton } from "@yiya/ui/components/skeleton";
-import { businessRoleLabels } from "@yiya/shared/businesses";
+import { businessAccessLabels } from "@yiya/shared/businesses";
 import { EUserRole, userRoleLabels } from "@yiya/shared/roles";
 import { createFileRoute } from "@tanstack/react-router";
 import { Store } from "lucide-react";
@@ -62,7 +62,7 @@ function MyBusinessCard() {
           {MyBusiness.business.name}
         </p>
         <p className="text-base text-muted-foreground">
-          {businessRoleLabels[MyBusiness.business.role]}
+          {businessAccessLabels[MyBusiness.business.role]}
         </p>
       </div>
     </article>

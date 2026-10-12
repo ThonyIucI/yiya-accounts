@@ -8,11 +8,12 @@ import {
   type IBusinessResource,
 } from "@yiya/shared/businesses";
 import { EUserRole } from "@yiya/shared/roles";
-import { and, desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
 import type { TAppEnv } from "../lib/app-env";
+import { BUSINESS_LIST_ORDER } from "../lib/business-order";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
 import { ok } from "../lib/response";
@@ -61,7 +62,7 @@ const selectBusinesses = (db: TDb, id?: string) =>
     )
     .leftJoin(user, eq(user.id, membership.userId))
     .where(id ? eq(business.id, id) : undefined)
-    .orderBy(desc(business.createdAt));
+    .orderBy(...BUSINESS_LIST_ORDER);
 
 type TBusinessRow = Awaited<ReturnType<typeof selectBusinesses>>[number];
 
@@ -107,7 +108,8 @@ const assertAvailableOwner = async (db: TDb, ownerId: string) => {
 
 /**
  * Negocios. El SUPERADMIN los crea (con su dueño), los renombra y los activa/desactiva; no
- * se borran. `GET /my-business` es para el usuario del negocio: le dice cuál es el suyo.
+ * se borran. `GET /my-business` dice en qué negocio se está trabajando: el del dueño, o el
+ * que el superadmin eligió en su menú lateral.
  */
 export const businessRoutes = new Hono<TAppEnv>()
   .get(BUSINESS_ROUTES.BUSINESSES, requireSuperadmin, async (context) => {

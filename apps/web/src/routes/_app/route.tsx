@@ -3,6 +3,7 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { parseUserRole } from "@yiya/shared/roles";
 
 import { authClient } from "@/lib/auth-client";
+import { useActiveBusiness } from "@/modules/businesses/context/active-business";
 
 /** Layout de todas las pantallas con sesión. Sin sesión → /login. */
 export const Route = createFileRoute("/_app")({
@@ -19,6 +20,11 @@ export const Route = createFileRoute("/_app")({
   },
 });
 
+/*
+  Cuando el superadmin cambia de negocio, `version` sube y la pantalla se vuelve a montar:
+  así pide sus datos otra vez, ya del negocio nuevo. Para el dueño siempre es 0.
+*/
 function AppLayout() {
-  return <Outlet />;
+  const { version } = useActiveBusiness();
+  return <Outlet key={version} />;
 }

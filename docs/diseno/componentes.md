@@ -19,6 +19,19 @@ de cards genéricas.
 - Acciones de fila con `RowActions` (`common/components/row-actions.tsx`).
 - Referencia en Yiya: `apps/web/src/modules/businesses`.
 
+## Menú lateral (acordado 2026-10-12, `components/app-sidebar.tsx`)
+
+Como el de id-pos. **Complementa** la barra inferior, que se queda para todos como acceso
+rápido. Por ahora **solo lo tiene el superadmin**; el dueño lo tendrá cuando haya opciones
+que lo justifiquen.
+
+- **Arriba:** nombre del usuario y, debajo, el select del negocio. Siempre hay uno elegido
+  (por defecto, el primero de la lista); solo falta cuando no existe ningún negocio.
+- **Luego:** los módulos.
+- **Al pie:** salir.
+- **En celular**, un panel que se abre desde el borde. **En escritorio**, fijo a la
+  izquierda.
+
 ## Modal (`common/components/modal.tsx`)
 
 - Hoja inferior en celular, tarjeta centrada en escritorio. Una sola superficie.

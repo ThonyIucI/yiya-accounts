@@ -14,6 +14,14 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya
 - Toda tabla con datos de un negocio lleva `businessId`.
 - Las rutas del negocio usan `requireAuth, requireBusiness` y filtran por
   `c.var.business.id`. El negocio **nunca** sale del body ni de la URL.
+- De dónde lo saca `requireBusiness` (acordado 2026-10-12):
+  - **dueño:** de su membresía, y solo si el negocio está activo;
+  - **superadmin:** de `user.activeBusinessId`, que elige en su menú lateral
+    (`PUT /me/active-business`). Si nunca eligió o ese negocio ya no existe, entra en el
+    primero de la lista (`lib/business-order.ts`). Puede entrar a uno desactivado.
+- `c.var.business.role` es `OWNER`, `HELPER` o `SUPERADMIN`: dice con qué rol se entró.
+- En el front, `useActiveBusiness().version` sube al cambiar de negocio y `_app` vuelve a
+  montar la pantalla con esa `key`. Así cada pantalla pide sus datos sin escuchar el cambio.
 - Una sola D1 para todos los negocios.
 - Rol de plataforma en `user.role` (`SUPERADMIN` / `USER`); rol dentro del negocio en
   `membership.role` (`OWNER` / `HELPER`). Un usuario, un negocio (índice único).
@@ -24,7 +32,10 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya
 - Migraciones **solo** con `pnpm db:generate`, nunca SQL a mano. Se aplican con wrangler
   (ver [despliegue](despliegue.md)).
 - Escrituras de varias filas en `db.batch([...])`.
-- Dinero en céntimos enteros. Contraseñas de cuentas cifradas con AES-GCM y un secret.
+- Dinero en soles: columna `real`, validada con hasta 2 decimales y redondeada a 2 al
+  guardar y al sumar. Se convierte con `parseSoles` / `formatSoles` de `@yiya/shared`
+  (acordado 2026-10-12).
+- Contraseñas de cuentas cifradas con AES-GCM y un secret.
 
 ## Errores en español (acordado 2026-10-12)
 

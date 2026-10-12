@@ -16,6 +16,13 @@ export const user = sqliteTable("user", {
   emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
   image: text("image"),
   role: text("role").$type<TUserRole>().default("USER").notNull(),
+  /*
+    Solo para el superadmin: el negocio en el que está trabajando, elegido en su menú
+    lateral. Va en el usuario (no en la sesión) para que siga ahí al volver a entrar o
+    desde otro dispositivo. Sin FK porque `business` importa este archivo; si el negocio
+    ya no existe, `requireBusiness` cae al primero de la lista.
+  */
+  activeBusinessId: text("active_business_id"),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).default(nowMs).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .default(nowMs)

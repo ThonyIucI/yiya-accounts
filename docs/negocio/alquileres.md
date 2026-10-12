@@ -22,3 +22,4 @@ diseñan cuando lleguemos a alquileres, sin rehacer lo anterior.
 - ¿El precio de 3/6/12 meses es el mensual × meses o tiene descuento propio?
 - Un cliente con varias cuentas: ¿un alquiler con varios perfiles o varios alquileres?
 - Qué es un **combo** exactamente (varios servicios a un precio).
+- **Promociones** (quedaron para después el 2026-10-12).

@@ -13,6 +13,7 @@ import { useBoolean } from "@/common/hooks/use-boolean";
 import BusinessFormModal from "@/modules/businesses/components/business-form-modal";
 import BusinessMobileList from "@/modules/businesses/components/business-mobile-list";
 import BusinessTable from "@/modules/businesses/components/business-table";
+import { useActiveBusiness } from "@/modules/businesses/context/active-business";
 import { useListBusinesses } from "@/modules/businesses/hooks/use-list-businesses";
 import { useUpdateBusiness } from "@/modules/businesses/hooks/use-update-business";
 import { useUsers } from "@/modules/users/hooks/use-users";
@@ -34,6 +35,7 @@ function BusinessesPage() {
   const ListBusinesses = useListBusinesses();
   const UserList = useUsers();
   const UpdateBusiness = useUpdateBusiness();
+  const ActiveBusiness = useActiveBusiness();
   const showForm = useBoolean();
 
   const [editTarget, setEditTarget] = useState<IBusinessResource | undefined>();
@@ -65,9 +67,13 @@ function BusinessesPage() {
     showForm.on();
   };
 
-  /* El usuario elegido como dueño deja de estar libre: se vuelve a pedir la lista. */
+  /*
+    El usuario elegido como dueño deja de estar libre: se vuelve a pedir la lista. El select
+    del menú lateral también se actualiza (nombre nuevo, o el primer negocio creado).
+  */
   const handleSaved = (saved: IBusinessResource) => {
     ListBusinesses.onUpsert(saved);
+    ActiveBusiness.refresh();
     if (!editTarget) {
       UserList.handler();
     }
@@ -79,6 +85,7 @@ function BusinessesPage() {
     setTogglingId(null);
     if (saved) {
       ListBusinesses.onUpsert(saved);
+      ActiveBusiness.refresh();
     }
   };
 

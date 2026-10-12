@@ -33,11 +33,23 @@ export interface IBusinessResource {
   createdAt: string;
 }
 
-/** El negocio de quien tiene la sesión, con su rol en él. */
+/**
+ * Con qué rol se está dentro de un negocio: el de la membresía, o `SUPERADMIN` cuando el
+ * superadmin entró a un negocio ajeno desde su menú lateral.
+ */
+export type TBusinessAccess = TBusinessRole | "SUPERADMIN";
+
+export const businessAccessLabels: Record<TBusinessAccess, string> = {
+  ...businessRoleLabels,
+  SUPERADMIN: "Superadministrador",
+};
+
+/** El negocio en el que se está trabajando, con el rol con que se entró. */
 export interface ICurrentBusiness {
   id: string;
   name: string;
-  role: TBusinessRole;
+  isActive: boolean;
+  role: TBusinessAccess;
 }
 
 export const BUSINESS_NAME_MIN_LENGTH = 2;
