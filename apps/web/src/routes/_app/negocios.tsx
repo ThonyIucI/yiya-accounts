@@ -111,7 +111,7 @@ function BusinessesPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5 px-4 py-6">
+    <div className="mx-auto w-full max-w-7xl space-y-5 px-4 py-6">
       <PageHeader
         title="Negocios"
         subtitle={

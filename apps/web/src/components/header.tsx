@@ -33,7 +33,7 @@ export default function Header() {
       animate={{ y: isHidden ? "-100%" : 0 }}
       transition={{ duration: 0.2, ease: isHidden ? "easeIn" : "easeOut" }}
     >
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4">
         <div className="flex min-w-0 items-center gap-4">
           <Link to="/dashboard" className="font-heading text-xl font-extrabold text-foreground">
             Yiya

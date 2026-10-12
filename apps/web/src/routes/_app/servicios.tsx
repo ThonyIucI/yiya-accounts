@@ -198,7 +198,7 @@ function ServicesPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4 px-4 py-6">
+    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 py-6">
       <PageHeader
         title="Servicios"
         subtitle={subtitle}
