@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 
 import { useChromeHidden } from "@/common/hooks/use-chrome-hidden";
-import { useNavItems } from "@/common/hooks/use-nav-items";
+import { useQuickAccessItems } from "@/common/hooks/use-nav-items";
 
 /**
  * Navegación de pulgar para móvil. Solo aparece en pantallas chicas: en escritorio los
@@ -19,7 +19,7 @@ import { useNavItems } from "@/common/hooks/use-nav-items";
  * botones físicos, que si no se come la fila de íconos.
  */
 export default function BottomNav() {
-  const items = useNavItems();
+  const items = useQuickAccessItems();
   const isHidden = useChromeHidden();
 
   if (items.length === 0) {

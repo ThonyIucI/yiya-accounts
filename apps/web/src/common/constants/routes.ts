@@ -23,6 +23,7 @@ const APP_NAV: readonly INavItem[] = [
   { to: "/proveedores", label: "Proveedores", shortLabel: "Proveedores", icon: Truck },
 ];
 
+/* Negocios y Usuarios no son del día a día: no van en la barra inferior (ver abajo). */
 const SUPERADMIN_NAV: readonly INavItem[] = [
   ...APP_NAV,
   { to: "/negocios", label: "Negocios", shortLabel: "Negocios", icon: Store },
@@ -37,3 +38,11 @@ export const navItemsForRole = (role: TUserRole | null): readonly INavItem[] => 
 
   return role ? APP_NAV : [];
 };
+
+/**
+ * Los de la barra inferior (acceso rápido): los módulos del negocio, iguales para todos.
+ * Negocios y Usuarios del superadmin quedan solo en su menú lateral: con seis botones la
+ * barra no entra en un celular (acordado 2026-10-13).
+ */
+export const quickAccessItemsForRole = (role: TUserRole | null): readonly INavItem[] =>
+  role ? APP_NAV : [];

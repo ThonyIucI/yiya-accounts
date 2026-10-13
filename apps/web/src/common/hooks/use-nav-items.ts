@@ -1,4 +1,4 @@
-import { navItemsForRole } from "@/common/constants/routes";
+import { navItemsForRole, quickAccessItemsForRole } from "@/common/constants/routes";
 import { useSessionRole } from "@/common/hooks/use-session-role";
 
 /**
@@ -6,3 +6,6 @@ import { useSessionRole } from "@/common/hooks/use-session-role";
  * dependen la barra inferior **y** el espacio que se le reserva debajo del contenido.
  */
 export const useNavItems = () => navItemsForRole(useSessionRole());
+
+/** Los de la barra inferior: sin Negocios ni Usuarios, que van solo en el menú lateral. */
+export const useQuickAccessItems = () => quickAccessItemsForRole(useSessionRole());
