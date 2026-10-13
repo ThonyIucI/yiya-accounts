@@ -70,6 +70,9 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
 - Con el teclado abierto, la hoja queda pegada encima del teclado
   (`interactive-widget=resizes-content` en `index.html`).
 - Confirmaciones con `ConfirmModal`, nunca `window.confirm`.
+- El scroll de la página se congela **solo** con una modal abierta, con
+  `lockPageScroll` (lleva la cuenta si hay dos). Los menús (`DropdownMenu`) van con
+  `modal={false}` y no lo tocan: su bloqueo se trababa al cambiar el zoom (2026-10-12).
 
 ## Campos de formulario
 

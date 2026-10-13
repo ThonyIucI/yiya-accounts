@@ -5,8 +5,13 @@ import { cn } from "@yiya/ui/lib/utils";
 import { ChevronRightIcon, CheckIcon } from "lucide-react";
 import * as React from "react";
 
-function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+/*
+  `modal={false}` por defecto: un menú no necesita trabar el scroll de la página. Con el
+  bloqueo de base-ui, cambiar el zoom (un `resize`) con un menú abierto lo recalculaba y el
+  scroll podía quedar trabado. Igual se cierra al tocar afuera o con Escape.
+*/
+function DropdownMenu({ modal = false, ...props }: MenuPrimitive.Root.Props) {
+  return <MenuPrimitive.Root data-slot="dropdown-menu" modal={modal} {...props} />;
 }
 
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {

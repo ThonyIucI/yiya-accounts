@@ -7,6 +7,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import { EASE_DRAWER, EASE_OUT } from "@/common/constants/motion";
 import { useMediaQuery } from "@/common/hooks/use-media-query";
 import { useVisualViewport } from "@/common/hooks/use-visual-viewport";
+import { lockPageScroll } from "@/common/utils/scroll-lock";
 
 /** El mismo corte que el `sm:` de Tailwind, para que la animación siga al layout. */
 const DESKTOP_QUERY = "(min-width: 640px)";
@@ -100,7 +101,15 @@ export default function Modal({
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const { bodyRef, edges, measure } = useScrollEdges(open && isPanelMounted);
 
-  /* Escape cierra, y el fondo se congela: sin esto la página de atrás scrollea sola. */
+  /* Siempre el último `onClose`, sin volver a correr los efectos cada vez que cambia. */
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  /*
+    Escape cierra, y el fondo se congela: sin esto la página de atrás scrollea sola. Depende
+    solo de `open`: si dependiera de `onClose` (una función nueva en cada render), el bloqueo
+    se quitaba y se ponía en cada render y podía quedar pegado con el scroll trabado.
+  */
   useEffect(() => {
     if (!open) {
       setIsPanelMounted(false);
@@ -109,19 +118,18 @@ export default function Modal({
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onClose();
+        onCloseRef.current();
       }
     };
 
     window.addEventListener("keydown", onKey);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const releaseScroll = lockPageScroll();
 
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previousOverflow;
+      releaseScroll();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   const hidden = prefersReducedMotion
     ? { opacity: 0 }
