@@ -355,6 +355,6 @@ En `apps/server/test/active-business.spec.ts`, `services.spec.ts` y
 1. ¿El catálogo inicial está bien? ¿Falta alguno (por ejemplo, IPTV o Canva)?
 2. ¿Cuántos perfiles **vende** de verdad por cuenta de cada servicio? A veces se deja uno
    libre para el dueño de la cuenta.
-3. ¿El precio de compra es siempre el mismo para un servicio, o cambia según el proveedor?
-   Si cambia, en el paso 3 cada cuenta guardará su precio real, y el de acá quedará como
-   valor por defecto.
+3. ~~¿El precio de compra cambia según el proveedor?~~ Resuelto el 2026-10-12: sí. Cada
+   cuenta guarda su precio real y el de acá queda como **referencial**
+   ([paso 3](03-inventario.md)).

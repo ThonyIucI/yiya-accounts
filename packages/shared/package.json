@@ -12,5 +12,8 @@
   "devDependencies": {
     "@yiya/config": "workspace:*",
     "typescript": "catalog:"
+  },
+  "dependencies": {
+    "libphonenumber-js": "^1.13.15"
   }
 }

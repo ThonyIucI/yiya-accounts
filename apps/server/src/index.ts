@@ -16,6 +16,7 @@ import { businessRoutes } from "./routes/businesses";
 import { healthRoutes } from "./routes/health";
 import { internalRoutes } from "./routes/internal";
 import { meRoutes } from "./routes/me";
+import { providerRoutes } from "./routes/providers";
 import { serviceRoutes } from "./routes/services";
 import { userRoutes } from "./routes/users";
 
@@ -62,6 +63,7 @@ app
   .route("/", userRoutes)
   .route("/", businessRoutes)
   .route("/", serviceRoutes)
+  .route("/", providerRoutes)
   .route("/", internalRoutes);
 
 app.notFound((context) => fail(context, "Recurso no encontrado.", 404));

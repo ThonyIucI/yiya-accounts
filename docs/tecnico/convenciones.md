@@ -36,6 +36,14 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya
   guardar y al sumar. Se convierte con `parseSoles` / `formatSoles` de `@yiya/shared`
   (acordado 2026-10-12).
 - Contraseñas de cuentas cifradas con AES-GCM y un secret.
+- **Nombres únicos** (servicios, proveedores): columna `name_key` con índice único, porque
+  el índice de SQLite distingue mayúsculas y su `lower()` no entiende tildes.
+- **Teléfonos** (acordado 2026-10-13): dos columnas, `country_prefix` («51», sin «+»; nunca
+  `country_code`, que es el ISO «PE») y el número en dígitos. En la API,
+  `{ countryPrefix, number }`. Validar y formatear solo con `@yiya/shared/phones`
+  (`libphonenumber-js`).
+- Al pedir `pnpm db:generate`, decir qué crea o cambia cada migración y para qué (como la
+  tabla «Migraciones» de cada ERS), no solo el comando.
 
 ## Errores en español (acordado 2026-10-12)
 

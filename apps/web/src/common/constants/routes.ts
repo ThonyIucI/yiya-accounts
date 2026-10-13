@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, Tv, Users } from "lucide-react";
+import { LayoutDashboard, Store, Truck, Tv, Users } from "lucide-react";
 import type { ComponentType } from "react";
 
 import { EUserRole, type TUserRole } from "@yiya/shared/roles";
@@ -7,7 +7,7 @@ import { EUserRole, type TUserRole } from "@yiya/shared/roles";
  * Las rutas se listan como literales y no como `string` porque el `to` de TanStack Router
  * está tipado: un enlace a una ruta inexistente tiene que romper el build, no la página.
  */
-export type TNavPath = "/dashboard" | "/servicios" | "/negocios" | "/usuarios";
+export type TNavPath = "/dashboard" | "/servicios" | "/proveedores" | "/negocios" | "/usuarios";
 
 export interface INavItem {
   to: TNavPath;
@@ -20,6 +20,7 @@ export interface INavItem {
 const APP_NAV: readonly INavItem[] = [
   { to: "/dashboard", label: "Panel", shortLabel: "Panel", icon: LayoutDashboard },
   { to: "/servicios", label: "Servicios", shortLabel: "Servicios", icon: Tv },
+  { to: "/proveedores", label: "Proveedores", shortLabel: "Proveedores", icon: Truck },
 ];
 
 const SUPERADMIN_NAV: readonly INavItem[] = [

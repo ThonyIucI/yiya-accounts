@@ -15,6 +15,10 @@ Acordado el 2026-10-12. El detalle de lo que se construyó está en la
   | Compra | Lo que le cuesta **una cuenta** al negocio | S/ 20.00 |
   | Venta | A cuánto alquila **un perfil por un mes** | S/ 7.50 |
 
+- **El precio de compra del servicio es referencial** (acordado 2026-10-12): una misma
+  plataforma se compra a varios proveedores y a precios distintos. El real lo guarda cada
+  cuenta; el del servicio solo llena el campo al registrarla
+  ([ERS del paso 3](../planes/03-inventario.md)).
 - **Sin los dos precios no se activa**: al activar se piden (o confirman) los dos en una
   ventana y recién al confirmar queda activo. Los precios solo se ven y se editan mientras
   el servicio está activo. A un servicio activo no se le puede borrar
@@ -34,5 +38,4 @@ Acordado el 2026-10-12. El detalle de lo que se construyó está en la
 ## Pendiente con el cliente
 
 - Confirmar el catálogo inicial y cuántos perfiles vende de verdad por cuenta.
-- Si el precio de compra cambia según el proveedor (lo resolvemos en el paso 3).
 - Promociones y planes de 3, 6 y 12 meses: paso 4 ([alquileres](alquileres.md)).

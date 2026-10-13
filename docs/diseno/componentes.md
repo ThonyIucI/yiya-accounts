@@ -81,4 +81,9 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
   crece: usuarios, clientes, cuentas. Se puede buscar escribiendo.
   - Opciones en **una sola línea**: «**Nombre** · dato secundario», no el dato debajo.
   - El `<select>` nativo solo para listas cortas y fijas.
+- **Teléfono** (`common/components/phone-input.tsx`, acordado 2026-10-13): el `PhoneInput`
+  de id-pos. A la izquierda, la bandera y el prefijo («+51»), que abren un buscador de
+  países por nombre, ISO o prefijo; a la derecha, el número con el formato del país
+  mientras se escribe y un celular de ejemplo como placeholder. Arranca en Perú. Al
+  mostrarlo, «+51 987 654 321» con su bandera y link a WhatsApp.
 - Validación con mensajes en español debajo del campo (`FieldError`).
