@@ -222,15 +222,19 @@ react-select.
 ### Navegación
 
 - Rutas nuevas: `/cuentas`, `/cuentas/$accountId` y `/proveedores`.
-- **Barra inferior para todos:** Panel · Cuentas · Proveedores · Servicios.
+- **Barra inferior para todos:** Panel · Cuentas · Proveedores · Servicios. Hoy, sin
+  Cuentas, Panel · Servicios · Proveedores.
 - Negocios y Usuarios quedan **solo en el menú lateral** del superadmin. Con seis
   botones la barra inferior no entra en un celular, y esas dos pantallas no son del día a
-  día. **Por confirmar con Thony.**
+  día (acordado 2026-10-13).
 
 ### `/proveedores`
 
-- **Card:** nombre y WhatsApp a la izquierda; `⋯` con «Editar» y «Eliminar» a la
-  derecha; abajo «3 cuentas».
+- **Card:** nombre a la izquierda; `⋯` con «Editar» y «Eliminar» a la derecha; abajo el
+  WhatsApp y la nota (y «3 cuentas», cuando existan).
+- **El WhatsApp** se muestra con la bandera y el número sin prefijo. Al costado: copiar
+  (copia el número completo con prefijo) y el ícono de WhatsApp, que es lo único que abre
+  el chat (acordado 2026-10-13).
 - **Tabla:** Proveedor · WhatsApp · Cuentas · acciones.
 - **Modal crear / editar:** nombre, WhatsApp y nota.
 - **Eliminar:** sin cuentas, `ConfirmModal`; con cuentas, una modal con el mensaje de RF-05

@@ -1,6 +1,6 @@
 import { Skeleton } from "@yiya/ui/components/skeleton";
 import type { IProviderResource } from "@yiya/shared/providers";
-import { Truck } from "lucide-react";
+import { MessageSquareText, Truck } from "lucide-react";
 
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 
@@ -30,9 +30,15 @@ export default function ProviderCard({ provider, actions }: IProviderCardProps) 
         <RowActions actions={actions} />
       </div>
 
-      <div className="mt-3 space-y-1 border-t border-border/60 pt-3 text-base">
+      <div className="mt-3 space-y-1 border-t border-border/60 pt-1 text-base">
         <ProviderPhone phone={provider.phone} />
-        {provider.note && <p className="line-clamp-2 text-sm text-muted-foreground">{provider.note}</p>}
+        {provider.note && (
+          /* El ícono avisa que es una nota y no otro dato del proveedor. */
+          <p className="flex items-start gap-2 text-sm text-muted-foreground">
+            <MessageSquareText aria-hidden className="mt-px size-4 shrink-0" />
+            <span className="line-clamp-2">{provider.note}</span>
+          </p>
+        )}
       </div>
     </article>
   );

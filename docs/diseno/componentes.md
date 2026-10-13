@@ -23,7 +23,9 @@ de cards genéricas.
 ## Menú lateral (acordado 2026-10-12, `components/app-sidebar.tsx`)
 
 Como el de id-pos. **Complementa** la barra inferior, que se queda para todos como acceso
-rápido. Por ahora **solo lo tiene el superadmin**; el dueño lo tendrá cuando haya opciones
+rápido con los módulos del negocio. Negocios y Usuarios van **solo en el menú lateral**, que
+tiene más espacio: con seis botones la barra inferior no entra en un celular (acordado
+2026-10-13). Por ahora **solo lo tiene el superadmin**; el dueño lo tendrá cuando haya opciones
 que lo justifiquen.
 
 - **Arriba:** nombre del usuario y, debajo, el select del negocio. Siempre hay uno elegido
@@ -84,6 +86,10 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
 - **Teléfono** (`common/components/phone-input.tsx`, acordado 2026-10-13): el `PhoneInput`
   de id-pos. A la izquierda, la bandera y el prefijo («+51»), que abren un buscador de
   países por nombre, ISO o prefijo; a la derecha, el número con el formato del país
-  mientras se escribe y un celular de ejemplo como placeholder. Arranca en Perú. Al
-  mostrarlo, «+51 987 654 321» con su bandera y link a WhatsApp.
+  mientras se escribe y un celular de ejemplo como placeholder. Arranca en Perú.
+- **Mostrar un teléfono** (`modules/providers/components/provider-phone.tsx`, acordado
+  2026-10-13): bandera + el número **sin prefijo** («987 654 321»: la bandera ya dice el
+  país). Al costado, copiar (copia el número completo, «+51987654321», con
+  `common/utils/clipboard.ts`) y el ícono de WhatsApp. **Solo el ícono** abre el chat; el
+  número no es link.
 - Validación con mensajes en español debajo del campo (`FieldError`).

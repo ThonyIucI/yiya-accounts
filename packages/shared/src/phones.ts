@@ -54,6 +54,9 @@ export const countryOfPhone = (prefix: string, phone = ""): CountryCode => {
 export const formatNationalPhone = (phone: string, country: CountryCode): string =>
   phone ? new AsYouType(country).input(phone) : "";
 
+/** El número completo, para copiar o pegar en WhatsApp: «+51987654321». */
+export const toFullPhone = (prefix: string, phone: string): string => `+${prefix}${phone}`;
+
 /** Para mostrar: «+51 987 654 321». */
 export const formatInternationalPhone = (prefix: string, phone: string): string =>
   parsePhoneNumberFromString(`+${prefix}${phone}`)?.formatInternational() ?? `+${prefix} ${phone}`;
