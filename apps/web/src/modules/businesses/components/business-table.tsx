@@ -97,8 +97,9 @@ export default function BusinessTable({
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
                       <Switch
+                        /* Sin `disabled` (nunca se apaga): mientras guarda, un toque más no hace nada. */
+                        aria-busy={togglingId === business.id}
                         checked={business.isActive}
-                        disabled={togglingId === business.id}
                         aria-label={business.isActive ? "Desactivar negocio" : "Activar negocio"}
                         onCheckedChange={() => onToggleActive(business)}
                       />

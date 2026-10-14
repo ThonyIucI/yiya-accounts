@@ -41,13 +41,18 @@ que lo justifiquen.
 - **En celular**, un panel que se abre desde el borde. **En escritorio**, fijo a la
   izquierda.
 
-## Listados largos: buscador y paginado (acordado 2026-10-12)
+## Listados largos: buscador, filtros y paginado (acordado 2026-10-12)
 
 Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referencia en Yiya:
 `routes/_app/servicios.tsx`.
 
 - Buscador (`SearchInput`) dentro de `StickyToolbar`: al bajar se pega bajo el encabezado y
   se vuelve vidrio con sombra.
+- **Filtros en su botón, no en la pantalla** (acordado 2026-10-13, como en id-pos): al lado
+  del buscador va `FilterButton` (`common/components/filter-button.tsx`), con un globo que
+  dice cuántos hay puestos. Abre una modal con los selects; se aplican al elegir y el botón
+  dice cuántos resultados quedan («Ver 3 cuentas»), con «Limpiar» al lado. Referencia:
+  `modules/accounts/components/account-filters-modal.tsx`.
 - `ResultsCounter` («Mostrando 1–10 de 24») arriba de la lista.
 - `ListPagination` con filas por página (10, 20, 50): dentro de la card de la tabla en
   escritorio, en su propia barra con sombra en celular.
@@ -99,7 +104,8 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 ## Copiar
 
 - Cada dato que se le pasa a un cliente lleva su ícono de copiar, y copia **solo ese dato**.
-- **«Copiar acceso»** de una cuenta copia el bloque listo para WhatsApp
+- **«Copiar acceso»** de una cuenta (el ícono de copiar de su card y el `⋯` del detalle)
+  copia el bloque listo para WhatsApp
   (`modules/accounts/utils/access-text.ts`):
   `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.
 
@@ -120,6 +126,9 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
   `common/utils/clipboard.ts`, que funciona también sin HTTPS, ver
   [convenciones](../tecnico/convenciones.md)) y el ícono de WhatsApp, pegado al de copiar. **Solo el ícono** abre el chat; el
   número no es link.
+- **Un select de servicios lleva el logo de cada uno** (acordado 2026-10-13), en el menú y
+  en lo elegido: `toServiceOption` (`modules/services/utils/service-option.tsx`). `IOption`
+  acepta `icon` para eso.
 - **Select con «Crear «…»»** (`CreatableSelect` de `common/components/select.tsx`): para
   agregar algo sin salir del formulario, como un proveedor desde la cuenta.
 - Validación con mensajes en español debajo del campo (`FieldError`).

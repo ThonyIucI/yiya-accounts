@@ -95,8 +95,9 @@ export default function AccountTable({
                   <TableCell>
                     <div className="flex justify-center" onClick={(event) => event.stopPropagation()}>
                       <Switch
+                        /* Sin `disabled` (nunca se apaga): mientras guarda, un toque más no hace nada. */
+                        aria-busy={togglingId === account.id}
                         checked={account.isActive}
-                        disabled={togglingId === account.id}
                         aria-label={account.isActive ? "Desactivar cuenta" : "Activar cuenta"}
                         onCheckedChange={() => onToggleActive(account)}
                       />

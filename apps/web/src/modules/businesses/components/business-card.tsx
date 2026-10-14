@@ -48,8 +48,9 @@ export default function BusinessCard({
 
         <div className="flex shrink-0 items-center gap-1">
           <Switch
+            /* Sin `disabled` (nunca se apaga): mientras guarda, un toque más no hace nada. */
+            aria-busy={isToggling}
             checked={business.isActive}
-            disabled={isToggling}
             aria-label={business.isActive ? "Desactivar negocio" : "Activar negocio"}
             onCheckedChange={onToggleActive}
           />

@@ -25,6 +25,16 @@ Antes de diseñar o tocar UI, leer:
   `border-border/60`.
 - Estado vacío: borde **punteado fino** (1 px), no grueso.
 
+## Botones: nunca desactivados (acordado 2026-10-13)
+
+- Un botón **nunca** lleva `disabled`, ni el de guardar, ni el de crear, ni los íconos de
+  una fila. Si todavía no se puede hacer lo que pide, el clic **dice por qué** en español:
+  el error del campo debajo, o un toast («Activa un servicio en Servicios para registrar
+  cuentas.»).
+- Mientras guarda, el botón sigue habilitado con su spinner, y un segundo clic no hace
+  nada (la guarda va en el handler, p. ej. `if (form.state.isSubmitting) return`).
+- Lo mismo vale para los switches: mientras guardan llevan `aria-busy`, no `disabled`.
+
 ## Motion
 
 - Curvas: `[0.23, 1, 0.32, 1]` para entrar; `[0.32, 0.72, 0, 1]` para hojas inferiores.

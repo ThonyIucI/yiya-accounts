@@ -23,6 +23,8 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
 - **UI como en el saas:** sombras en vez de bordes marcados, react-select para listas que
   crecen, listados con tabla en escritorio y card de listado en celular. «Como en el saas»
   = abrir el componente del saas y copiarlo tal cual.
+- **Ningún botón se desactiva** (acordado 2026-10-13): siempre habilitado, y si no se puede,
+  el clic muestra el error. Ver [principios](docs/diseno/principios.md).
 - Dinero en soles con 2 decimales (`7.50`), nunca céntimos (acordado 2026-10-12).
 - Contraseñas de cuentas cifradas. Migraciones solo con
   `drizzle-kit generate`.

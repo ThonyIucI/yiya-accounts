@@ -285,18 +285,20 @@ react-select.
 
 ### `/cuentas`
 
-- **Card** (referencia que pasó Thony el 2026-10-13):
-  - **Arriba:** imagen del servicio; el correo con su ícono de copiar y, debajo,
-    «Proveedor: DigitalStore». A la derecha, el **switch** y `⋯` («Editar», «Renovar»,
-    «Eliminar»). **Sin badge** de «Activa»: lo dice el switch.
-  - **Medio:** «Perfiles» y, a la derecha, «4 / 5 libres». Debajo, un chip por perfil
-    («P1»… «P5»). Hasta el paso 4 todos están libres; en el paso 4 los alquilados se pintan
-    distinto.
-  - **Pie:** «Renueva: 18 nov 2026» (con los colores de RF-14) y el botón **«Gestionar»**,
-    que abre el detalle lateral.
-  - La contraseña no va en la card: solo en el detalle.
+- **Card** (referencia que pasó Thony el 2026-10-13, ajustada el mismo día):
+  - **Cabecera:** logo del servicio, el correo y, debajo, **solo el nombre** del proveedor
+    (sin «Proveedor:»). **Tocar cualquier parte de la cabecera abre el detalle**: no hay
+    botón «Gestionar». El ícono de copiar al lado del correo copia **el acceso completo**
+    (correo y contraseña, el formato de RF-18a). A la derecha, el switch y `⋯`. Sin badge
+    de «Activa».
+  - **Perfiles: plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
+    abrir, un chip por perfil («P1»… «P5»).
+  - **Pie:** «Renueva: 18 nov 2026» (con los colores de RF-14).
+  - La contraseña no se ve en la card: solo en el detalle.
 - **Tabla:** Servicio · Correo · Proveedor · Perfiles · Renueva · Activa · acciones.
-- Barra pegajosa con buscador y los filtros de servicio y proveedor.
+- Barra pegajosa con el buscador y, al lado, el **botón de filtros** (servicio y
+  proveedor), que abre su modal. Los filtros no van sueltos en la pantalla.
+- Todo select de servicios lleva el logo de cada uno.
 - Vacío: «Todavía no tienes cuentas» → «Registrar la primera».
 
 ### Modal registrar / editar cuenta

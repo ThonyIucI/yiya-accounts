@@ -15,6 +15,7 @@ import type { IBusinessServiceResource } from "@yiya/shared/services";
 import { useForm } from "@tanstack/react-form";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import z from "zod";
 
 import FieldError from "@/common/components/field-error";
@@ -24,6 +25,7 @@ import { useAccountPassword } from "@/modules/accounts/hooks/use-account-passwor
 import { useCreateAccount } from "@/modules/accounts/hooks/use-create-account";
 import { useUpdateAccount } from "@/modules/accounts/hooks/use-update-account";
 import { useCreateProvider } from "@/modules/providers/hooks/use-create-provider";
+import { toServiceOption } from "@/modules/services/utils/service-option";
 
 const FORM_ID = "account-form";
 const PROFILES_PATTERN = /^\d+$/;
@@ -99,9 +101,7 @@ export default function AccountFormModal({
   /* La contraseña con la que se abrió la edición: si no cambió, no se manda. */
   const originalPasswordRef = useRef<string | null>(null);
 
-  const serviceOptions: IOption[] = services
-    .filter((item) => item.isActive)
-    .map((item) => ({ value: item.id, label: item.name }));
+  const serviceOptions: IOption[] = services.filter((item) => item.isActive).map(toServiceOption);
   const providerOptions: IOption[] = providers.map((item) => ({ value: item.id, label: item.name }));
 
   const form = useForm({
@@ -182,11 +182,7 @@ export default function AccountFormModal({
 
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
-              <Button
-                type="submit"
-                form={FORM_ID}
-                disabled={isSubmitting || (isEdit && AccountPassword.loading)}
-              >
+              <Button type="submit" form={FORM_ID}>
                 {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                 {isEdit ? "Guardar cambios" : "Registrar cuenta"}
               </Button>
@@ -200,6 +196,14 @@ export default function AccountFormModal({
         onSubmit={(event) => {
           event.preventDefault();
           event.stopPropagation();
+          /* El botón nunca se apaga: si falta algo, el clic lo dice; mientras guarda, no repite. */
+          if (form.state.isSubmitting) {
+            return;
+          }
+          if (isEdit && AccountPassword.loading) {
+            toast.info("Un momento: estamos trayendo la contraseña de la cuenta.");
+            return;
+          }
           form.handleSubmit();
         }}
         className="space-y-4"
@@ -283,7 +287,7 @@ export default function AccountFormModal({
                   autoCapitalize="none"
                   maxLength={ACCOUNT_PASSWORD_MAX_LENGTH}
                   placeholder={isEdit && AccountPassword.loading ? "Cargando…" : "La que te dio el proveedor"}
-                  disabled={isEdit && AccountPassword.loading}
+                  readOnly={isEdit && AccountPassword.loading}
                   aria-invalid={field.state.meta.errors.length > 0}
                   value={field.state.value}
                   onBlur={field.handleBlur}

@@ -3,6 +3,7 @@ import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { KeyRound, Pencil, Plus, Search, Trash2, Tv } from "lucide-react";
 import { type ChangeEvent, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import ConfirmModal from "@/common/components/confirm-modal";
 import EmptyState from "@/common/components/empty-state";
@@ -10,11 +11,17 @@ import ListPagination, { ResultsCounter } from "@/common/components/list-paginat
 import PageHeader from "@/common/components/page-header";
 import type { IRowAction } from "@/common/components/row-actions";
 import SearchInput from "@/common/components/search-input";
-import Select, { type IOption } from "@/common/components/select";
+import FilterButton from "@/common/components/filter-button";
+import type { IOption } from "@/common/components/select";
 import StickyToolbar from "@/common/components/sticky-toolbar";
 import { useBoolean } from "@/common/hooks/use-boolean";
 import { usePagination } from "@/common/hooks/use-pagination";
 import AccountDetailPanel from "@/modules/accounts/components/account-detail-panel";
+import AccountFiltersModal, {
+  EMPTY_ACCOUNT_FILTERS,
+  type IAccountFilters,
+  countAccountFilters,
+} from "@/modules/accounts/components/account-filters-modal";
 import AccountFormModal from "@/modules/accounts/components/account-form-modal";
 import AccountMobileList from "@/modules/accounts/components/account-mobile-list";
 import AccountTable from "@/modules/accounts/components/account-table";
@@ -24,6 +31,7 @@ import { useAddProfile, useDeleteProfile } from "@/modules/accounts/hooks/use-pr
 import { useUpdateAccount } from "@/modules/accounts/hooks/use-update-account";
 import { useListProviders } from "@/modules/providers/hooks/use-list-providers";
 import { useListBusinessServices } from "@/modules/services/hooks/use-list-business-services";
+import { toServiceOption } from "@/modules/services/utils/service-option";
 
 interface IAccountsSearch {
   /** La cuenta abierta en el detalle lateral: así se puede recargar o compartir el link. */
@@ -38,6 +46,7 @@ export const Route = createFileRoute("/_app/cuentas")({
 });
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const NO_ACTIVE_SERVICES_MESSAGE = "Activa un servicio en Servicios para registrar cuentas.";
 
 const pluralize = (count: number, singular: string, plural: string) =>
   `${count} ${count === 1 ? singular : plural}`;
@@ -75,8 +84,8 @@ function AccountsPage() {
   const [profileTarget, setProfileTarget] = useState<IProfileTarget | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [term, setTerm] = useState("");
-  const [serviceFilter, setServiceFilter] = useState<string | null>(null);
-  const [providerFilter, setProviderFilter] = useState<string | null>(null);
+  const [filters, setFilters] = useState<IAccountFilters>(EMPTY_ACCOUNT_FILTERS);
+  const showFilters = useBoolean();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -98,23 +107,29 @@ function AccountsPage() {
     .filter(
       (item) =>
         (!normalizedTerm || item.email.toLowerCase().includes(normalizedTerm)) &&
-        (!serviceFilter || item.service.id === serviceFilter) &&
-        (!providerFilter || item.provider.id === providerFilter),
+        (!filters.serviceId || item.service.id === filters.serviceId) &&
+        (!filters.providerId || item.provider.id === filters.providerId),
     )
     .sort(byActiveServiceEmail);
   const pager = usePagination(visible, { initialPageSize: PAGE_SIZE_OPTIONS[0] });
   const hasContent = !isLoading && visible.length > 0;
-  const hasFilters = normalizedTerm !== "" || serviceFilter !== null || providerFilter !== null;
+  const activeFilterCount = countAccountFilters(filters);
+  const hasFilters = normalizedTerm !== "" || activeFilterCount > 0;
 
   /* Solo los servicios y proveedores que tienen cuentas: filtrar por otro da vacío siempre. */
   const serviceOptions: IOption[] = [
-    ...new Map(accounts.map((item) => [item.service.id, item.service.name])),
-  ].map(([value, label]) => ({ value, label }));
+    ...new Map(accounts.map((item) => [item.service.id, item.service])).values(),
+  ].map(toServiceOption);
   const providerOptions: IOption[] = [
     ...new Map(accounts.map((item) => [item.provider.id, item.provider.name])),
   ].map(([value, label]) => ({ value, label }));
 
   const resetPage = pager.resetPage;
+
+  const handleFiltersChange = (next: IAccountFilters) => {
+    setFilters(next);
+    resetPage();
+  };
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setTerm(event.target.value);
@@ -124,7 +139,12 @@ function AccountsPage() {
   const openDetail = (account: IAccountResource) => navigate({ search: { cuenta: account.id } });
   const closeDetail = () => navigate({ search: {} });
 
+  /* El botón nunca se apaga: sin servicios activos, el clic dice qué falta. */
   const openCreate = () => {
+    if (!hasActiveServices) {
+      toast.error(NO_ACTIVE_SERVICES_MESSAGE);
+      return;
+    }
     setEditTarget(undefined);
     showForm.on();
   };
@@ -136,6 +156,10 @@ function AccountsPage() {
 
   /* Desactivar no borra nada: va directo, sin confirmación. */
   const handleToggleActive = async (account: IAccountResource) => {
+    /* El switch no se apaga mientras guarda: un toque más no manda otro cambio. */
+    if (togglingId) {
+      return;
+    }
     setTogglingId(account.id);
     const saved = await UpdateAccount.handler(account.id, { isActive: !account.isActive });
     setTogglingId(null);
@@ -159,6 +183,9 @@ function AccountsPage() {
   };
 
   const handleAddProfile = async (account: IAccountResource) => {
+    if (AddProfile.loading) {
+      return;
+    }
     const saved = await AddProfile.handler(account.id);
     if (saved) {
       ListAccounts.onUpsert(saved);
@@ -210,7 +237,7 @@ function AccountsPage() {
         }
         isLoadingSubtitle={isLoading}
         action={
-          <Button type="button" onClick={openCreate} disabled={!hasActiveServices}>
+          <Button type="button" onClick={openCreate}>
             <Plus />
             Registrar
           </Button>
@@ -221,7 +248,7 @@ function AccountsPage() {
         <div className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
           <Tv className="size-5 shrink-0 text-muted-foreground" />
           <p className="text-base text-foreground">
-            Activa un servicio en Servicios para registrar cuentas.{" "}
+            {NO_ACTIVE_SERVICES_MESSAGE}{" "}
             <Link to="/servicios" className="font-semibold text-primary">
               Ir a Servicios
             </Link>
@@ -231,9 +258,9 @@ function AccountsPage() {
 
       {accounts.length > 0 && (
         <StickyToolbar>
-          {/* En celular, el buscador arriba y los dos filtros lado a lado: la barra no crece tanto. */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:ml-auto lg:max-w-3xl">
-            <div className="col-span-2 sm:col-span-1">
+          {/* Los filtros no ocupan la pantalla: van en su modal, como en id-pos. */}
+          <div className="flex gap-2 lg:ml-auto lg:w-96">
+            <div className="min-w-0 flex-1">
               <SearchInput
                 placeholder="Buscar por correo…"
                 aria-label="Buscar cuenta por correo"
@@ -241,28 +268,7 @@ function AccountsPage() {
                 onChange={handleSearchChange}
               />
             </div>
-            <Select
-              aria-label="Filtrar por servicio"
-              placeholder="Servicio"
-              isClearable
-              options={serviceOptions}
-              value={serviceOptions.find((option) => option.value === serviceFilter) ?? null}
-              onChange={(option) => {
-                setServiceFilter(option?.value ?? null);
-                resetPage();
-              }}
-            />
-            <Select
-              aria-label="Filtrar por proveedor"
-              placeholder="Proveedor"
-              isClearable
-              options={providerOptions}
-              value={providerOptions.find((option) => option.value === providerFilter) ?? null}
-              onChange={(option) => {
-                setProviderFilter(option?.value ?? null);
-                resetPage();
-              }}
-            />
+            <FilterButton activeCount={activeFilterCount} onClick={showFilters.on} />
           </div>
         </StickyToolbar>
       )}
@@ -273,11 +279,9 @@ function AccountsPage() {
           title="Todavía no tienes cuentas"
           description="Registra cada cuenta de streaming con su correo y contraseña. Sus perfiles se crean solos."
           action={
-            hasActiveServices && (
-              <Button type="button" variant="link" onClick={openCreate}>
-                Registrar la primera
-              </Button>
-            )
+            <Button type="button" variant="link" onClick={openCreate}>
+              Registrar la primera
+            </Button>
           }
         />
       )}
@@ -313,7 +317,6 @@ function AccountsPage() {
 
       <AccountDetailPanel
         account={openAccount}
-        isToggling={openAccount !== null && togglingId === openAccount.id}
         isAddingProfile={AddProfile.loading}
         onToggleActive={handleToggleActive}
         onEdit={openEdit}
@@ -322,6 +325,16 @@ function AccountsPage() {
         onProfileSaved={(account, profile) => ListAccounts.onProfileSaved(account.id, profile)}
         onProfileDelete={(account, profile) => setProfileTarget({ account, profile })}
         onClose={closeDetail}
+      />
+
+      <AccountFiltersModal
+        open={showFilters.active}
+        filters={filters}
+        serviceOptions={serviceOptions}
+        providerOptions={providerOptions}
+        resultCount={visible.length}
+        onChange={handleFiltersChange}
+        onClose={showFilters.off}
       />
 
       <AccountFormModal

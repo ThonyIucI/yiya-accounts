@@ -1,4 +1,5 @@
 import { Button } from "@yiya/ui/components/button";
+import { Loader2 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { useMediaQuery } from "@/common/hooks/use-media-query";
@@ -27,6 +28,7 @@ interface IConfirmModalProps {
  * secundario flotando aparte: así el pulgar no se equivoca de botón. En escritorio
  * colapsa a una tarjeta centrada con los dos en fila.
  */
+/* Los botones nunca se apagan (regla 2026-10-13): mientras confirma, un clic más no hace nada. */
 export default function ConfirmModal({
   open,
   title,
@@ -40,6 +42,16 @@ export default function ConfirmModal({
   onCancel,
 }: IConfirmModalProps) {
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  const handleConfirm = () => {
+    if (!loading) {
+      onConfirm();
+    }
+  };
+  const handleCancel = () => {
+    if (!loading) {
+      onCancel();
+    }
+  };
   const prefersReducedMotion = useReducedMotion();
 
   const hidden = prefersReducedMotion
@@ -62,7 +74,7 @@ export default function ConfirmModal({
           className="fixed inset-0 z-60 flex items-end justify-center bg-foreground/50 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] backdrop-blur-sm sm:items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) {
-              onCancel();
+              handleCancel();
             }
           }}
           initial={{ opacity: 0 }}
@@ -92,11 +104,12 @@ export default function ConfirmModal({
 
               <div className="mt-5 flex justify-end gap-2">
                 {!hideCancel && (
-                  <Button variant="outline" disabled={loading} onClick={onCancel}>
+                  <Button variant="outline" onClick={handleCancel}>
                     {cancelLabel}
                   </Button>
                 )}
-                <Button variant={variant} disabled={loading} onClick={onConfirm}>
+                <Button variant={variant} onClick={handleConfirm}>
+                  {loading && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                   {confirmLabel}
                 </Button>
               </div>
@@ -116,9 +129,9 @@ export default function ConfirmModal({
                     size="xl"
                     variant={variant}
                     className="w-full"
-                    disabled={loading}
-                    onClick={onConfirm}
+                    onClick={handleConfirm}
                   >
+                    {loading && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                     {confirmLabel}
                   </Button>
                 </div>
@@ -130,8 +143,7 @@ export default function ConfirmModal({
                     size="xl"
                     variant="ghost"
                     className="w-full"
-                    disabled={loading}
-                    onClick={onCancel}
+                    onClick={handleCancel}
                   >
                     {cancelLabel}
                   </Button>

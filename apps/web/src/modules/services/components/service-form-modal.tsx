@@ -119,7 +119,7 @@ export default function ServiceFormModal({ open, service, onSaved, onClose }: IS
 
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
-              <Button type="submit" form={FORM_ID} disabled={isSubmitting}>
+              <Button type="submit" form={FORM_ID}>
                 {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                 {isEdit ? "Guardar cambios" : "Crear servicio"}
               </Button>
@@ -133,7 +133,10 @@ export default function ServiceFormModal({ open, service, onSaved, onClose }: IS
         onSubmit={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          form.handleSubmit();
+          /* El botón nunca se apaga: un segundo clic mientras guarda no hace nada. */
+          if (!form.state.isSubmitting) {
+            form.handleSubmit();
+          }
         }}
         className="space-y-4"
       >

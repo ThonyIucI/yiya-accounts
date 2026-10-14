@@ -1,4 +1,5 @@
 import { cn } from "@yiya/ui/lib/utils";
+import type { ReactNode } from "react";
 import ReactSelect, { type GroupBase, type Props as ReactSelectProps } from "react-select";
 import CreatableReactSelect, { type CreatableProps } from "react-select/creatable";
 
@@ -12,6 +13,8 @@ export interface IOption {
   label: string;
   /** Dato secundario en el menú, al costado del nombre (p. ej. el correo). */
   description?: string;
+  /** A la izquierda, en el menú y en lo elegido (p. ej. el logo del servicio). */
+  icon?: ReactNode;
 }
 
 interface ISelectProps
@@ -67,16 +70,20 @@ const sharedSelectProps = (isInvalid: boolean | undefined) =>
       control: (base) => ({ ...base, minHeight: CONTROL_HEIGHT }),
       menuPortal: (base) => ({ ...base, zIndex: MENU_Z_INDEX }),
     },
-    formatOptionLabel: (option, { context }) =>
-      context === "menu" && option.description ? (
-        /* Una sola línea: el dato secundario al costado, no debajo, para no inflar la fila. */
-        <p className="truncate">
-          <span className="font-semibold">{option.label}</span>
-          <span className="text-muted-foreground"> · {option.description}</span>
-        </p>
-      ) : (
-        option.label
-      ),
+    formatOptionLabel: (option, { context }) => (
+      <span className="flex min-w-0 items-center gap-2.5">
+        {option.icon}
+        {context === "menu" && option.description ? (
+          /* Una sola línea: el dato secundario al costado, no debajo, para no inflar la fila. */
+          <span className="truncate">
+            <span className="font-semibold">{option.label}</span>
+            <span className="text-muted-foreground"> · {option.description}</span>
+          </span>
+        ) : (
+          <span className="truncate">{option.label}</span>
+        )}
+      </span>
+    ),
     classNames: {
       control: ({ isFocused, isDisabled }) =>
         cn(

@@ -8,6 +8,7 @@ import {
   Eye,
   EyeOff,
   History,
+  Loader2,
   Lock,
   Mail,
   MessageSquareText,
@@ -18,6 +19,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { DetailRow, DetailSection } from "@/common/components/detail-section";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
@@ -30,11 +32,11 @@ import ServiceAvatar from "@/modules/services/components/service-avatar";
 import ProfileList from "./profile-list";
 
 const HIDDEN_PASSWORD = "••••••••";
+const PASSWORD_LOADING_MESSAGE = "Un momento: estamos trayendo la contraseña.";
 
 interface IAccountDetailPanelProps {
   /** La cuenta abierta; `null` cierra el panel. */
   account: IAccountResource | null;
-  isToggling: boolean;
   isAddingProfile: boolean;
   onToggleActive: (account: IAccountResource) => void;
   onEdit: (account: IAccountResource) => void;
@@ -55,7 +57,6 @@ interface IAccountDetailPanelProps {
  */
 export default function AccountDetailPanel({
   account,
-  isToggling,
   isAddingProfile,
   onToggleActive,
   onEdit,
@@ -93,11 +94,30 @@ export default function AccountDetailPanel({
   const password = AccountPassword.password;
   const current = account ?? shown;
 
-  const copyAccess = () => {
-    if (current && password !== null) {
-      copyToClipboard(buildAccessText(current.service.name, current.email, password), "Acceso copiado");
+  /*
+    Los botones de la contraseña nunca se apagan: si todavía no llegó, el toque avisa; si no
+    se pudo traer, la vuelve a pedir (y el error, si sigue, sale en un toast).
+  */
+  const withPassword = (use: (value: string) => void) => {
+    if (password !== null) {
+      use(password);
+      return;
+    }
+    if (AccountPassword.loading) {
+      toast.info(PASSWORD_LOADING_MESSAGE);
+      return;
+    }
+    if (current) {
+      AccountPassword.handler(current.id);
     }
   };
+
+  const copyAccess = () =>
+    withPassword((value) => {
+      if (current) {
+        copyToClipboard(buildAccessText(current.service.name, current.email, value), "Acceso copiado");
+      }
+    });
 
   const actions: IRowAction[] = current
     ? [
@@ -118,7 +138,6 @@ export default function AccountDetailPanel({
           <>
             <Switch
               checked={current.isActive}
-              disabled={isToggling}
               aria-label={current.isActive ? "Desactivar cuenta" : "Activar cuenta"}
               onCheckedChange={() => onToggleActive(current)}
             />
@@ -171,9 +190,8 @@ export default function AccountDetailPanel({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    disabled={password === null}
                     aria-label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
-                    onClick={() => setIsPasswordVisible((visible) => !visible)}
+                    onClick={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
                   >
                     {isPasswordVisible ? <EyeOff /> : <Eye />}
                   </Button>
@@ -181,10 +199,9 @@ export default function AccountDetailPanel({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    disabled={password === null}
                     title="Copiar contraseña"
                     aria-label="Copiar contraseña"
-                    onClick={() => password !== null && copyToClipboard(password, "Contraseña copiada")}
+                    onClick={() => withPassword((value) => copyToClipboard(value, "Contraseña copiada"))}
                   >
                     <Copy />
                   </Button>
@@ -227,10 +244,13 @@ export default function AccountDetailPanel({
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={isAddingProfile}
                 onClick={() => onAddProfile(current)}
               >
-                <Plus />
+                {isAddingProfile ? (
+                  <Loader2 className="animate-spin motion-reduce:animate-none" />
+                ) : (
+                  <Plus />
+                )}
                 Agregar perfil
               </Button>
             }

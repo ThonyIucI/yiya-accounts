@@ -102,7 +102,7 @@ export default function ProviderFormModal({ open, provider, onSaved, onClose }: 
 
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
-              <Button type="submit" form={FORM_ID} disabled={isSubmitting}>
+              <Button type="submit" form={FORM_ID}>
                 {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                 {isEdit ? "Guardar cambios" : "Agregar proveedor"}
               </Button>
@@ -116,7 +116,10 @@ export default function ProviderFormModal({ open, provider, onSaved, onClose }: 
         onSubmit={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          form.handleSubmit();
+          /* El botón nunca se apaga: un segundo clic mientras guarda no hace nada. */
+          if (!form.state.isSubmitting) {
+            form.handleSubmit();
+          }
         }}
         className="space-y-4"
       >

@@ -152,6 +152,10 @@ function ServicesPage() {
     recién al confirmar se activa. Desactivar es directo.
   */
   const handleToggleActive = async (service: IServiceRow, isActive: boolean) => {
+    /* El switch no se apaga mientras guarda: un toque más no manda otro cambio. */
+    if (togglingId) {
+      return;
+    }
     if (isActive) {
       setActivateTarget(service);
       showActivate.on();

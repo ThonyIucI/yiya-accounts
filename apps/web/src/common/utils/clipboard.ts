@@ -1,6 +1,9 @@
 import { toast } from "sonner";
 
+import { ApiError } from "@/lib/api";
+
 const FAILED_MESSAGE = "No pudimos copiar. Mantén presionado el texto para copiarlo a mano.";
+const UNEXPECTED_MESSAGE = "No pudimos traer lo que había que copiar. Intenta de nuevo.";
 
 /**
  * Copia seleccionando el texto en la página y usando `execCommand("copy")`. Es la forma
@@ -37,25 +40,54 @@ const copyBySelection = (text: string): boolean => {
   }
 };
 
-/**
- * Copia un texto al portapapeles y avisa con un toast. Devuelve si se pudo.
- * Primero prueba la API moderna (solo existe en HTTPS) y, si no está o la rechaza, la de
- * selección. Si ninguna funciona, se avisa en español.
- */
-export const copyToClipboard = async (text: string, successMessage = "Copiado"): Promise<boolean> => {
-  let isCopied = false;
+const hasClipboardApi = (): boolean => Boolean(navigator.clipboard) && window.isSecureContext;
 
-  if (navigator.clipboard && window.isSecureContext) {
+/**
+ * Texto que todavía llega del server (p. ej. el acceso de una cuenta, que necesita la
+ * contraseña). En iPhone, copiar **después** de esperar la red falla: el navegador ya no lo
+ * cuenta como parte del toque. Con un `ClipboardItem` que recibe la promesa, la copia se
+ * pide en el mismo toque y el texto llega después. Funciona en Safari y en Chrome.
+ */
+const copyPending = async (pending: Promise<string>): Promise<boolean> => {
+  if (hasClipboardApi() && typeof ClipboardItem !== "undefined" && navigator.clipboard.write) {
     try {
-      await navigator.clipboard.writeText(text);
-      isCopied = true;
+      const blob = pending.then((text) => new Blob([text], { type: "text/plain" }));
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      return true;
     } catch {
-      isCopied = false;
+      /* Si falló el pedido al server, el error sale abajo, al esperar `pending`. */
     }
   }
+  return copyText(await pending);
+};
 
-  if (!isCopied) {
-    isCopied = copyBySelection(text);
+const copyText = async (text: string): Promise<boolean> => {
+  if (hasClipboardApi()) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      /* Se prueba la otra forma. */
+    }
+  }
+  return copyBySelection(text);
+};
+
+/**
+ * Copia al portapapeles y avisa con un toast. Devuelve si se pudo. Acepta el texto ya
+ * listo o una promesa (lo que todavía viene del server). Si el server falla, se muestra
+ * su mensaje; si el navegador no deja copiar, se avisa en español.
+ */
+export const copyToClipboard = async (
+  text: string | Promise<string>,
+  successMessage = "Copiado",
+): Promise<boolean> => {
+  let isCopied = false;
+  try {
+    isCopied = typeof text === "string" ? await copyText(text) : await copyPending(text);
+  } catch (error) {
+    toast.error(error instanceof ApiError ? error.message : UNEXPECTED_MESSAGE);
+    return false;
   }
 
   if (isCopied) {

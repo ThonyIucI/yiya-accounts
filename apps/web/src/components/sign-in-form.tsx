@@ -48,7 +48,10 @@ export default function SignInForm() {
       onSubmit={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        form.handleSubmit();
+        /* El botón nunca se apaga: con errores, el clic los muestra; mientras entra, no repite. */
+        if (!form.state.isSubmitting) {
+          form.handleSubmit();
+        }
       }}
       className="space-y-5"
     >
@@ -127,11 +130,9 @@ export default function SignInForm() {
         }}
       </form.Field>
 
-      <form.Subscribe
-        selector={(state) => ({ canSubmit: state.canSubmit, isSubmitting: state.isSubmitting })}
-      >
-        {({ canSubmit, isSubmitting }) => (
-          <Button type="submit" size="xl" disabled={!canSubmit || isSubmitting}>
+      <form.Subscribe selector={(state) => state.isSubmitting}>
+        {(isSubmitting) => (
+          <Button type="submit" size="xl">
             {isSubmitting ? (
               <>
                 <Loader2 className="animate-spin motion-reduce:animate-none" />

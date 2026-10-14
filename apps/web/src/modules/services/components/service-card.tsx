@@ -53,8 +53,9 @@ export default function ServiceCard({
         <div className="flex shrink-0 items-center gap-1">
           {canManageBusiness && (
             <Switch
+              /* Sin `disabled` (nunca se apaga): mientras guarda, un toque más no hace nada. */
+              aria-busy={togglingId === service.id}
               checked={service.isActive}
-              disabled={togglingId === service.id}
               aria-label={service.isActive ? `Desactivar ${service.name}` : `Activar ${service.name}`}
               onCheckedChange={(isActive) => onToggleActive(service, isActive)}
             />

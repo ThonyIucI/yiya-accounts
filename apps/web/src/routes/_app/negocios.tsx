@@ -91,6 +91,10 @@ function BusinessesPage() {
 
   /* Desactivar deja afuera al cliente: se confirma. Activar no hace daño, va directo. */
   const handleToggleActive = (business: IBusinessResource) => {
+    /* El switch no se apaga mientras guarda: un toque más no manda otro cambio. */
+    if (togglingId) {
+      return;
+    }
     if (business.isActive) {
       setDeactivateTarget(business);
       return;

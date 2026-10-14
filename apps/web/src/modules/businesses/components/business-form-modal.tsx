@@ -29,6 +29,7 @@ const nameSchema = z
 /* El dueño se valida en su propio campo: solo existe al crear. */
 const formSchema = z.object({ name: nameSchema, ownerId: z.string() });
 const OWNER_REQUIRED_MESSAGE = "Elige al dueño";
+const NO_OWNERS_MESSAGE = "No hay usuarios libres. Crea primero el usuario del dueño en «Usuarios».";
 
 const buildDefaults = (business?: IBusinessResource) => ({
   name: business?.name ?? "",
@@ -104,7 +105,7 @@ export default function BusinessFormModal({
 
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
-              <Button type="submit" form={FORM_ID} disabled={isSubmitting || hasNoOwners}>
+              <Button type="submit" form={FORM_ID}>
                 {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
                 {isEdit ? "Guardar cambios" : "Crear negocio"}
               </Button>
@@ -118,7 +119,10 @@ export default function BusinessFormModal({
         onSubmit={(event) => {
           event.preventDefault();
           event.stopPropagation();
-          form.handleSubmit();
+          /* El botón nunca se apaga: un segundo clic mientras guarda no hace nada. */
+          if (!form.state.isSubmitting) {
+            form.handleSubmit();
+          }
         }}
         className="space-y-4"
       >
@@ -153,16 +157,24 @@ export default function BusinessFormModal({
           <form.Field
             name="ownerId"
             validators={{
-              onSubmit: ({ value }) => (value ? undefined : { message: OWNER_REQUIRED_MESSAGE }),
+              onSubmit: ({ value }) => {
+                if (hasNoOwners) {
+                  return { message: NO_OWNERS_MESSAGE };
+                }
+                return value ? undefined : { message: OWNER_REQUIRED_MESSAGE };
+              },
             }}
           >
             {(field) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name}>Dueño</Label>
                 {hasNoOwners ? (
-                  <p className="rounded-xl bg-muted px-4 py-3 text-base text-muted-foreground">
-                    No hay usuarios libres. Crea primero el usuario del dueño en «Usuarios».
-                  </p>
+                  /* Al intentar crear, el mismo aviso aparece como error (abajo) y este se va. */
+                  field.state.meta.errors.length === 0 && (
+                    <p className="rounded-xl bg-muted px-4 py-3 text-base text-muted-foreground">
+                      {NO_OWNERS_MESSAGE}
+                    </p>
+                  )
                 ) : (
                   <Select
                     inputId={field.name}
