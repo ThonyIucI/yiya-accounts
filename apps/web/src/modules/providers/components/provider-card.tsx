@@ -32,6 +32,9 @@ export default function ProviderCard({ provider, actions }: IProviderCardProps) 
 
       <div className="mt-3 space-y-1 border-t border-border/60 pt-1 text-base">
         <ProviderPhone phone={provider.phone} />
+        <p className="text-sm font-semibold text-muted-foreground">
+          {provider.accountCount === 1 ? "1 cuenta" : `${provider.accountCount} cuentas`}
+        </p>
         {provider.note && (
           /* El ícono avisa que es una nota y no otro dato del proveedor. */
           <p className="flex items-start gap-2 text-sm text-muted-foreground">

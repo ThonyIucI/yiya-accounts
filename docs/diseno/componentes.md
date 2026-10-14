@@ -11,7 +11,8 @@ de cards genéricas.
 - **Celular:** card de listado (`md:hidden`):
   - identidad arriba a la izquierda (ícono + nombre + dato secundario);
   - switch + menú de acciones arriba a la derecha;
-  - detalles abajo.
+  - detalles abajo. Una nota libre va con el ícono `MessageSquareText` a la izquierda,
+    para que se lea como nota y no como otro dato (acordado 2026-10-13).
 - `PageHeader`: título, contadores («3 negocios · 2 activos») y la acción «Crear».
 - `EmptyState`: ícono, título y la acción para salir del vacío («Crear el primero»).
 - Skeletons con la forma de la fila o de la card, no un spinner.
@@ -31,6 +32,11 @@ que lo justifiquen.
 - **Arriba:** nombre del usuario y, debajo, el select del negocio. Siempre hay uno elegido
   (por defecto, el primero de la lista); solo falta cuando no existe ningún negocio.
 - **Luego:** los módulos.
+- **Submenús** (acordado 2026-10-13, `components/sidebar-nav.tsx`): los módulos que van
+  juntos se agrupan. Hoy: Panel · Servicios · **Compras** (Proveedores, Cuentas) ·
+  Negocios · Usuarios. El grupo se abre solo si se está en uno de sus módulos, y se puede
+  cerrar. La barra inferior **no** lleva grupos: sigue plana, como acceso rápido. La
+  estructura está en `sidebarEntriesForRole` (`common/constants/routes.ts`).
 - **Al pie:** salir.
 - **En celular**, un panel que se abre desde el borde. **En escritorio**, fijo a la
   izquierda.
@@ -76,6 +82,27 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
   `lockPageScroll` (lleva la cuenta si hay dos). Los menús (`DropdownMenu`) van con
   `modal={false}` y no lo tocan: su bloqueo se trababa al cambiar el zoom (2026-10-12).
 
+## Detalle lateral (acordado 2026-10-13, `common/components/side-panel.tsx`)
+
+Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuenta
+(`modules/accounts/components/account-detail-panel.tsx`).
+
+- **En celular** ocupa la pantalla, con «‹ Volver» arriba. **En escritorio** es un panel a
+  la derecha sobre la lista.
+- Lo abierto va en la URL (`/cuentas?cuenta=<id>`): se puede recargar o compartir.
+- El contenido va en cards con título (`DetailSection`) y filas **ícono + etiqueta: valor**
+  (`DetailRow`), con sus botones (copiar, ver) al final de la fila.
+- Un dato que todavía no existe (p. ej. las compras, mientras no estén) se ve como «—» en
+  gris: **nunca datos inventados**.
+- Las acciones de todo el registro van en el `⋯` del encabezado.
+
+## Copiar
+
+- Cada dato que se le pasa a un cliente lleva su ícono de copiar, y copia **solo ese dato**.
+- **«Copiar acceso»** de una cuenta copia el bloque listo para WhatsApp
+  (`modules/accounts/utils/access-text.ts`):
+  `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.
+
 ## Campos de formulario
 
 - Todos miden lo mismo: 52 px de alto (`h-13`), texto de 18 px.
@@ -90,6 +117,9 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
 - **Mostrar un teléfono** (`modules/providers/components/provider-phone.tsx`, acordado
   2026-10-13): bandera + el número **sin prefijo** («987 654 321»: la bandera ya dice el
   país). Al costado, copiar (copia el número completo, «+51987654321», con
-  `common/utils/clipboard.ts`) y el ícono de WhatsApp. **Solo el ícono** abre el chat; el
+  `common/utils/clipboard.ts`, que funciona también sin HTTPS, ver
+  [convenciones](../tecnico/convenciones.md)) y el ícono de WhatsApp, pegado al de copiar. **Solo el ícono** abre el chat; el
   número no es link.
+- **Select con «Crear «…»»** (`CreatableSelect` de `common/components/select.tsx`): para
+  agregar algo sin salir del formulario, como un proveedor desde la cuenta.
 - Validación con mensajes en español debajo del campo (`FieldError`).

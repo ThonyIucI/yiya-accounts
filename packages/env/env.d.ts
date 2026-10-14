@@ -14,6 +14,12 @@ export interface CloudflareEnv {
   /** Token para el endpoint interno de seed del superadmin */
   SEED_TOKEN: string;
   /**
+   * Llave AES-256 en base64 (32 bytes) para cifrar las contraseñas de las cuentas. Secret:
+   * `wrangler secret put ACCOUNT_PASSWORD_KEY`. Si se pierde, las contraseñas guardadas no se
+   * pueden leer: guardarla también fuera de Cloudflare.
+   */
+  ACCOUNT_PASSWORD_KEY: string;
+  /**
    * `"true"` apaga el rate limit de better-auth. **Solo para los tests**, que pueden hacer más
    * de 10 ingresos por archivo. No existe en `wrangler.jsonc` ni en producción.
    */

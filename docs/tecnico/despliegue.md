@@ -50,9 +50,17 @@ pnpm --filter server exec wrangler secret put BETTER_AUTH_SECRET
 
 # Un token largo inventado, para crear el superadmin de producción
 pnpm --filter server exec wrangler secret put SEED_TOKEN
+
+# Llave para cifrar las contraseñas de las cuentas (32 bytes en base64)
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+pnpm --filter server exec wrangler secret put ACCOUNT_PASSWORD_KEY
 ```
 
 Nunca van en `wrangler.jsonc` ni en ningún archivo del repo.
+
+> **`ACCOUNT_PASSWORD_KEY` no se puede perder ni cambiar a la ligera** (2026-10-13): con
+> otra llave, las contraseñas ya guardadas no se pueden leer. Guárdala también en tu gestor
+> de contraseñas. En local va otra distinta, en `apps/server/.dev.vars`.
 
 ### 3. Tablas + API
 

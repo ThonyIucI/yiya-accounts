@@ -14,6 +14,8 @@ interface IConfirmModalProps {
   /** `destructive` para lo que no se deshace de un clic. */
   variant?: "default" | "destructive";
   loading?: boolean;
+  /** Solo avisa: un único botón (`confirmLabel`, p. ej. «Entendido»), sin cancelar. */
+  hideCancel?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -33,6 +35,7 @@ export default function ConfirmModal({
   cancelLabel = "Cancelar",
   variant = "default",
   loading = false,
+  hideCancel = false,
   onConfirm,
   onCancel,
 }: IConfirmModalProps) {
@@ -88,9 +91,11 @@ export default function ConfirmModal({
               {description && <p className="mt-2 text-base text-muted-foreground">{description}</p>}
 
               <div className="mt-5 flex justify-end gap-2">
-                <Button variant="outline" disabled={loading} onClick={onCancel}>
-                  {cancelLabel}
-                </Button>
+                {!hideCancel && (
+                  <Button variant="outline" disabled={loading} onClick={onCancel}>
+                    {cancelLabel}
+                  </Button>
+                )}
                 <Button variant={variant} disabled={loading} onClick={onConfirm}>
                   {confirmLabel}
                 </Button>
@@ -119,17 +124,19 @@ export default function ConfirmModal({
                 </div>
               </div>
 
-              <div className="rounded-3xl bg-card p-1.5 shadow-sheet">
-                <Button
-                  size="xl"
-                  variant="ghost"
-                  className="w-full"
-                  disabled={loading}
-                  onClick={onCancel}
-                >
-                  {cancelLabel}
-                </Button>
-              </div>
+              {!hideCancel && (
+                <div className="rounded-3xl bg-card p-1.5 shadow-sheet">
+                  <Button
+                    size="xl"
+                    variant="ghost"
+                    className="w-full"
+                    disabled={loading}
+                    onClick={onCancel}
+                  >
+                    {cancelLabel}
+                  </Button>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

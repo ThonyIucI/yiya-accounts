@@ -26,6 +26,8 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
 - Dinero en soles con 2 decimales (`7.50`), nunca céntimos (acordado 2026-10-12).
 - Contraseñas de cuentas cifradas. Migraciones solo con
   `drizzle-kit generate`.
+- **Nunca borrar ni recomendar borrar una base**, local o de producción (acordado
+  2026-10-13): si una migración falla, se arregla conservando los datos.
 - **Thony corre todos los comandos.** Claude escribe el código y dice qué correr, aclarando
   qué no está verificado.
 

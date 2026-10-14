@@ -16,7 +16,7 @@ import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import ProviderPhone from "./provider-phone";
 
 const SKELETON_COUNT = 4;
-const COLUMN_COUNT = 4;
+const COLUMN_COUNT = 5;
 
 interface IProviderTableProps {
   providers: IProviderResource[];
@@ -35,6 +35,7 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
           <TableRow className="bg-muted hover:bg-muted">
             <TableHead className="w-[32%]">Proveedor</TableHead>
             <TableHead className="w-[28%]">WhatsApp</TableHead>
+            <TableHead>Cuentas</TableHead>
             <TableHead>Nota</TableHead>
             <TableHead />
           </TableRow>
@@ -65,6 +66,7 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
                   <TableCell>
                     <ProviderPhone phone={provider.phone} />
                   </TableCell>
+                  <TableCell className="font-semibold tabular-nums">{provider.accountCount}</TableCell>
                   <TableCell className="max-w-72">
                     <p className="truncate text-muted-foreground" title={provider.note ?? undefined}>
                       {provider.note ?? "—"}

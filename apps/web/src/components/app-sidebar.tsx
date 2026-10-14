@@ -1,16 +1,17 @@
 import { Button } from "@yiya/ui/components/button";
 import { userRoleLabels } from "@yiya/shared/roles";
-import { Link } from "@tanstack/react-router";
 import { ChevronRight, LogOut, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
 
 import { EASE_DRAWER } from "@/common/constants/motion";
-import { useNavItems } from "@/common/hooks/use-nav-items";
+import { sidebarEntriesForRole } from "@/common/constants/routes";
 import { useSessionRole } from "@/common/hooks/use-session-role";
 import { useSignOut } from "@/common/hooks/use-sign-out";
 import { authClient } from "@/lib/auth-client";
 import BusinessSwitcher from "@/modules/businesses/components/business-switcher";
+
+import SidebarNav from "./sidebar-nav";
 
 const DRAWER_ENTER_SECONDS = 0.3;
 /* Salir siempre más rápido que entrar. */
@@ -25,7 +26,7 @@ interface ISidebarPanelProps {
 function SidebarPanel({ onClose }: ISidebarPanelProps) {
   const { data: session } = authClient.useSession();
   const role = useSessionRole();
-  const navItems = useNavItems();
+  const entries = sidebarEntriesForRole(role);
   const signOut = useSignOut();
 
   return (
@@ -49,20 +50,7 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
       </div>
 
       <nav aria-label="Módulos" className="flex-1 overflow-y-auto px-3 pb-4">
-        <ul className="space-y-1">
-          {navItems.map(({ to, label, icon: Icon }) => (
-            <li key={to}>
-              <Link
-                to={to}
-                onClick={onClose}
-                className="flex items-center gap-3 rounded-xl px-3 py-3 font-heading text-base font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
-              >
-                <Icon className="size-5" />
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <SidebarNav entries={entries} onNavigate={onClose} />
       </nav>
 
       {/* El pie se separa con sombra, no con borde (como el pie de la modal). */}

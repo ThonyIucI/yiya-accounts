@@ -31,7 +31,7 @@
 		// proyecto Pages te asigna otro subdominio (`yiya-streaming-xxx.pages.dev`), cámbialo acá.
 		"CORS_ORIGIN": "https://streaming.gaiamundo.com,https://yiya-streaming.pages.dev"
 	},
-	// Secrets (BETTER_AUTH_SECRET, SEED_TOKEN) se cargan con `wrangler secret put <NOMBRE>`.
+	// Secrets (BETTER_AUTH_SECRET, SEED_TOKEN, ACCOUNT_PASSWORD_KEY) se cargan con `wrangler secret put <NOMBRE>`.
 	"d1_databases": [
 		{
 			"binding": "DB",

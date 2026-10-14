@@ -84,8 +84,15 @@ function ProvidersPage() {
     showForm.on();
   };
 
+  /* Con cuentas no se puede: se avisa cuántas tiene en vez de pedir confirmación. */
+  const isDeleteBlocked = (deleteTarget?.accountCount ?? 0) > 0;
+  const blockedMessage = deleteTarget
+    ? `Tiene ${deleteTarget.accountCount === 1 ? "1 cuenta" : `${deleteTarget.accountCount} cuentas`}. Cámbiales el proveedor o elimínalas primero.`
+    : "";
+
   const confirmDelete = async () => {
-    if (!deleteTarget) {
+    if (!deleteTarget || isDeleteBlocked) {
+      setDeleteTarget(null);
       return;
     }
     const deleted = await DeleteProvider.handler(deleteTarget);
@@ -195,10 +202,17 @@ function ProvidersPage() {
 
       <ConfirmModal
         open={deleteTarget !== null}
-        title={`¿Eliminar a «${deleteTarget?.name ?? ""}»?`}
-        description="Se borra de tu lista de proveedores. Esto no se puede deshacer."
-        confirmLabel="Eliminar"
-        variant="destructive"
+        title={
+          isDeleteBlocked
+            ? `No puedes eliminar a «${deleteTarget?.name ?? ""}»`
+            : `¿Eliminar a «${deleteTarget?.name ?? ""}»?`
+        }
+        description={
+          isDeleteBlocked ? blockedMessage : "Se borra de tu lista de proveedores. Esto no se puede deshacer."
+        }
+        confirmLabel={isDeleteBlocked ? "Entendido" : "Eliminar"}
+        variant={isDeleteBlocked ? "default" : "destructive"}
+        hideCancel={isDeleteBlocked}
         loading={DeleteProvider.loading}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}

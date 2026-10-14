@@ -35,7 +35,14 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya
 - Dinero en soles: columna `real`, validada con hasta 2 decimales y redondeada a 2 al
   guardar y al sumar. Se convierte con `parseSoles` / `formatSoles` de `@yiya/shared`
   (acordado 2026-10-12).
-- Contraseñas de cuentas cifradas con AES-GCM y un secret.
+- **Contraseñas de cuentas** (acordado 2026-10-13): AES-GCM de 256 bits con Web Crypto y
+  un IV por contraseña (`apps/server/src/lib/account-password.ts`), con la llave del secret
+  `ACCOUNT_PASSWORD_KEY`. Se guarda «v1:iv:cifrado»: el `v1` permite cambiar de llave
+  sin perder las viejas. En claro solo sale por `GET /accounts/:id/password`; nunca en
+  listados, logs ni errores.
+- **D1 acepta como mucho 100 parámetros por consulta**: nada de `inArray(ids)` con listas
+  que crecen ni inserts de muchas filas en uno. Filtrar por negocio, o un insert por fila
+  dentro de `db.batch`.
 - **Nombres únicos** (servicios, proveedores): columna `name_key` con índice único, porque
   el índice de SQLite distingue mayúsculas y su `lower()` no entiende tildes.
 - **Teléfonos** (acordado 2026-10-13): dos columnas, `country_prefix` («51», sin «+»; nunca
@@ -62,6 +69,12 @@ hacer. Nunca inglés, IDs, códigos ni texto de librerías.
 - Módulos en `apps/web/src/modules/<recurso>/{services,hooks,components}`.
 - Un hook por acción (`use-list-x`, `use-create-x`, `use-update-x`); el de lista expone
   `onUpsert`. Los toasts de éxito van en el hook; los de error, en `useRequest`.
+- **Copiar al portapapeles** (acordado 2026-10-13): siempre con `copyToClipboard` de
+  `common/utils/clipboard.ts`, nunca `navigator.clipboard` directo. Esa API solo existe en
+  HTTPS: al probar `pnpm dev` desde el celular por la IP (`http://192.168…`) no está, y el
+  botón fallaba. El util prueba la API y, si no está, copia seleccionando el texto
+  (`execCommand("copy")` sobre un `<span>`, para que el iPhone no abra el teclado). Avisa
+  con un toast en los dos casos.
 
 ## Quién corre qué
 

@@ -25,7 +25,8 @@ export interface IServiceListHandlers {
 }
 
 export const PRICE_LABELS: Record<TPriceField, string> = {
-  purchasePrice: "Compra (cuenta)",
+  /* Referencial: el real lo guarda cada compra de la cuenta (paso 3). */
+  purchasePrice: "Compra referencial",
   profilePrice: "Venta (perfil/mes)",
 };
 

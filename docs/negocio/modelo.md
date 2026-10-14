@@ -9,8 +9,9 @@ gana.
 
 ```
 Negocio ──< Proveedor ──< Cuenta ──< Perfil >── Alquiler >── Cliente final
-                            │                      │
-                     Servicio (global)           Combo
+                           ╱ ╲                     │
+         Servicio (global)    Compra (precio,    Combo
+                              vencimiento)
 ```
 
 | Entidad | Qué es | Acuerdos |
@@ -18,8 +19,9 @@ Negocio ──< Proveedor ──< Cuenta ──< Perfil >── Alquiler >──
 | Negocio | Cada cliente de Yiya | Lo crea el superadmin. No se borra: se desactiva. Ver [negocios-y-usuarios](negocios-y-usuarios.md) |
 | Servicio | Netflix, Disney+… | Catálogo **global**: lo crea el superadmin y no se activa en ningún negocio hasta que se activa dentro de uno. Cada negocio pone **sus** dos precios: compra (por cuenta) y venta (por perfil al mes). Ver [plan del paso 2](../planes/02-servicios-y-precios.md) |
 | Proveedor | A quién le compra cuentas el negocio | Vende varios servicios y un servicio se compra a varios: se relacionan por la cuenta. Se elimina solo si no tiene cuentas (2026-10-12). Ver [plan del paso 3](../planes/03-inventario.md) |
-| Cuenta | Correo + contraseña de la plataforma, precio de compra, fechas de compra y vencimiento | Guarda **su** precio de compra real; el del servicio es referencial. La contraseña se guarda **cifrada** en la base y se muestra en pantalla con el ojo (2026-10-12) |
-| Perfil | La unidad que se alquila (nombre, PIN, precio, disponible) | — |
+| Cuenta | Correo + contraseña de la plataforma, su servicio, su proveedor y si está activa | Siempre con correo. La contraseña se guarda **cifrada** en la base y se muestra en pantalla con el ojo (2026-10-12). Una cuenta puede no estar alquilada y quedar en espera (2026-10-13) |
+| Compra | Cada vez que se le paga al proveedor por una cuenta: la primera y cada renovación, con su precio y su vencimiento | Va **aparte de la cuenta** (2026-10-13). Su precio es el real; el del servicio es referencial |
+| Perfil | La unidad que se alquila (nombre, PIN de 4 dígitos) | Sin precio propio: se alquila al precio del servicio |
 | Cliente final | Quien alquila | Es un registro del negocio, **no** entra a Yiya |
 | Alquiler | Perfiles de un cliente por un período | Ver [alquileres](alquileres.md) |
 

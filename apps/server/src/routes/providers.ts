@@ -1,4 +1,5 @@
 import { createDb } from "@yiya/db";
+import { streamingAccount } from "@yiya/db/schema/accounts";
 import { provider } from "@yiya/db/schema/providers";
 import { PHONE_MAX_DIGITS, isKnownCountryPrefix, phoneError } from "@yiya/shared/phones";
 import {
@@ -8,7 +9,7 @@ import {
   PROVIDER_NOTE_MAX_LENGTH,
   toProviderNameKey,
 } from "@yiya/shared/providers";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
@@ -83,14 +84,35 @@ type TDb = ReturnType<typeof createDb>;
 type TProviderRow = typeof provider.$inferSelect;
 type TPhoneInput = z.infer<typeof phoneSchema>;
 
-const toProviderResource = (row: TProviderRow): IProviderResource => ({
+const toProviderResource = (row: TProviderRow, accountCount: number): IProviderResource => ({
   id: row.id,
   name: row.name,
   phone:
     row.countryPrefix && row.phone ? { countryPrefix: row.countryPrefix, number: row.phone } : null,
   note: row.note,
+  accountCount,
   createdAt: row.createdAt.toISOString(),
 });
+
+/** Proveedores del negocio con cuántas cuentas tiene cada uno. Con `id`, solo ese. */
+const selectProviders = (db: TDb, businessId: string, id?: string) =>
+  db
+    .select({ provider, accountCount: count(streamingAccount.id) })
+    .from(provider)
+    .leftJoin(streamingAccount, eq(streamingAccount.providerId, provider.id))
+    .where(and(eq(provider.businessId, businessId), id ? eq(provider.id, id) : undefined))
+    .groupBy(provider.id)
+    .orderBy(provider.nameKey);
+
+const findProviderResource = async (db: TDb, businessId: string, id: string) => {
+  const [row] = await selectProviders(db, businessId, id);
+  if (!row) {
+    throw notFound(PROVIDER_NOT_FOUND);
+  }
+  return toProviderResource(row.provider, row.accountCount);
+};
+
+const pluralizeAccounts = (total: number) => `${total} ${total === 1 ? "cuenta" : "cuentas"}`;
 
 /* El teléfono viaja como un objeto y se guarda en dos columnas. */
 const toPhoneColumns = (phone: TPhoneInput) => ({
@@ -129,12 +151,11 @@ const assertNameAvailable = async (db: TDb, businessId: string, name: string, ex
  */
 export const providerRoutes = new Hono<TAppEnv>()
   .get(PROVIDER_ROUTES.PROVIDERS, requireAuth, requireBusiness, async (context) => {
-    const rows = await createDb()
-      .select()
-      .from(provider)
-      .where(eq(provider.businessId, context.var.business.id))
-      .orderBy(provider.nameKey);
-    return ok(context, rows.map(toProviderResource));
+    const rows = await selectProviders(createDb(), context.var.business.id);
+    return ok(
+      context,
+      rows.map((row) => toProviderResource(row.provider, row.accountCount)),
+    );
   })
 
   .post(
@@ -161,7 +182,7 @@ export const providerRoutes = new Hono<TAppEnv>()
         })
         .returning();
 
-      return ok(context, toProviderResource(created!), 201);
+      return ok(context, toProviderResource(created!, 0), 201);
     },
   )
 
@@ -181,30 +202,34 @@ export const providerRoutes = new Hono<TAppEnv>()
         await assertNameAvailable(db, businessId, name, id);
       }
 
-      const [updated] = await db
+      await db
         .update(provider)
         .set({
           ...(name !== undefined && { name, nameKey: toProviderNameKey(name) }),
           ...(phone !== undefined && toPhoneColumns(phone)),
           ...(note !== undefined && { note }),
         })
-        .where(and(eq(provider.id, id), eq(provider.businessId, businessId)))
-        .returning();
+        .where(and(eq(provider.id, id), eq(provider.businessId, businessId)));
 
-      return ok(context, toProviderResource(updated!));
+      return ok(context, await findProviderResource(db, businessId, id));
     },
   )
 
   /*
-    Cuando existan las cuentas (paso 3), un proveedor con cuentas no se podrá eliminar: lo
-    frenará la FK `restrict` de `account.provider_id`, con un mensaje que dice cuántas tiene.
+    Solo sin cuentas. La FK `restrict` de `streaming_account.provider_id` también lo frena,
+    pero acá se responde antes con un mensaje que dice cuántas tiene y qué hacer.
   */
   .delete(PROVIDER_ROUTES.PROVIDER, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;
     const db = createDb();
 
-    await findProvider(db, businessId, id);
+    const current = await findProviderResource(db, businessId, id);
+    if (current.accountCount > 0) {
+      throw conflict(
+        `No puedes eliminar a «${current.name}»: tiene ${pluralizeAccounts(current.accountCount)}. Cámbiales el proveedor o elimínalas primero.`,
+      );
+    }
     await db.delete(provider).where(and(eq(provider.id, id), eq(provider.businessId, businessId)));
 
     return ok(context, { id });

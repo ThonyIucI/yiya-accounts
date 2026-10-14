@@ -15,6 +15,8 @@ export interface IProviderResource {
   /** Su WhatsApp. `null` si no lo tiene. */
   phone: IPhone | null;
   note: string | null;
+  /** Cuántas cuentas se le compraron. Con alguna, no se puede eliminar. */
+  accountCount: number;
   createdAt: string;
 }
 
