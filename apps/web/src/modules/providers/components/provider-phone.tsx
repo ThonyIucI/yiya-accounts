@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from "@yiya/ui/components/button";
+import { buttonVariants } from "@yiya/ui/components/button";
 import {
   type IPhone,
   countryOfPhone,
@@ -7,11 +7,10 @@ import {
   whatsAppUrl,
 } from "@yiya/shared/phones";
 import { cn } from "@yiya/ui/lib/utils";
-import { Copy } from "lucide-react";
 
+import CopyButton from "@/common/components/copy-button";
 import CountryFlag from "@/common/components/country-flag";
 import WhatsAppIcon from "@/common/components/icons/whatsapp-icon";
-import { copyToClipboard } from "@/common/utils/clipboard";
 
 interface IProviderPhoneProps {
   phone: IPhone | null;
@@ -39,16 +38,11 @@ export default function ProviderPhone({ phone }: IProviderPhoneProps) {
           {formatNationalPhone(phone.number, country)}
         </span>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-lg"
-          title="Copiar número"
-          aria-label={`Copiar el número ${fullPhone}`}
-          onClick={() => copyToClipboard(fullPhone, "Número copiado")}
-        >
-          <Copy />
-        </Button>
+        <CopyButton
+          label={`Copiar el número ${fullPhone}`}
+          size="lg"
+          getText={() => fullPhone}
+        />
       </div>
 
       <a

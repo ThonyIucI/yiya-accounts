@@ -104,6 +104,9 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 ## Copiar
 
 - Cada dato que se le pasa a un cliente lleva su ícono de copiar, y copia **solo ese dato**.
+- **Siempre con `CopyButton`** (`common/components/copy-button.tsx`, acordado 2026-10-13):
+  al tocarlo pasa a **cargando**, luego a un **check** por 2 s y vuelve al ícono de copiar.
+  No lleva toast de «Copiado» (el check ya lo dice); si falla, el error sí va en un toast.
 - **«Copiar acceso»** de una cuenta (el ícono de copiar de su card y el `⋯` del detalle)
   copia el bloque listo para WhatsApp
   (`modules/accounts/utils/access-text.ts`):

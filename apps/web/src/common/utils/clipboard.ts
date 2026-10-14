@@ -80,7 +80,8 @@ const copyText = async (text: string): Promise<boolean> => {
  */
 export const copyToClipboard = async (
   text: string | Promise<string>,
-  successMessage = "Copiado",
+  /** `null`: sin toast de éxito (lo muestra el botón, p. ej. `CopyButton` con su check). */
+  successMessage: string | null = "Copiado",
 ): Promise<boolean> => {
   let isCopied = false;
   try {
@@ -91,7 +92,9 @@ export const copyToClipboard = async (
   }
 
   if (isCopied) {
-    toast.success(successMessage);
+    if (successMessage !== null) {
+      toast.success(successMessage);
+    }
   } else {
     toast.error(FAILED_MESSAGE);
   }

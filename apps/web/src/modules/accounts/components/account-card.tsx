@@ -1,12 +1,10 @@
-import { Button } from "@yiya/ui/components/button";
 import { Skeleton } from "@yiya/ui/components/skeleton";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource } from "@yiya/shared/accounts";
 import { cn } from "@yiya/ui/lib/utils";
-import { Copy } from "lucide-react";
 
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
-import { copyToClipboard } from "@/common/utils/clipboard";
+import CopyButton from "@/common/components/copy-button";
 import { getAccountPasswordRequest } from "@/modules/accounts/services/account.service";
 import { buildAccessText } from "@/modules/accounts/utils/access-text";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
@@ -36,13 +34,10 @@ export default function AccountCard({
   onToggleActive,
   onOpen,
 }: IAccountCardProps) {
-  /* La contraseña se pide en el mismo toque: `copyToClipboard` acepta la promesa. */
-  const copyAccess = () =>
-    copyToClipboard(
-      getAccountPasswordRequest(account.id).then(({ password }) =>
-        buildAccessText(account.service.name, account.email, password),
-      ),
-      "Acceso copiado",
+  /* La contraseña se pide en el mismo toque: `CopyButton` acepta la promesa. */
+  const getAccessText = () =>
+    getAccountPasswordRequest(account.id).then(({ password }) =>
+      buildAccessText(account.service.name, account.email, password),
     );
 
   return (
@@ -71,20 +66,7 @@ export default function AccountCard({
           <div className="min-w-0">
             <div className="flex min-w-0 items-center">
               <p className="truncate font-heading text-base font-bold text-foreground">{account.email}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-sm"
-                className="shrink-0"
-                title="Copiar acceso"
-                aria-label={`Copiar el acceso de ${account.email}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  copyAccess();
-                }}
-              >
-                <Copy />
-              </Button>
+              <CopyButton label={`Copiar el acceso de ${account.email}`} getText={getAccessText} />
             </div>
             <p className="truncate text-sm text-muted-foreground">{account.provider.name}</p>
           </div>

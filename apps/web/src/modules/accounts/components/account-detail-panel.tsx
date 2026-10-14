@@ -4,7 +4,6 @@ import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
 import {
   CalendarClock,
   ClipboardCopy,
-  Copy,
   Eye,
   EyeOff,
   History,
@@ -21,6 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import CopyButton from "@/common/components/copy-button";
 import { DetailRow, DetailSection } from "@/common/components/detail-section";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import SidePanel from "@/common/components/side-panel";
@@ -112,6 +112,15 @@ export default function AccountDetailPanel({
     }
   };
 
+  /* Para el botón de copiar: `null` mientras no llegó (y `withPassword` ya avisó). */
+  const getPasswordText = (): string | null => {
+    let value: string | null = null;
+    withPassword((ready) => {
+      value = ready;
+    });
+    return value;
+  };
+
   const copyAccess = () =>
     withPassword((value) => {
       if (current) {
@@ -167,16 +176,7 @@ export default function AccountDetailPanel({
               icon={Mail}
               label="Correo"
               actions={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  title="Copiar correo"
-                  aria-label="Copiar correo"
-                  onClick={() => copyToClipboard(current.email, "Correo copiado")}
-                >
-                  <Copy />
-                </Button>
+                <CopyButton label="Copiar correo" getText={() => current.email} />
               }
             >
               {current.email}
@@ -195,16 +195,7 @@ export default function AccountDetailPanel({
                   >
                     {isPasswordVisible ? <EyeOff /> : <Eye />}
                   </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    title="Copiar contraseña"
-                    aria-label="Copiar contraseña"
-                    onClick={() => withPassword((value) => copyToClipboard(value, "Contraseña copiada"))}
-                  >
-                    <Copy />
-                  </Button>
+                  <CopyButton label="Copiar contraseña" getText={getPasswordText} />
                 </>
               }
             >
