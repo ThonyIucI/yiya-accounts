@@ -28,13 +28,14 @@ describe("fechas de las compras", () => {
     expect(daysBetween("2026-10-22", "2026-10-21")).toBe(-1);
   });
 
-  it("vencida si ya pasó, aviso si faltan 3 días o menos", () => {
+  it("vencida si ya pasó, hoy, por vencer si faltan menos de 3 días, y al día", () => {
     const today = "2026-10-22";
 
     expect(getExpiry("2026-10-21", today).status).toBe("expired");
-    expect(getExpiry("2026-10-22", today)).toEqual({ status: "warning", days: 0 });
-    expect(getExpiry("2026-10-25", today).status).toBe("warning");
-    expect(getExpiry("2026-10-26", today).status).toBe("ok");
+    expect(getExpiry("2026-10-22", today)).toEqual({ status: "today", days: 0 });
+    expect(getExpiry("2026-10-23", today).status).toBe("soon");
+    expect(getExpiry("2026-10-24", today)).toEqual({ status: "soon", days: 2 });
+    expect(getExpiry("2026-10-25", today).status).toBe("ok");
   });
 
   it("el vencimiento de la cuenta es el más lejano de sus compras", () => {

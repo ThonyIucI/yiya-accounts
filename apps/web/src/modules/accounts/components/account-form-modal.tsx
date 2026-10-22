@@ -345,7 +345,7 @@ export default function AccountFormModal({
                   name={field.name}
                   inputMode="numeric"
                   autoComplete="off"
-                  placeholder="Sale del servicio"
+                  placeholder="Ingrese cantidad de perfiles"
                   aria-invalid={field.state.meta.errors.length > 0}
                   value={field.state.value}
                   onBlur={field.handleBlur}

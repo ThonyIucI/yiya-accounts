@@ -68,7 +68,7 @@ alquilan los perfiles en el paso 4.
 | RF-11 | Todo se edita después, **menos el servicio**: los perfiles dependen de él. Si se equivocó de servicio, elimina la cuenta y la registra de nuevo. |
 | RF-12 | Eliminar una cuenta elimina sus perfiles y sus compras, con confirmación. Desde el paso 4, no se podrá si tiene perfiles alquilados. |
 | RF-13 | El listado muestra servicio (imagen y nombre), correo, proveedor, perfiles (el vencimiento de la última compra se mostrará cuando existan las compras). Ordenado por vencimiento, la que vence antes primero; las desactivadas al final. |
-| RF-14 | El vencimiento dice «Vencida» (en rojo) si ya pasó y «Vence en N días» (en ámbar) si faltan 3 días o menos; si no, la fecha. |
+| RF-14 | Estados del vencimiento (rehecho 2026-10-22): **vencida** (rojo) si ya pasó; **vence hoy** (naranja); **por vencer** (amarillo) si faltan **menos de 3 días** (1 o 2); si no, **al día**. Los tres colores pasan 4.5:1 de contraste. Cómo se ve en cada pantalla, en la sección 8. |
 | RF-15 | Buscador por correo y filtros por servicio y por proveedor (react-select). Paginado como en Servicios. |
 
 ### Compras y renovaciones de la cuenta
@@ -299,15 +299,22 @@ react-select.
     para WhatsApp) y `⋯`. Sin badge de «Activa».
   - **Cuerpo:** «Correo» y «Contraseña» (oculta, con su ojo al lado de la etiqueta), en dos
     columnas. **Sin botones de copiar: cada dato se copia manteniéndolo presionado.**
-  - **Perfiles: plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
+  - **Perfiles** (cuando vuelvan a mostrarse): **plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
     abrir, un chip por perfil («P1»… «P5»).
-  - **Vence** (2026-10-22): una fila «Vence» con los colores de RF-14, entre las credenciales
-    y los perfiles. El `⋯` lleva «Renovar».
+  - **Vencimiento** (2026-10-22): **sin fecha ni fila «Vence»**. En la cabecera, debajo del
+    proveedor, solo un aviso en color cuando hace falta, en 12 px como los badges: «● Venció
+    el 06-set» (rojo; si es de otro año, «● Venció en oct-2025», para no cargar la card),
+    «● Vence hoy» (naranja), «● Vence mañana» / «● Vence en 2 días» (amarillo). Al día no
+    dice nada. Sin compras, «Sin compras» en gris. El `⋯` lleva «Renovar».
+  - **Perfiles ocultos** hasta los alquileres (2026-10-22, `ARE_PROFILES_SHOWN`): hoy todos
+    están libres y solo ocupan espacio.
 - **Tabla:** Cuenta (logo y servicio) · **Credenciales** (correo arriba, contraseña oculta
-  abajo con el ojo a su izquierda) · Proveedor · **Vence** · Perfiles · Activa · acciones.
+  abajo con el ojo a su izquierda) · Proveedor · **Vence** (la fecha, pintada con los colores
+  de RF-14) · Perfiles · Activa · acciones.
   Las acciones van **con borde**: enviar y `⋯` (con «Renovar», «Editar», «Eliminar»).
-- Barra pegajosa con el buscador y, al lado, el **botón de filtros** (servicio y
-  proveedor), que abre su modal. Los filtros no van sueltos en la pantalla.
+- Barra pegajosa con el buscador. **En escritorio**, al lado, los dos selects de filtros
+  (servicio y proveedor); **en el celular**, el botón de filtros que abre su modal (acordado
+  2026-10-22).
 - Todo select de servicios lleva el logo de cada uno.
 - Vacío: «Todavía no tienes cuentas» → «Registrar la primera».
 
@@ -339,7 +346,8 @@ Estructura como el detalle de cliente de id-pos (acordado 2026-10-13): en celula
 pantalla, con «‹ Cuentas» para volver; en escritorio es un panel a la derecha sobre la
 lista. Cada dato en una fila **ícono + etiqueta: valor**, agrupados en cards con título.
 
-- **Encabezado:** imagen y nombre del servicio, el correo debajo. A la derecha el switch y
+- **Encabezado:** imagen y nombre del servicio con su **badge de estado** al lado (Vencida ·
+  Por vencer · Al día, acordado 2026-10-22; sin compras, ninguno), el correo debajo. A la derecha el switch y
   `⋯` con **«Copiar acceso»** (RF-18a), «Editar», «Renovar» y «Eliminar».
 - **Cuenta** (lo que existe hoy, 2026-10-22):
   - ✉ Correo: `cuenta@gmail.com`
@@ -358,7 +366,7 @@ lista. Cada dato en una fila **ícono + etiqueta: valor**, agrupados en cards co
 - **Nota:** con su ícono; sin nota, «No hay nota» en gris (como «No hay comentarios» en
   id-pos).
 - **Perfiles:** nombre y PIN editables ahí mismo, `⋯` con «Eliminar». Al final,
-  «Agregar perfil».
+  «Agregar perfil». **Ocultos hasta los alquileres** (2026-10-22).
 
 ### Cambio en `/servicios`
 

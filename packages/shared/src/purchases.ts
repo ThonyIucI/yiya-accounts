@@ -8,8 +8,8 @@ import { daysBetween } from "./dates";
 
 /** Cuántos meses dura una compra por defecto (RF-15c). Se puede cambiar en el formulario. */
 export const DEFAULT_PURCHASE_MONTHS = 1;
-/** Desde cuántos días antes se avisa en ámbar «Vence en N días» (RF-14). */
-export const EXPIRY_WARNING_DAYS = 3;
+/** «Por vencer» cuando faltan **menos de 3 días** (RF-14, acordado 2026-10-22): 1 o 2. */
+export const EXPIRY_SOON_DAYS = 2;
 
 export const INVALID_DATE_MESSAGE = "Elige una fecha válida.";
 export const EXPIRES_BEFORE_PURCHASE_MESSAGE =
@@ -26,7 +26,8 @@ export interface IPurchaseResource {
   expiresOn: string;
 }
 
-export type TExpiryStatus = "expired" | "warning" | "ok";
+/** Vencida · vence hoy · por vencer (1 o 2 días) · al día. */
+export type TExpiryStatus = "expired" | "today" | "soon" | "ok";
 
 export interface IExpiry {
   status: TExpiryStatus;
@@ -41,11 +42,14 @@ export const accountExpiresOn = (purchases: IPurchaseResource[]): string | null 
     null,
   );
 
-/** RF-14: vencida si ya pasó; aviso si faltan `EXPIRY_WARNING_DAYS` o menos. */
+/** RF-14: vencida si ya pasó; hoy; por vencer si faltan `EXPIRY_SOON_DAYS` o menos. */
 export const getExpiry = (expiresOn: string, today: string): IExpiry => {
   const days = daysBetween(today, expiresOn);
   if (days < 0) {
     return { status: "expired", days };
   }
-  return { status: days <= EXPIRY_WARNING_DAYS ? "warning" : "ok", days };
+  if (days === 0) {
+    return { status: "today", days };
+  }
+  return { status: days <= EXPIRY_SOON_DAYS ? "soon" : "ok", days };
 };

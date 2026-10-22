@@ -6,7 +6,7 @@ import { DetailList, DetailRow } from "@/common/components/detail-section";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import { formatShortDate } from "@/common/utils/format-date";
 
-import ExpiryLabel from "./expiry-label";
+import ExpiryDate from "./expiry-date";
 
 interface IPurchaseListProps {
   /** La más nueva primero, como las trae el server. */
@@ -46,7 +46,7 @@ export default function PurchaseList({ purchases, onEdit, onDelete }: IPurchaseL
     <div className="space-y-3">
       <DetailList>
         <DetailRow icon={CalendarClock} label="Vence">
-          <ExpiryLabel expiresOn={accountExpiresOn(purchases)} />
+          <ExpiryDate expiresOn={accountExpiresOn(purchases)} />
         </DetailRow>
         <DetailRow icon={Wallet} label="Pagado en total">
           <span className="font-semibold tabular-nums">{formatSoles(total)}</span>

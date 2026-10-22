@@ -1,5 +1,6 @@
 import { Button } from "@yiya/ui/components/button";
 import { Label } from "@yiya/ui/components/label";
+import { cn } from "@yiya/ui/lib/utils";
 
 import Modal from "@/common/components/modal";
 import Select, { type IOption } from "@/common/components/select";
@@ -25,9 +26,63 @@ interface IAccountFiltersModalProps {
   onClose: () => void;
 }
 
+interface IAccountFilterSelectsProps {
+  filters: IAccountFilters;
+  serviceOptions: IOption[];
+  providerOptions: IOption[];
+  onChange: (filters: IAccountFilters) => void;
+  /** En la barra de escritorio van sin etiqueta (la dice el placeholder) y uno al lado del otro. */
+  isInline?: boolean;
+}
+
+/** Los dos selects de filtros (servicio y proveedor). Se aplican al elegir. */
+export function AccountFilterSelects({
+  filters,
+  serviceOptions,
+  providerOptions,
+  onChange,
+  isInline = false,
+}: IAccountFilterSelectsProps) {
+  const idPrefix = isInline ? "toolbar-filter" : "filter";
+  const fields = [
+    {
+      id: `${idPrefix}-service`,
+      label: "Servicio",
+      placeholder: "Todos los servicios",
+      options: serviceOptions,
+      value: filters.serviceId,
+      change: (value: string | null) => onChange({ ...filters, serviceId: value }),
+    },
+    {
+      id: `${idPrefix}-provider`,
+      label: "Proveedor",
+      placeholder: "Todos los proveedores",
+      options: providerOptions,
+      value: filters.providerId,
+      change: (value: string | null) => onChange({ ...filters, providerId: value }),
+    },
+  ];
+
+  return fields.map((field) => (
+    <div key={field.id} className={cn(isInline ? "w-56 shrink-0" : "space-y-2")}>
+      {!isInline && <Label htmlFor={field.id}>{field.label}</Label>}
+      <Select
+        inputId={field.id}
+        aria-label={isInline ? `Filtrar por ${field.label.toLowerCase()}` : undefined}
+        placeholder={field.placeholder}
+        isClearable
+        options={field.options}
+        value={field.options.find((option) => option.value === field.value) ?? null}
+        onChange={(option) => field.change(option?.value ?? null)}
+      />
+    </div>
+  ));
+}
+
 /**
- * Filtros de Cuentas en su propia modal (acordado 2026-10-13): se aplican al elegir, y el
- * botón dice cuántas cuentas quedan.
+ * Filtros de Cuentas **en el celular**, en su propia modal (acordado 2026-10-13): se aplican
+ * al elegir, y el botón dice cuántas cuentas quedan. En escritorio van en la barra, al lado
+ * del buscador (acordado 2026-10-22).
  */
 export default function AccountFiltersModal({
   open,
@@ -56,28 +111,12 @@ export default function AccountFiltersModal({
       }
     >
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="filter-service">Servicio</Label>
-          <Select
-            inputId="filter-service"
-            placeholder="Todos los servicios"
-            isClearable
-            options={serviceOptions}
-            value={serviceOptions.find((option) => option.value === filters.serviceId) ?? null}
-            onChange={(option) => onChange({ ...filters, serviceId: option?.value ?? null })}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="filter-provider">Proveedor</Label>
-          <Select
-            inputId="filter-provider"
-            placeholder="Todos los proveedores"
-            isClearable
-            options={providerOptions}
-            value={providerOptions.find((option) => option.value === filters.providerId) ?? null}
-            onChange={(option) => onChange({ ...filters, providerId: option?.value ?? null })}
-          />
-        </div>
+        <AccountFilterSelects
+          filters={filters}
+          serviceOptions={serviceOptions}
+          providerOptions={providerOptions}
+          onChange={onChange}
+        />
       </div>
     </Modal>
   );

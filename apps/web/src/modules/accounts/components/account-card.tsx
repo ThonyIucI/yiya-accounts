@@ -9,7 +9,10 @@ import LongPressCopy from "@/common/components/long-press-copy";
 import { useRevealablePassword } from "@/modules/accounts/hooks/use-revealable-password";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
-import ExpiryLabel from "./expiry-label";
+import { ARE_PROFILES_SHOWN } from "@/modules/accounts/constants";
+
+import ExpiryIcon from "./expiry-icon";
+import ExpiryNotice from "./expiry-notice";
 import PasswordEyeButton from "./password-eye-button";
 import ProfileChips from "./profile-chips";
 import SendAccessButton from "./send-access-button";
@@ -24,12 +27,13 @@ interface IAccountCardProps {
 
 /**
  * Card de una cuenta (acordado 2026-10-13, ajustado 2026-10-22):
- * - **Cabecera** (fondo gris, como las cards de id-pos): logo, **el servicio como título** y
- *   el proveedor. Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
+ * - **Cabecera** (fondo gris, como las cards de id-pos): logo, **el servicio como título**,
+ *   el proveedor y, solo si hace falta, el aviso de vencimiento en color («● Venció el
+ *   06-set», en 12 px). Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
  *   listo para WhatsApp), el switch y `⋯`; sin badge de «Activa».
  * - **Cuerpo:** correo y contraseña (oculta, con su ojo al lado de la etiqueta). Se copian
- *   **manteniéndolos presionados** (sin botones de copiar). Debajo, el vencimiento y los
- *   perfiles plegados.
+ *   **manteniéndolos presionados** (sin botones de copiar). Los perfiles, ocultos hasta los
+ *   alquileres (`ARE_PROFILES_SHOWN`).
  */
 export default function AccountCard({
   account,
@@ -47,7 +51,7 @@ export default function AccountCard({
         !account.isActive && "opacity-70",
       )}
     >
-      <div className="flex items-center justify-between gap-2 bg-muted px-4 py-3">
+      <div className="flex items-center justify-between gap-2 bg-muted px-3 py-3">
         {/* Toda la cabecera abre el detalle; copiar, el switch y `⋯` no. */}
         <div
           role="button"
@@ -64,8 +68,12 @@ export default function AccountCard({
         >
           <ServiceAvatar name={account.service.name} imageUrl={account.service.imageUrl} />
           <div className="min-w-0">
-            <p className="truncate font-heading font-bold text-foreground">{account.service.name}</p>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <p className="truncate font-heading font-bold text-foreground">{account.service.name}</p>
+              <ExpiryIcon expiresOn={accountExpiresOn(account.purchases)} />
+            </div>
             <p className="truncate text-muted-foreground">{account.provider.name}</p>
+            <ExpiryNotice expiresOn={accountExpiresOn(account.purchases)} />
           </div>
         </div>
 
@@ -106,12 +114,7 @@ export default function AccountCard({
           </div>
         </div>
 
-        <p className="flex items-center justify-between gap-3">
-          <span className="text-muted-foreground">Vence</span>
-          <ExpiryLabel expiresOn={accountExpiresOn(account.purchases)} />
-        </p>
-
-        <ProfileChips profiles={account.profiles} />
+        {ARE_PROFILES_SHOWN && <ProfileChips profiles={account.profiles} />}
       </div>
     </article>
   );

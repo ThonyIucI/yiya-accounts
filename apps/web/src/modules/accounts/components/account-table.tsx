@@ -19,7 +19,8 @@ import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import AccountCredentials from "./account-credentials";
 import type { IAccountListHandlers } from "./account-list-props";
-import ExpiryLabel from "./expiry-label";
+import ExpiryDate from "./expiry-date";
+import ExpiryIcon from "./expiry-icon";
 import SendAccessButton from "./send-access-button";
 
 const SKELETON_COUNT = 4;
@@ -86,6 +87,7 @@ export default function AccountTable({
                       <p className="truncate font-heading font-bold text-foreground">
                         {account.service.name}
                       </p>
+                      <ExpiryIcon expiresOn={accountExpiresOn(account.purchases)} />
                     </div>
                   </TableCell>
                   <TableCell>
@@ -93,7 +95,7 @@ export default function AccountTable({
                   </TableCell>
                   <TableCell className="text-foreground">{account.provider.name}</TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <ExpiryLabel expiresOn={accountExpiresOn(account.purchases)} />
+                    <ExpiryDate expiresOn={accountExpiresOn(account.purchases)} />
                   </TableCell>
                   <TableCell className="font-semibold tabular-nums">
                     {freeProfiles(account.profiles).length} / {account.profiles.length} libres

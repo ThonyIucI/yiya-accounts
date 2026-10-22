@@ -55,11 +55,13 @@ Copiados del catálogo de cultivos del saas (`admin-config/crop-types`). Referen
 
 - Buscador (`SearchInput`) dentro de `StickyToolbar`: al bajar se pega bajo el encabezado y
   se vuelve vidrio con sombra.
-- **Filtros en su botón, no en la pantalla** (acordado 2026-10-13, como en id-pos): al lado
+- **En escritorio, los filtros van al lado del buscador** como selects (acordado 2026-10-22:
+  hay espacio). **En el celular, en su botón** (acordado 2026-10-13, como en id-pos): al lado
   del buscador va `FilterButton` (`common/components/filter-button.tsx`), con un globo que
   dice cuántos hay puestos. Abre una modal con los selects; se aplican al elegir y el botón
   dice cuántos resultados quedan («Ver 3 cuentas»), con «Limpiar» al lado. Referencia:
-  `modules/accounts/components/account-filters-modal.tsx`.
+  `modules/accounts/components/account-filters-modal.tsx`, cuyos selects
+  (`AccountFilterSelects`) son los mismos de la barra de escritorio.
 - `ResultsCounter` («Mostrando 1–10 de 24») arriba de la lista.
 - `ListPagination` con filas por página (10, 20, 50): dentro de la card de la tabla en
   escritorio, en su propia barra con sombra en celular.
@@ -133,14 +135,25 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 
 ## Vencimientos (acordado 2026-10-22, `modules/accounts/components/expiry-label.tsx`)
 
-- `ExpiryLabel` muestra el vencimiento igual en la tabla, la card y el detalle:
-  - **«Vencida»** en rojo (`text-destructive`) si ya pasó;
-  - **«Vence hoy» / «Vence mañana» / «Vence en N días»** en ámbar (`text-warning`) si
-    faltan 3 días o menos; al pasar el mouse, la fecha;
-  - si no, la fecha corta («18 nov 2026»);
-  - **«Sin compras»** en gris si la cuenta todavía no tiene ninguna.
-- `--warning` es un ámbar oscuro para que se lea como texto sobre blanco; en modo oscuro,
-  uno claro.
+- Cuatro estados: **vencida** (rojo), **vence hoy** (naranja), **por vencer** (amarillo,
+  faltan 1 o 2 días) y **al día**. Colores propios (`--status-expired`, `--status-today`,
+  `--status-soon`), oscuros en modo claro para pasar 4.5:1 sobre blanco **y** sobre el gris de
+  la cabecera; `--destructive` no llega como texto.
+- Un componente por lugar:
+  - **Card de celular:** `ExpiryNotice`, un aviso en la cabecera solo si hace falta
+    («● Venció el 06-set»; de otro año, «● Venció en oct-2025»), en 12 px. Al día no dice
+    nada.
+  - Los meses van en 3 letras y septiembre es «set», como en Perú (acordado 2026-10-22).
+  - Los `Badge` van en 12 px.
+  - **Tabla y detalle:** `ExpiryDate`, la fecha («18 nov 2026») pintada según el estado; al
+    pasar el mouse, «Vence en 2 días».
+  - **Encabezado del detalle:** `ExpiryBadge` al lado del nombre: Vencida · Por vencer · Al día.
+  - **A la derecha del nombre, en la card y la tabla:** `ExpiryIcon` (acordado 2026-10-22):
+    check verde (al día), círculo con x rojo (venció), triángulo naranja (vence hoy),
+    reloj amarillo (1 o 2 días), círculo con «−» gris (sin compras). El ícono gris de «no
+    alquilada» llega con los alquileres (paso 4b).
+- Las píldoras de estado son `Badge` (`common/components/badge.tsx`), con `tone`; nunca
+  clases sueltas.
 - Precio y fechas de una compra siempre con `PurchaseFields`: precio arriba, fecha de compra
   y vencimiento lado a lado (`<input type="date">`, que abre el calendario del celular).
 
@@ -158,6 +171,10 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
   `iconButtonVariants({...})` en su `className`.
 - `CopyButton`, `PasswordEyeButton` y `RowActions` están hechos sobre `IconButton` y
   aceptan los mismos `tone`, `isBordered` e `isFilled`.
+
+- **Un botón con acción parece botón** (acordado 2026-10-22): borde, fondo y hover
+  (`variant="outline"`). `ghost` solo para lo que no es una acción principal; un «Renovar»
+  que se ve como texto no se nota clickeable.
 
 ## Campos de formulario
 

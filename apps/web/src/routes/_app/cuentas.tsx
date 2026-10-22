@@ -20,6 +20,7 @@ import { useBoolean } from "@/common/hooks/use-boolean";
 import { usePagination } from "@/common/hooks/use-pagination";
 import AccountDetailPanel from "@/modules/accounts/components/account-detail-panel";
 import AccountFiltersModal, {
+  AccountFilterSelects,
   EMPTY_ACCOUNT_FILTERS,
   type IAccountFilters,
   countAccountFilters,
@@ -297,9 +298,12 @@ function AccountsPage() {
 
       {accounts.length > 0 && (
         <StickyToolbar>
-          {/* Los filtros no ocupan la pantalla: van en su modal, como en id-pos. */}
-          <div className="flex gap-2 lg:ml-auto lg:w-96">
-            <div className="min-w-0 flex-1">
+          {/*
+            En el celular los filtros van en su modal (como en id-pos); en escritorio hay
+            espacio y van al lado del buscador (acordado 2026-10-22).
+          */}
+          <div className="flex gap-2 md:justify-end">
+            <div className="min-w-0 flex-1 md:max-w-96">
               <SearchInput
                 placeholder="Buscar por correo…"
                 aria-label="Buscar cuenta por correo"
@@ -307,7 +311,18 @@ function AccountsPage() {
                 onChange={handleSearchChange}
               />
             </div>
-            <FilterButton activeCount={activeFilterCount} onClick={showFilters.on} />
+            <div className="hidden gap-2 md:flex">
+              <AccountFilterSelects
+                isInline
+                filters={filters}
+                serviceOptions={serviceOptions}
+                providerOptions={providerOptions}
+                onChange={handleFiltersChange}
+              />
+            </div>
+            <div className="md:hidden">
+              <FilterButton activeCount={activeFilterCount} onClick={showFilters.on} />
+            </div>
           </div>
         </StickyToolbar>
       )}

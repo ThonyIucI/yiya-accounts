@@ -1,7 +1,7 @@
 import { Button } from "@yiya/ui/components/button";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
-import type { IPurchaseResource } from "@yiya/shared/purchases";
+import { type IPurchaseResource, accountExpiresOn } from "@yiya/shared/purchases";
 import {
   ClipboardCopy,
   Loader2,
@@ -27,6 +27,9 @@ import { buildAccessText } from "@/modules/accounts/utils/access-text";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import PasswordEyeButton from "./password-eye-button";
+import { ARE_PROFILES_SHOWN } from "@/modules/accounts/constants";
+
+import ExpiryBadge from "./expiry-badge";
 import ProfileList from "./profile-list";
 import PurchaseList from "./purchase-list";
 
@@ -51,7 +54,8 @@ interface IAccountDetailPanelProps {
 /**
  * Detalle lateral de una cuenta, con la estructura del detalle de cliente de id-pos:
  * Cuenta (correo, contraseña —cada uno con su copiar— y proveedor), Compras, Nota y
- * Perfiles. «Copiar acceso» del `⋯` copia todo listo para WhatsApp. La contraseña solo se
+ * Perfiles (ocultos hasta los alquileres, `ARE_PROFILES_SHOWN`). Al lado del nombre, el
+ * estado: Vencida, Por vencer o Al día. «Copiar acceso» del `⋯` copia todo listo para WhatsApp. La contraseña solo se
  * ve acá.
  */
 export default function AccountDetailPanel({
@@ -167,9 +171,12 @@ export default function AccountDetailPanel({
               className="size-14"
             />
             <div className="min-w-0">
-              <h2 className="truncate font-heading text-xl font-extrabold text-foreground">
-                {current.service.name}
-              </h2>
+              <div className="flex min-w-0 items-center gap-2">
+                <h2 className="truncate font-heading text-xl font-extrabold text-foreground">
+                  {current.service.name}
+                </h2>
+                <ExpiryBadge expiresOn={accountExpiresOn(current.purchases)} />
+              </div>
               <p className="truncate text-sm text-muted-foreground">{current.email}</p>
             </div>
           </div>
@@ -219,7 +226,7 @@ export default function AccountDetailPanel({
           <DetailSection
             title={`Compras (${current.purchases.length})`}
             action={
-              <Button type="button" variant="ghost" size="sm" onClick={() => onRenew(current)}>
+              <Button type="button" variant="outline" size="sm" onClick={() => onRenew(current)}>
                 <RefreshCw />
                 Renovar
               </Button>
@@ -241,30 +248,33 @@ export default function AccountDetailPanel({
             </p>
           </DetailSection>
 
-          <DetailSection
-            title={`Perfiles (${current.profiles.length})`}
-            action={
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onAddProfile(current)}
-              >
-                {isAddingProfile ? (
-                  <Loader2 className="animate-spin motion-reduce:animate-none" />
-                ) : (
-                  <Plus />
-                )}
-                Agregar perfil
-              </Button>
-            }
-          >
-            <ProfileList
-              profiles={current.profiles}
-              onSaved={(profile) => onProfileSaved(current, profile)}
-              onDelete={(profile) => onProfileDelete(current, profile)}
-            />
-          </DetailSection>
+          {/* Ocultos hasta los alquileres (paso 4b): hoy todos están libres. */}
+          {ARE_PROFILES_SHOWN && (
+            <DetailSection
+              title={`Perfiles (${current.profiles.length})`}
+              action={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onAddProfile(current)}
+                >
+                  {isAddingProfile ? (
+                    <Loader2 className="animate-spin motion-reduce:animate-none" />
+                  ) : (
+                    <Plus />
+                  )}
+                  Agregar perfil
+                </Button>
+              }
+            >
+              <ProfileList
+                profiles={current.profiles}
+                onSaved={(profile) => onProfileSaved(current, profile)}
+                onDelete={(profile) => onProfileDelete(current, profile)}
+              />
+            </DetailSection>
+          )}
         </div>
       )}
     </SidePanel>

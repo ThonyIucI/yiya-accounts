@@ -36,11 +36,21 @@ dayjs.updateLocale(APP_LOCALE, {
 });
 
 /**
- * `"2026-09-12"` → `"12 sep 2026"`. Es la que va en las tarjetas: entra en una línea
+ * `"2026-09-12"` → `"12 set 2026"`. Es la que va en las tarjetas: entra en una línea
  * aunque la pantalla sea de 320 px.
  */
 export const formatShortDate = (date: string | Date): string =>
   dayjs(date).format("DD MMM YYYY");
+
+/** Si la fecha es de este año: decide entre «06-set» y «oct-2025». */
+export const isCurrentYear = (date: string | Date): boolean => dayjs(date).year() === dayjs().year();
+
+/**
+ * La fecha más corta, para avisos dentro de una card (acordado 2026-10-22): de este año,
+ * día y mes (`"2026-09-06"` → `"06-set"`); de otro año, mes y año (`"oct-2025"`).
+ */
+export const formatCompactDate = (date: string | Date): string =>
+  dayjs(date).format(isCurrentYear(date) ? "DD-MMM" : "MMM-YYYY");
 
 /** `"2026-09-12"` → `"12 de septiembre de 2026"`. Para textos corridos, no para tarjetas. */
 export const formatLongDate = (date: string | Date): string =>

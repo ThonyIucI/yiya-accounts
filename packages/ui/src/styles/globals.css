@@ -45,8 +45,13 @@
   --spark-foreground: oklch(0.2418 0.0497 83.05);
   --success: oklch(0.5051 0.1481 147.5);
   --success-foreground: oklch(1 0 0);
-  /* Ámbar de aviso («Vence en 2 días»): oscuro para que se lea como texto sobre blanco. */
-  --warning: oklch(0.6 0.15 65);
+  /*
+    Estados de vencimiento (2026-10-22). Se usan como texto: oscuros para pasar 4.5:1 sobre
+    blanco y sobre el gris de la cabecera de las cards (`--destructive` no llega).
+  */
+  --status-expired: oklch(0.5 0.2 25);
+  --status-today: oklch(0.52 0.17 45);
+  --status-soon: oklch(0.53 0.12 85);
   --info: oklch(0.5384 0.0912 210.81);
   --info-foreground: oklch(1 0 0);
   /* Un punto más oscuro que el rojo del logo para llegar a AA con texto blanco */
@@ -131,7 +136,9 @@
   --spark-foreground: oklch(0.2418 0.0497 83.05);
   --success: oklch(0.8003 0.1821 151.71);
   --success-foreground: oklch(0.2235 0.0515 152.48);
-  --warning: oklch(0.82 0.15 75);
+  --status-expired: oklch(0.75 0.14 20);
+  --status-today: oklch(0.8 0.13 60);
+  --status-soon: oklch(0.88 0.15 95);
   --info: oklch(0.8247 0.1052 206.9);
   --info-foreground: oklch(0.2634 0.042 213.19);
   --destructive: oklch(0.7638 0.1417 15.59);
@@ -183,7 +190,9 @@
   --color-spark-foreground: var(--spark-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
+  --color-status-expired: var(--status-expired);
+  --color-status-today: var(--status-today);
+  --color-status-soon: var(--status-soon);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-destructive: var(--destructive);
