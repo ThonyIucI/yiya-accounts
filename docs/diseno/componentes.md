@@ -11,7 +11,8 @@ de cards genéricas.
 - **Celular:** card de listado (`md:hidden`):
   - identidad arriba a la izquierda (ícono + nombre + dato secundario);
   - switch + menú de acciones arriba a la derecha;
-  - detalles abajo. Una nota libre va con el ícono `MessageSquareText` a la izquierda,
+  - detalles abajo. La card separa **cabecera y cuerpo con fondos distintos** (`bg-muted`
+    arriba, blanco abajo; acordado 2026-10-22). Una nota libre va con el ícono `MessageSquareText` a la izquierda,
     para que se lea como nota y no como otro dato (acordado 2026-10-13).
 - `PageHeader`: título, contadores («3 negocios · 2 activos») y la acción «Crear».
 - `EmptyState`: ícono, título y la acción para salir del vacío («Crear el primero»).
@@ -95,10 +96,14 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 - **En celular** ocupa la pantalla, con «‹ Volver» arriba. **En escritorio** es un panel a
   la derecha sobre la lista.
 - Lo abierto va en la URL (`/cuentas?cuenta=<id>`): se puede recargar o compartir.
-- El contenido va en cards con título (`DetailSection`) y filas **ícono + etiqueta: valor**
-  (`DetailRow`), con sus botones (copiar, ver) al final de la fila.
-- Un dato que todavía no existe (p. ej. las compras, mientras no estén) se ve como «—» en
-  gris: **nunca datos inventados**.
+- El contenido va en cards con título (`DetailSection`, encabezado sobre fondo `bg-muted` y
+  cuerpo en blanco, como id-pos) y filas **ícono + etiqueta: valor** (`DetailRow` dentro de
+  `DetailList`), con sus botones (copiar, ver) al final de la fila.
+- **Los valores van alineados** (acordado 2026-10-22): las filas comparten columnas
+  (subgrid), así todos los valores arrancan en el mismo punto aunque las etiquetas midan
+  distinto.
+- **Lo que todavía no existe no se muestra** (p. ej. renovaciones, mientras no estén las
+  compras): ni filas vacías ni datos inventados.
 - Las acciones de todo el registro van en el `⋯` del encabezado.
 
 ## Copiar
@@ -114,7 +119,7 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 
 ## Campos de formulario
 
-- Todos miden lo mismo: 52 px de alto (`h-13`), texto de 18 px.
+- Todos miden lo mismo: 52 px de alto (`h-13`), texto de 14 px en escritorio y 16 px en celular (para que iOS no haga zoom, ver [principios](principios.md)).
 - **Select** (`common/components/select.tsx`, react-select como el saas) para todo lo que
   crece: usuarios, clientes, cuentas. Se puede buscar escribiendo.
   - Opciones en **una sola línea**: «**Nombre** · dato secundario», no el dato debajo.

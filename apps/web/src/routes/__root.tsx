@@ -2,6 +2,7 @@ import { Toaster } from "@yiya/ui/components/sonner";
 import { cn } from "@yiya/ui/lib/utils";
 import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { Suspense, lazy } from "react";
 
 import { EUserRole } from "@yiya/shared/roles";
 
@@ -14,6 +15,13 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ActiveBusinessProvider } from "@/modules/businesses/context/active-business";
 
 import "../index.css";
+
+/* Solo en desarrollo: Alt + clic sobre un elemento abre su componente en el editor. */
+const ClickToComponent = import.meta.env.DEV
+  ? lazy(() =>
+      import("click-to-react-component-next").then((module) => ({ default: module.ClickToComponent })),
+    )
+  : null;
 
 export interface RouterAppContext {}
 
@@ -67,6 +75,11 @@ function RootComponent() {
         </ActiveBusinessProvider>
         <Toaster richColors />
       </ThemeProvider>
+      {ClickToComponent && (
+        <Suspense>
+          <ClickToComponent />
+        </Suspense>
+      )}
       {import.meta.env.DEV && <TanStackRouterDevtools position="bottom-left" />}
     </>
   );

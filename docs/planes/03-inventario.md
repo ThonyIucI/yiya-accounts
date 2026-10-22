@@ -67,7 +67,7 @@ alquilan los perfiles en el paso 4.
 | RF-10 | No puede haber dos cuentas del mismo servicio con el mismo correo en un negocio («Ya tienes una cuenta de Netflix con ese correo.»). |
 | RF-11 | Todo se edita después, **menos el servicio**: los perfiles dependen de él. Si se equivocó de servicio, elimina la cuenta y la registra de nuevo. |
 | RF-12 | Eliminar una cuenta elimina sus perfiles y sus compras, con confirmación. Desde el paso 4, no se podrá si tiene perfiles alquilados. |
-| RF-13 | El listado muestra servicio (imagen y nombre), correo, proveedor, perfiles y **«Renueva: 18 nov 2026»** (el vencimiento de la última compra). Ordenado por vencimiento, la que vence antes primero; las desactivadas al final. |
+| RF-13 | El listado muestra servicio (imagen y nombre), correo, proveedor, perfiles (el vencimiento de la última compra se mostrará cuando existan las compras). Ordenado por vencimiento, la que vence antes primero; las desactivadas al final. |
 | RF-14 | El vencimiento dice «Vencida» (en rojo) si ya pasó y «Vence en N días» (en ámbar) si faltan 3 días o menos; si no, la fecha. |
 | RF-15 | Buscador por correo y filtros por servicio y por proveedor (react-select). Paginado como en Servicios. |
 
@@ -293,9 +293,8 @@ react-select.
     de «Activa».
   - **Perfiles: plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
     abrir, un chip por perfil («P1»… «P5»).
-  - **Pie:** «Renueva: 18 nov 2026» (con los colores de RF-14).
-  - La contraseña no se ve en la card: solo en el detalle.
-- **Tabla:** Servicio · Correo · Proveedor · Perfiles · Renueva · Activa · acciones.
+  - La contraseña no se ve en la card: solo en el detalle y, oculta con ojo, en la tabla.
+- **Tabla:** Cuenta (logo y servicio) · **Credenciales** (correo arriba, contraseña oculta abajo con ojo) · Proveedor · Perfiles · Activa · acciones. Sin columna de renovación hasta que existan las compras (acordado 2026-10-22).
 - Barra pegajosa con el buscador y, al lado, el **botón de filtros** (servicio y
   proveedor), que abre su modal. Los filtros no van sueltos en la pantalla.
 - Todo select de servicios lleva el logo de cada uno.

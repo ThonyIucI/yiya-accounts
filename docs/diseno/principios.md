@@ -35,6 +35,28 @@ Antes de diseñar o tocar UI, leer:
   nada (la guarda va en el handler, p. ej. `if (form.state.isSubmitting) return`).
 - Lo mismo vale para los switches: mientras guardan llevan `aria-busy`, no `disabled`.
 
+## Tipografía y scroll (acordado 2026-10-22)
+
+- **Texto normal: 14 px** (`text-sm`), en escritorio y en celular. Los títulos suben a 16 px
+  (`text-base`) o más. No se usa 16 px para texto corriente.
+- **Única excepción: los campos de texto en celular** (`text-base md:text-sm`): iOS hace
+  zoom a la página al enfocar un campo con letra menor a 16 px.
+- **Scrollbar como el del saas** (`apps/web/src/index.css`): oculta, y aparece fina al pasar
+  el mouse por un elemento con scroll.
+
+## Cursor (acordado 2026-10-22)
+
+- En escritorio, **todo lo clickeable lleva manita** (`cursor: pointer`): botones, filas y
+  cards que se abren, switches, ítems de menú, pestañas. Una regla global en
+  `apps/web/src/index.css` cubre `button`, `a[href]` y los `role` de control; un `div` o
+  `tr` clickeable debe llevar `role="button"` o `cursor-pointer`.
+
+## Páginas de error (acordado 2026-10-22)
+
+- `components/error-screen.tsx` es la forma común (card centrada: ícono, título, explicación
+  y la salida). La **404** (`not-found.tsx`) y el **«Algo salió mal»** (`route-error.tsx`) la
+  usan; están registradas en el router (`defaultNotFoundComponent`, `defaultErrorComponent`).
+
 ## Motion
 
 - Curvas: `[0.23, 1, 0.32, 1]` para entrar; `[0.32, 0.72, 0, 1]` para hojas inferiores.

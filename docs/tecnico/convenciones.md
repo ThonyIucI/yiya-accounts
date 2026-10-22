@@ -80,3 +80,9 @@ hacer. Nunca inglés, IDs, códigos ni texto de librerías.
 
 Thony corre todos los comandos (install, tests, build, migraciones, deploy, git). Claude
 escribe el código y dice qué correr.
+
+## Herramientas de desarrollo (acordado 2026-10-22)
+
+- **click-to-component** (`click-to-react-component-next`, solo en `pnpm dev`): Alt + clic
+  sobre un elemento abre el archivo de su componente en el editor. Va cargado de forma
+  perezosa en `routes/__root.tsx` y no entra al build de producción.

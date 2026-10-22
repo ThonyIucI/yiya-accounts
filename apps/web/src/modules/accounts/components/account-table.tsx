@@ -16,6 +16,7 @@ import RowActions from "@/common/components/row-actions";
 import { freeProfiles } from "@/modules/accounts/utils/profile-occupancy";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
+import AccountCredentials from "./account-credentials";
 import type { IAccountListHandlers } from "./account-list-props";
 
 const SKELETON_COUNT = 4;
@@ -46,10 +47,10 @@ export default function AccountTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted hover:bg-muted">
-            <TableHead className="min-w-64">Cuenta</TableHead>
+            <TableHead>Cuenta</TableHead>
+            <TableHead className="min-w-64">Credenciales</TableHead>
             <TableHead>Proveedor</TableHead>
             <TableHead>Perfiles</TableHead>
-            <TableHead>Renueva</TableHead>
             <TableHead className="text-center">Activa</TableHead>
             <TableHead />
           </TableRow>
@@ -78,20 +79,18 @@ export default function AccountTable({
                         imageUrl={account.service.imageUrl}
                         className="size-10"
                       />
-                      <div className="min-w-0">
-                        <p className="truncate font-heading text-sm font-bold text-foreground">
-                          {account.email}
-                        </p>
-                        <p className="truncate text-sm text-muted-foreground">{account.service.name}</p>
-                      </div>
+                      <p className="truncate font-heading font-bold text-foreground">
+                        {account.service.name}
+                      </p>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <AccountCredentials account={account} />
                   </TableCell>
                   <TableCell className="text-foreground">{account.provider.name}</TableCell>
                   <TableCell className="font-semibold tabular-nums">
                     {freeProfiles(account.profiles).length} / {account.profiles.length} libres
                   </TableCell>
-                  {/* Las compras todavía no están: queda vacío, no se inventa. */}
-                  <TableCell className="text-muted-foreground">—</TableCell>
                   <TableCell>
                     <div className="flex justify-center" onClick={(event) => event.stopPropagation()}>
                       <Switch

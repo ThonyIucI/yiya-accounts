@@ -2,11 +2,9 @@ import { Button } from "@yiya/ui/components/button";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
 import {
-  CalendarClock,
   ClipboardCopy,
   Eye,
   EyeOff,
-  History,
   Loader2,
   Lock,
   Mail,
@@ -15,13 +13,12 @@ import {
   Plus,
   Trash2,
   Truck,
-  Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import CopyButton from "@/common/components/copy-button";
-import { DetailRow, DetailSection } from "@/common/components/detail-section";
+import { DetailList, DetailRow, DetailSection } from "@/common/components/detail-section";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import SidePanel from "@/common/components/side-panel";
 import { copyToClipboard } from "@/common/utils/clipboard";
@@ -49,11 +46,10 @@ interface IAccountDetailPanelProps {
 
 /**
  * Detalle lateral de una cuenta, con la estructura del detalle de cliente de id-pos:
- * Acceso (correo y contraseña, cada uno con su copiar), Compra, Nota y Perfiles. «Copiar
+ * Cuenta (correo, contraseña —cada uno con su copiar— y proveedor), Nota y Perfiles. «Copiar
  * acceso» del `⋯` copia todo listo para WhatsApp. La contraseña solo se ve acá.
  *
- * Las compras y renovaciones todavía no están: sus filas quedan vacías («—»), sin datos
- * inventados, hasta que se implementen.
+ * Las compras y renovaciones no se muestran hasta que existan: no hay filas vacías.
  */
 export default function AccountDetailPanel({
   account,
@@ -171,52 +167,47 @@ export default function AccountDetailPanel({
             </div>
           </div>
 
-          <DetailSection title="Acceso">
-            <DetailRow
-              icon={Mail}
-              label="Correo"
-              actions={
-                <CopyButton label="Copiar correo" getText={() => current.email} />
-              }
-            >
-              {current.email}
-            </DetailRow>
-            <DetailRow
-              icon={Lock}
-              label="Contraseña"
-              actions={
-                <>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
-                    onClick={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
-                  >
-                    {isPasswordVisible ? <EyeOff /> : <Eye />}
-                  </Button>
-                  <CopyButton label="Copiar contraseña" getText={getPasswordText} />
-                </>
-              }
-            >
-              <span className="font-mono">
-                {AccountPassword.loading
-                  ? "Cargando…"
-                  : isPasswordVisible && password !== null
-                    ? password
-                    : HIDDEN_PASSWORD}
-              </span>
-            </DetailRow>
-          </DetailSection>
-
-          {/* Compras y renovaciones: pendientes. Las filas quedan vacías, sin datos inventados. */}
-          <DetailSection title="Compra">
-            <DetailRow icon={Truck} label="Proveedor">
-              {current.provider.name}
-            </DetailRow>
-            <DetailRow icon={History} label="Última renovación" />
-            <DetailRow icon={CalendarClock} label="Próximo vencimiento" />
-            <DetailRow icon={Wallet} label="Pagado" />
+          <DetailSection title="Cuenta">
+            <DetailList>
+              <DetailRow
+                icon={Mail}
+                label="Correo"
+                actions={
+                  <CopyButton label="Copiar correo" getText={() => current.email} />
+                }
+              >
+                {current.email}
+              </DetailRow>
+              <DetailRow
+                icon={Lock}
+                label="Contraseña"
+                actions={
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
+                      onClick={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
+                    >
+                      {isPasswordVisible ? <EyeOff /> : <Eye />}
+                    </Button>
+                    <CopyButton label="Copiar contraseña" getText={getPasswordText} />
+                  </>
+                }
+              >
+                <span className="font-mono">
+                  {AccountPassword.loading
+                    ? "Cargando…"
+                    : isPasswordVisible && password !== null
+                      ? password
+                      : HIDDEN_PASSWORD}
+                </span>
+              </DetailRow>
+              <DetailRow icon={Truck} label="Proveedor">
+                {current.provider.name}
+              </DetailRow>
+            </DetailList>
           </DetailSection>
 
           <DetailSection title="Nota">

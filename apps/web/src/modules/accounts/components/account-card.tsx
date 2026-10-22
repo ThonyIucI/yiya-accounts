@@ -24,8 +24,8 @@ interface IAccountCardProps {
  * - **Cabecera:** logo, correo y el nombre del proveedor. Tocarla abre el detalle (no hay
  *   botón «Gestionar»). Copiar copia **el acceso completo** (correo y contraseña), listo
  *   para WhatsApp. A la derecha el switch y `⋯`; sin badge de «Activa».
- * - **Perfiles:** plegados, con chevron.
- * - **Pie:** el vencimiento (vacío hasta que existan las compras).
+ * - **Perfiles:** plegados, con chevron, en el cuerpo (cabecera y cuerpo van en fondos
+ *   distintos, como las cards de id-pos).
  */
 export default function AccountCard({
   account,
@@ -43,11 +43,11 @@ export default function AccountCard({
   return (
     <article
       className={cn(
-        "space-y-2 rounded-2xl bg-card p-4 shadow-card transition-opacity",
+        "overflow-hidden rounded-2xl bg-card shadow-card transition-opacity",
         !account.isActive && "opacity-70",
       )}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 bg-muted px-4 py-3">
         {/* Toda la cabecera abre el detalle; copiar, el switch y `⋯` no. */}
         <div
           role="button"
@@ -84,28 +84,26 @@ export default function AccountCard({
         </div>
       </div>
 
-      <ProfileChips profiles={account.profiles} />
-
-      {/* Las compras todavía no están: el vencimiento queda vacío, no se inventa. */}
-      <p className="border-t border-border/60 pt-3 text-sm text-muted-foreground">
-        Renueva: <span className="font-semibold">—</span>
-      </p>
+      <div className="px-4 py-3">
+        <ProfileChips profiles={account.profiles} />
+      </div>
     </article>
   );
 }
 
 export function AccountCardSkeleton() {
   return (
-    <div className="space-y-3 rounded-2xl bg-card p-4 shadow-card">
-      <div className="flex items-center gap-3">
+    <div className="overflow-hidden rounded-2xl bg-card shadow-card">
+      <div className="flex items-center gap-3 bg-muted px-4 py-3">
         <Skeleton className="size-11 shrink-0 rounded-xl" />
         <div className="space-y-2">
           <Skeleton className="h-5 w-44 rounded-md" />
           <Skeleton className="h-4 w-28 rounded-md" />
         </div>
       </div>
-      <Skeleton className="h-6 w-full rounded-lg" />
-      <Skeleton className="h-4 w-32 rounded-md" />
+      <div className="px-4 py-3">
+        <Skeleton className="h-6 w-full rounded-lg" />
+      </div>
     </div>
   );
 }
