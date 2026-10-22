@@ -1,4 +1,4 @@
-import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { cn } from "@yiya/ui/lib/utils";
 import { X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -198,15 +198,9 @@ export default function Modal({
                 <h2 className="min-w-0 font-heading text-xl font-extrabold wrap-break-word text-foreground">
                   {title}
                 </h2>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label="Cerrar"
-                  className="-mr-1.5 shrink-0"
-                  onClick={onClose}
-                >
+                <IconButton label="Cerrar" className="-mr-1.5" onClick={onClose}>
                   <X />
-                </Button>
+                </IconButton>
               </div>
             </div>
 

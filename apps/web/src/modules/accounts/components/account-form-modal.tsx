@@ -1,4 +1,5 @@
 import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { Input } from "@yiya/ui/components/input";
 import { Label } from "@yiya/ui/components/label";
 import { Textarea } from "@yiya/ui/components/textarea";
@@ -294,16 +295,14 @@ export default function AccountFormModal({
                   onChange={(event) => field.handleChange(event.target.value)}
                   className="pr-12"
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
-                  className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
+                <IconButton
+                  tone="muted"
+                  label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
                   onClick={() => setIsPasswordVisible((visible) => !visible)}
                 >
                   {isPasswordVisible ? <EyeOff /> : <Eye />}
-                </Button>
+                </IconButton>
               </div>
               <FieldError errors={field.state.meta.errors} />
             </div>

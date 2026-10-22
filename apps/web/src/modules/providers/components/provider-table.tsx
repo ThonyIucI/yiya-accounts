@@ -29,7 +29,7 @@ interface IProviderTableProps {
 /** Tabla de escritorio. Oculta en celular: allí se usa `ProviderMobileList`. */
 export default function ProviderTable({ providers, isLoading, buildActions, footer }: IProviderTableProps) {
   return (
-    <div className="hidden overflow-hidden rounded-2xl bg-card shadow-card md:block">
+    <div className="hidden overflow-hidden rounded-md bg-card shadow-card md:block">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted hover:bg-muted">

@@ -1,5 +1,4 @@
 import type { IAccountResource } from "@yiya/shared/accounts";
-import { cn } from "@yiya/ui/lib/utils";
 import { SendHorizontal } from "lucide-react";
 
 import CopyButton from "@/common/components/copy-button";
@@ -34,10 +33,9 @@ export default function SendAccessButton({ account, getPassword, isBordered = fa
       label={`Enviar el acceso de ${account.email} (se copia para pegarlo en WhatsApp)`}
       icon={SendHorizontal}
       getText={getAccessText}
-      className={cn(
-        "text-success hover:bg-success/15 hover:text-success",
-        isBordered ? "border border-border bg-card" : "bg-success/15",
-      )}
+      tone="success"
+      isBordered={isBordered}
+      isFilled={!isBordered}
     />
   );
 }

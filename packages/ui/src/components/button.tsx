@@ -30,6 +30,7 @@ const buttonVariants = cva(
         sm: "h-9 gap-1.5 rounded-lg px-3 text-sm [&_svg:not([class*='size-'])]:size-4",
         lg: "h-13 gap-2 px-5 text-base",
         xl: "h-14 w-full gap-2 px-6 text-xl",
+        /* Los `icon*` quedan para los componentes internos de `ui`. En la app, IconButton. */
         icon: "size-11",
         "icon-xs": "size-8 rounded-lg [&_svg:not([class*='size-'])]:size-4",
         "icon-sm": "size-9 rounded-lg [&_svg:not([class*='size-'])]:size-4",

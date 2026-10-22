@@ -7,7 +7,8 @@ Cómo se usa cada pieza. Los principios generales están en [principios](princip
 Mismo patrón que el saas (`~/own/saas/front/src/modules/admin-config/crop-types`). Nada
 de cards genéricas.
 
-- **Escritorio:** tabla (`@yiya/ui/components/table`, `hidden md:block`).
+- **Escritorio:** tabla (`@yiya/ui/components/table`, `hidden md:block`), en una card con
+  redondeo de 12 px (`rounded-md`, acordado 2026-10-22).
 - **Celular:** card de listado (`md:hidden`):
   - identidad arriba a la izquierda (ícono + nombre + dato secundario);
   - switch + menú de acciones arriba a la derecha;
@@ -129,6 +130,21 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
   copia el bloque listo para WhatsApp
   (`modules/accounts/utils/access-text.ts`):
   `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.
+
+## Botones de ícono (acordado 2026-10-22)
+
+- **Todo botón de solo ícono es `IconButton`** (`@yiya/ui/components/icon-button`), nunca
+  `Button` con clases sueltas por `cn`. Se configura por props:
+  - `tone`: `neutral` · `muted` · `primary` · `success` · `destructive` (rojo solo al pasar).
+  - `size`: `xs` 32 px · `sm` 36 px · `md` 44 px · `lg` 52 px (el alto de los campos).
+  - `isBordered`: borde fino y fondo de card (acciones de la tabla, filtros, tema).
+  - `isFilled`: fondo suave del tono («enviar» en verde).
+  - `label` es obligatorio: va al lector de pantalla y al tooltip.
+  - Redondeo suave: 8 px (`xs`, `sm`) y 12 px (`md`, `lg`). Más se ve casi circular.
+- Si el elemento no es un `<button>` (un enlace, el disparador de un menú), se usa
+  `iconButtonVariants({...})` en su `className`.
+- `CopyButton`, `PasswordEyeButton` y `RowActions` están hechos sobre `IconButton` y
+  aceptan los mismos `tone`, `isBordered` e `isFilled`.
 
 ## Campos de formulario
 

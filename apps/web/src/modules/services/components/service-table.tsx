@@ -37,7 +37,7 @@ export default function ServiceTable({ services, isLoading, footer, ...handlers 
   const columnCount = 2 + (canManageBusiness ? 4 : 0) + (isSuperadmin ? 2 : 0);
 
   return (
-    <div className="hidden overflow-hidden rounded-2xl bg-card shadow-card md:block">
+    <div className="hidden overflow-hidden rounded-md bg-card shadow-card md:block">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted hover:bg-muted">

@@ -1,4 +1,3 @@
-import { buttonVariants } from "@yiya/ui/components/button";
 import {
   type IPhone,
   countryOfPhone,
@@ -6,7 +5,7 @@ import {
   toFullPhone,
   whatsAppUrl,
 } from "@yiya/shared/phones";
-import { cn } from "@yiya/ui/lib/utils";
+import { iconButtonVariants } from "@yiya/ui/components/icon-button";
 
 import CopyButton from "@/common/components/copy-button";
 import CountryFlag from "@/common/components/country-flag";
@@ -52,7 +51,7 @@ export default function ProviderPhone({ phone }: IProviderPhoneProps) {
         title="Escribir por WhatsApp"
         aria-label={`Escribir por WhatsApp al ${fullPhone}`}
         /* Pegado al de copiar: los dos botones conservan su área táctil, solo se solapa el aire. */
-        className={cn(buttonVariants({ variant: "ghost", size: "icon-lg" }), "-ml-2.5 text-primary")}
+        className={`${iconButtonVariants({ tone: "primary", size: "lg" })} -ml-2.5`}
       >
         <WhatsAppIcon />
       </a>

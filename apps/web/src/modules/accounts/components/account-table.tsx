@@ -44,7 +44,7 @@ export default function AccountTable({
   onOpen,
 }: IAccountTableProps) {
   return (
-    <div className="hidden overflow-hidden rounded-2xl bg-card shadow-card md:block">
+    <div className="hidden overflow-hidden rounded-md bg-card shadow-card md:block">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted hover:bg-muted">
@@ -105,6 +105,7 @@ export default function AccountTable({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      {/* PENDIENTE (2026-10-22): enviar va suelto y el resto por `buildActions`; ver nota en RowActions. */}
                       <SendAccessButton account={account} isBordered />
                       <RowActions actions={buildActions(account)} isBordered />
                     </div>

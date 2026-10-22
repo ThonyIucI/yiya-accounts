@@ -1,4 +1,4 @@
-import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { Moon, Sun } from "lucide-react";
 
 import { useTheme } from "@/components/theme-provider";
@@ -13,14 +13,14 @@ export function ModeToggle() {
   const isDark = resolvedTheme === "dark";
 
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+    <IconButton
+      size="md"
+      isBordered
+      label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
       <Sun className="size-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
       <Moon className="absolute size-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-    </Button>
+    </IconButton>
   );
 }

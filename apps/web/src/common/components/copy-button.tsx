@@ -1,4 +1,4 @@
-import { Button } from "@yiya/ui/components/button";
+import { IconButton, type TIconButtonVariants } from "@yiya/ui/components/icon-button";
 import { cn } from "@yiya/ui/lib/utils";
 import { Check, Copy, Loader2, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -27,6 +27,10 @@ interface ICopyButtonProps {
   size?: "sm" | "lg";
   /** El ícono en reposo; por defecto, el de copiar (p. ej. `SendHorizontal` para el acceso). */
   icon?: LucideIcon;
+  /** El color en reposo; al copiar pasa a `primary` con el check. */
+  tone?: TIconButtonVariants["tone"];
+  isBordered?: boolean;
+  isFilled?: boolean;
   className?: string;
 }
 
@@ -42,6 +46,9 @@ export default function CopyButton({
   label,
   size = "sm",
   icon = Copy,
+  tone = "neutral",
+  isBordered = false,
+  isFilled = false,
   className,
 }: ICopyButtonProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -89,14 +96,15 @@ export default function CopyButton({
   const Icon = { idle: icon, copying: Loader2, copied: Check }[state];
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size={size === "lg" ? "icon-lg" : "icon-sm"}
-      title={label}
+    <IconButton
+      label={label}
+      size={size}
+      tone={state === "copied" ? "primary" : tone}
+      isBordered={isBordered}
+      isFilled={isFilled}
       aria-label={state === "copied" ? "Copiado" : label}
       aria-busy={state === "copying"}
-      className={cn("shrink-0", state === "copied" && "text-primary", className)}
+      className={className}
       onClick={handleClick}
     >
       <AnimatePresence mode="popLayout" initial={false}>
@@ -116,6 +124,6 @@ export default function CopyButton({
           />
         </motion.span>
       </AnimatePresence>
-    </Button>
+    </IconButton>
   );
 }

@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from "@yiya/ui/components/button";
+import { IconButton, iconButtonVariants } from "@yiya/ui/components/icon-button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,7 +6,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@yiya/ui/components/dropdown-menu";
-import { cn } from "@yiya/ui/lib/utils";
 import { type LucideIcon, MoreVertical } from "lucide-react";
 import { Fragment } from "react";
 
@@ -21,11 +20,16 @@ export interface IRowAction {
 
 interface IRowActionsProps {
   actions: IRowAction[];
-  /** Botones con borde, para la tabla de escritorio (acordado 2026-10-22). */
+  /**
+   * Botones con borde, para la tabla de escritorio (acordado 2026-10-22).
+   * PENDIENTE (Thony, 2026-10-22): revisar si es sobreingeniería. Hoy el borde y las
+   * acciones llegan por props (`isBordered`, el arreglo de `buildActions`) y «enviar» va
+   * aparte en `SendAccessButton`; ver si conviene un componente de acciones de fila más
+   * simple que reúna todo.
+   */
   isBordered?: boolean;
 }
 
-const BORDERED_CLASS = "border border-border bg-card";
 
 /**
  * Acciones de una fila de tabla o de una card de listado (mismo patrón que el saas).
@@ -38,21 +42,16 @@ export default function RowActions({ actions, isBordered = false }: IRowActionsP
   return (
     <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
       {inlineActions.map(({ icon: Icon, label, onClick, variant }) => (
-        <Button
+        <IconButton
           key={label}
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          title={label}
-          aria-label={label}
+          label={label}
+          tone={variant === "destructive" ? "destructive" : "neutral"}
+          isBordered={isBordered}
           onClick={onClick}
-          className={cn(
-            isBordered && BORDERED_CLASS,
-            variant === "destructive" && "hover:bg-destructive/10 hover:text-destructive",
-          )}
+          className="border-r"
         >
           <Icon />
-        </Button>
+        </IconButton>
       ))}
 
       {menuActions.length > 0 && (
@@ -61,7 +60,7 @@ export default function RowActions({ actions, isBordered = false }: IRowActionsP
             type="button"
             title="Más acciones"
             aria-label="Más acciones"
-            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), isBordered && BORDERED_CLASS)}
+            className={iconButtonVariants({ isBordered })}
           >
             <MoreVertical />
           </DropdownMenuTrigger>

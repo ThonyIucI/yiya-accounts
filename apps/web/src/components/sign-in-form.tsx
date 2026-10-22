@@ -1,4 +1,5 @@
 import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { Input } from "@yiya/ui/components/input";
 import { Label } from "@yiya/ui/components/label";
 import { useForm } from "@tanstack/react-form";
@@ -109,16 +110,14 @@ export default function SignInForm() {
                   onBlur={field.handleBlur}
                   onChange={(event) => field.handleChange(event.target.value)}
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
-                  className="absolute top-1/2 right-2 -translate-y-1/2 text-muted-foreground"
+                <IconButton
+                  tone="muted"
+                  label={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  className="absolute top-1/2 right-2 -translate-y-1/2"
                   onClick={() => setIsPasswordVisible((visible) => !visible)}
                 >
                   {isPasswordVisible ? <EyeOff /> : <Eye />}
-                </Button>
+                </IconButton>
               </div>
               {field.state.meta.errors.map((error) => (
                 <p key={error?.message} className="text-sm font-bold text-destructive">

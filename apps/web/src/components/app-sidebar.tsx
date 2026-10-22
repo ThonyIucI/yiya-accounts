@@ -1,4 +1,4 @@
-import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { userRoleLabels } from "@yiya/shared/roles";
 import { ChevronRight, LogOut, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -40,9 +40,9 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
             {role && <p className="text-sm text-muted-foreground">{userRoleLabels[role]}</p>}
           </div>
           {onClose && (
-            <Button variant="ghost" size="icon" aria-label="Cerrar menú" onClick={onClose}>
-              <X className="size-5" />
-            </Button>
+            <IconButton size="md" label="Cerrar menú" onClick={onClose}>
+              <X />
+            </IconButton>
           )}
         </div>
 

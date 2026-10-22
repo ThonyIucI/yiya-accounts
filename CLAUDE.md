@@ -27,6 +27,9 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
   el clic muestra el error. Ver [principios](docs/diseno/principios.md).
 - **Letra normal de 14 px** y **manita (`cursor: pointer`) en todo lo clickeable en
   escritorio** (acordado 2026-10-22). Ver [principios](docs/diseno/principios.md).
+- **Componentes antes que clases sueltas** (acordado 2026-10-22): lo que se repite (p. ej.
+  un botón de ícono → `IconButton`) es un componente con props de color, tamaño y borde,
+  nunca `cn(...)` copiado en cada lugar.
 - Dinero en soles con 2 decimales (`7.50`), nunca céntimos (acordado 2026-10-12).
 - Contraseñas de cuentas cifradas. Migraciones solo con
   `drizzle-kit generate`.

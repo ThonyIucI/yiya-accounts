@@ -1,4 +1,4 @@
-import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import { SlidersHorizontal } from "lucide-react";
 
 interface IFilterButtonProps {
@@ -13,14 +13,11 @@ interface IFilterButtonProps {
  */
 export default function FilterButton({ activeCount, onClick }: IFilterButtonProps) {
   return (
-    <Button
-      type="button"
-      variant="outline"
+    <IconButton
       /* El mismo alto que el buscador (`h-13`). */
-      size="icon-lg"
-      className="relative shrink-0 rounded-xl"
-      title="Filtros"
-      aria-label={activeCount > 0 ? `Filtros (${activeCount} puestos)` : "Filtros"}
+      size="lg"
+      isBordered
+      label={activeCount > 0 ? `Filtros (${activeCount} puestos)` : "Filtros"}
       onClick={onClick}
     >
       <SlidersHorizontal className="size-5" />
@@ -29,6 +26,6 @@ export default function FilterButton({ activeCount, onClick }: IFilterButtonProp
           {activeCount}
         </span>
       )}
-    </Button>
+    </IconButton>
   );
 }
