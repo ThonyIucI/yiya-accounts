@@ -43,6 +43,13 @@
       "when": 1791938552578,
       "tag": "0005_exotic_slyde",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792649444371,
+      "tag": "0006_aberrant_prodigy",
+      "breakpoints": true
     }
   ]
 }

@@ -2,6 +2,14 @@ import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
 
 import { apiRequest } from "@/lib/api";
 
+/** Una compra con el proveedor: la primera de la cuenta, una renovación o una corrección. */
+export interface IPurchasePayload {
+  price: number;
+  /** «2026-10-22». */
+  purchasedOn: string;
+  expiresOn: string;
+}
+
 export interface ICreateAccountPayload {
   serviceId: string;
   providerId: string;
@@ -9,6 +17,8 @@ export interface ICreateAccountPayload {
   password: string;
   profileCount: number;
   note: string | null;
+  /** No hay cuenta sin compra (RF-08). */
+  purchase: IPurchasePayload;
 }
 
 /** El servicio no se cambia: los perfiles dependen de él. */
@@ -53,3 +63,14 @@ export const updateProfileRequest = (id: string, payload: IUpdateProfilePayload)
 
 export const deleteProfileRequest = (id: string) =>
   apiRequest<{ id: string }>(`/profiles/${id}`, { method: "DELETE" });
+
+/** Renovar (o la primera compra de una cuenta anterior a las compras). Devuelve la cuenta. */
+export const createPurchaseRequest = (accountId: string, payload: IPurchasePayload) =>
+  apiRequest<IAccountResource>(`/accounts/${accountId}/purchases`, { method: "POST", body: payload });
+
+/** Corrige una compra. Devuelve la cuenta, con el vencimiento al día. */
+export const updatePurchaseRequest = (id: string, payload: IPurchasePayload) =>
+  apiRequest<IAccountResource>(`/purchases/${id}`, { method: "PATCH", body: payload });
+
+export const deletePurchaseRequest = (id: string) =>
+  apiRequest<IAccountResource>(`/purchases/${id}`, { method: "DELETE" });

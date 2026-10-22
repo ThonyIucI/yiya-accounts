@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Estado | **Proveedores, cuentas y perfiles hechos en código** (2026-10-13). **Compras y renovaciones: pendientes**; mientras, sus datos se ven vacíos («—»), sin datos inventados (acordado 2026-10-13) |
+| Estado | **Proveedores, cuentas y perfiles hechos en código** (2026-10-13). **Compras y renovaciones hechas en código** (2026-10-22); faltan su migración, probar y desplegar |
 | Etapa | Paso 3 de la [hoja de ruta](../negocio/hoja-de-ruta.md) |
 | Depende de | Paso 2, servicios y precios (hecho en código) |
 | Lo usa después | Paso 4 (alquileres) y paso 5 (panel) |
@@ -79,6 +79,7 @@ alquilan los perfiles en el paso 4.
 | RF-15b | **El precio es el de esa compra**: lo que se pagó esa vez. El campo viene lleno con el **precio referencial** del servicio en el negocio y se puede cambiar. Al renovar, viene con el de la compra anterior (acordado 2026-10-12 y 2026-10-13). |
 | RF-15c | La fecha de compra viene con hoy (al renovar, con el vencimiento anterior) y el vencimiento con un mes después. Se pueden cambiar. El vencimiento no puede ser antes de la compra. |
 | RF-15d | El detalle de la cuenta muestra **sus compras**, de la más nueva a la más vieja, con lo pagado en total. Una compra mal cargada se edita o se elimina; la única que queda no se elimina. |
+| RF-15e | **Cuentas anteriores a las compras** (2026-10-22): las registradas antes no tienen ninguna. No se inventan: dicen «Sin compras», van al final del orden por vencimiento y «Renovar» les registra la primera (con el referencial y hoy). |
 
 ### Contraseña
 
@@ -195,9 +196,12 @@ updated_at                        updated_at
 | | `password_encrypted` | La contraseña cifrada; en claro nunca se guarda |
 | | `is_active` | El switch de activa |
 | | Índice en `provider_id` | Contar rápido las cuentas de un proveedor (el listado y el bloqueo al eliminar) |
-| Compras (**pendiente**, va en su propia migración) | Tabla `account_purchase` | Cada compra o renovación con el proveedor, con su precio y sus fechas |
+| Compras (2026-10-22, su propia migración) | Tabla `account_purchase` | Cada compra o renovación con el proveedor, con su precio y sus fechas |
+| | `business_id` → `business` con `cascade` | Cada compra es de un negocio; si se borra el negocio, se van |
 | | `account_id` → `streaming_account` con `cascade` | Si se elimina la cuenta, se van sus compras |
 | | Índice (`account_id`, `expires_on`) | Sacar rápido el vencimiento de la última compra de cada cuenta |
+| | Índice en `business_id` | Traer las compras de todo el negocio en una consulta, para el listado |
+| | Sin datos para las cuentas que ya existen | No se inventan compras: esas cuentas dicen «Sin compras» (RF-15e) |
 | Perfiles | Tabla `profile` | Los perfiles de cada cuenta |
 | | `account_id` → `streaming_account` con `cascade` | Si se elimina la cuenta, se van sus perfiles |
 | | Índice (`account_id`, `position`) | Listar los perfiles de una cuenta en orden |
@@ -213,14 +217,14 @@ negocio responde 404, como si no existiera.
 | `POST /api/v1/providers` | Crea `{ name, phone?, note? }` → 201 |
 | `PATCH /api/v1/providers/:id` | Cambia `{ name?, phone?, note? }` |
 | `DELETE /api/v1/providers/:id` | Elimina. Con cuentas → 409 |
-| `GET /api/v1/accounts` | Cuentas con servicio, proveedor, perfiles y `expiresOn` (de la última compra). **Sin contraseña** |
+| `GET /api/v1/accounts` | Cuentas con servicio, proveedor, perfiles y `purchases` (la más nueva primero; el vencimiento es el `expiresOn` más lejano, `accountExpiresOn`). **Sin contraseña** |
 | `POST /api/v1/accounts` | Crea `{ serviceId, providerId, email, password, note?, profileCount, purchase: { price, purchasedOn, expiresOn } }`: la cuenta, su primera compra y sus perfiles en un `db.batch` → 201 |
 | `GET /api/v1/accounts/:id` | Una cuenta con sus perfiles y sus compras. Sin contraseña |
 | `GET /api/v1/accounts/:id/password` | `{ password }` descifrada. La piden el ojo y el botón copiar |
 | `PATCH /api/v1/accounts/:id` | Cambia `{ providerId?, email?, password?, note?, isActive? }`. Si viene `password`, se vuelve a cifrar |
-| `POST /api/v1/accounts/:id/purchases` | Renovar: `{ price, purchasedOn, expiresOn }` → 201 |
-| `PATCH /api/v1/purchases/:id` | Corrige una compra |
-| `DELETE /api/v1/purchases/:id` | Elimina una compra. La única de la cuenta → 400 |
+| `POST /api/v1/accounts/:id/purchases` | Renovar: `{ price, purchasedOn, expiresOn }` → 201 con la cuenta |
+| `PATCH /api/v1/purchases/:id` | Corrige `{ price?, purchasedOn?, expiresOn? }`; la fecha que no viene se compara con la guardada. Devuelve la cuenta |
+| `DELETE /api/v1/purchases/:id` | Elimina una compra y devuelve la cuenta. La única de la cuenta → 400 |
 | `DELETE /api/v1/accounts/:id` | Elimina la cuenta y sus perfiles |
 | `POST /api/v1/accounts/:id/profiles` | Agrega un perfil («Perfil N+1») |
 | `PATCH /api/v1/profiles/:id` | Cambia `{ name?, pin? }` |
@@ -250,6 +254,8 @@ búsqueda en el front mientras las listas sean chicas, como en el paso 2.
 | PIN con letras o largo incorrecto | 400 | «El PIN son 4 números.» |
 | Correo inválido | 400 | «Escribe un correo válido.» |
 | Eliminar la única compra | 400 | «La cuenta necesita al menos una compra.» |
+| Registrar la cuenta sin compra | 400 | «Completa la compra: precio, fecha de compra y vencimiento.» |
+| Compra inexistente o de otro negocio | 404 | «No encontramos esa compra.» |
 | Precio inválido | 400 | Los mismos del paso 2 |
 | Falta `ACCOUNT_PASSWORD_KEY` o no descifra | 500 | «No pudimos leer la contraseña. Avísale a soporte.» (el detalle va al log, nunca la contraseña) |
 | PATCH vacío | 400 | «No hay cambios para guardar.» |
@@ -285,18 +291,21 @@ react-select.
 
 ### `/cuentas`
 
-- **Card** (referencia que pasó Thony el 2026-10-13, ajustada el mismo día):
-  - **Cabecera:** logo del servicio, el correo y, debajo, **solo el nombre** del proveedor
-    (sin «Proveedor:»). **Tocar cualquier parte de la cabecera abre el detalle**: no hay
-    botón «Gestionar». El ícono de copiar al lado del correo copia **el acceso completo**
-    (correo y contraseña, el formato de RF-18a). A la derecha, el switch y `⋯`. Sin badge
-    de «Activa».
+- **Card de celular** (acordada el 2026-10-13, rehecha el 2026-10-22; la cabecera y el
+  cuerpo van en fondos distintos, como las cards de id-pos):
+  - **Cabecera:** logo, **el servicio como título** y, debajo, solo el nombre del
+    proveedor. **Tocarla abre el detalle** (no hay botón «Gestionar»). A la derecha, el
+    switch, **enviar** (avión de papel en verde: copia el acceso completo de RF-18a, listo
+    para WhatsApp) y `⋯`. Sin badge de «Activa».
+  - **Cuerpo:** «Correo» y «Contraseña» (oculta, con su ojo al lado de la etiqueta), en dos
+    columnas. **Sin botones de copiar: cada dato se copia manteniéndolo presionado.**
   - **Perfiles: plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
     abrir, un chip por perfil («P1»… «P5»).
-  - **Ajuste 2026-10-22:** la cabecera lleva **el servicio como título** y el proveedor
-    debajo; el copiar del acceso pasa a la derecha, junto al switch. En el cuerpo, correo
-    y contraseña (oculta), cada uno con su copiar y la contraseña con su ojo.
-- **Tabla:** Cuenta (logo y servicio) · **Credenciales** (correo arriba, contraseña oculta abajo con ojo) · Proveedor · Perfiles · Activa · acciones. Sin columna de renovación hasta que existan las compras (acordado 2026-10-22).
+  - **Vence** (2026-10-22): una fila «Vence» con los colores de RF-14, entre las credenciales
+    y los perfiles. El `⋯` lleva «Renovar».
+- **Tabla:** Cuenta (logo y servicio) · **Credenciales** (correo arriba, contraseña oculta
+  abajo con el ojo a su izquierda) · Proveedor · **Vence** · Perfiles · Activa · acciones.
+  Las acciones van **con borde**: enviar y `⋯` (con «Renovar», «Editar», «Eliminar»).
 - Barra pegajosa con el buscador y, al lado, el **botón de filtros** (servicio y
   proveedor), que abre su modal. Los filtros no van sueltos en la pantalla.
 - Todo select de servicios lleva el logo de cada uno.
@@ -314,11 +323,15 @@ En este orden:
 6. Nota.
 7. **Solo al crear**, la primera compra: precio (lleno con el referencial, con la ayuda
    «Referencial de Netflix: S/ 20.00»), y fecha de compra y vencimiento lado a lado.
+   Cambiar la fecha de compra corre el vencimiento a un mes después. Los tres campos son
+   `PurchaseFields`, el mismo componente de la modal renovar.
 
 ### Modal renovar
 
-Precio (lleno con el de la compra anterior), fecha de compra (con el vencimiento
-anterior) y vencimiento (un mes después). Se abre desde `⋯` en la card y desde el detalle.
+Precio (lleno con el de la compra anterior, con la ayuda «La anterior costó S/ 20.00»),
+fecha de compra (con el vencimiento anterior) y vencimiento (un mes después). Se abre desde
+`⋯` en la card y la tabla, y desde el detalle. La misma modal corrige una compra
+(«Corregir compra»).
 
 ### Detalle lateral de la cuenta
 
@@ -328,20 +341,24 @@ lista. Cada dato en una fila **ícono + etiqueta: valor**, agrupados en cards co
 
 - **Encabezado:** imagen y nombre del servicio, el correo debajo. A la derecha el switch y
   `⋯` con **«Copiar acceso»** (RF-18a), «Editar», «Renovar» y «Eliminar».
-- **Acceso:**
-  - ✉ Correo: `cuenta@gmail.com` [copiar correo]
-  - 🔒 Contraseña: `••••••••` [ojo] [copiar contraseña]
-- **Compra:**
+- **Cuenta** (lo que existe hoy, 2026-10-22):
+  - ✉ Correo: `cuenta@gmail.com`
+  - 🔒 Contraseña: `••••••••`, con su ojo
   - 🚚 Proveedor: DigitalStore
-  - 🔄 Última renovación: 18 oct 2026 (la fecha de la última compra)
-  - 📅 Próximo vencimiento: 18 nov 2026 (con los colores de RF-14)
-  - 💰 Pagado en la última: S/ 20.00
+  - Los valores arrancan alineados aunque las etiquetas midan distinto. En escritorio el
+    copiar (y el ojo) van a la izquierda del valor, dentro de su columna; en celular se
+    copia manteniendo presionado el valor.
+- **Compras (N)** (2026-10-22: una sola sección en vez de «Compra» y «Compras»), con
+  «Renovar» en su encabezado:
+  - 📅 Vence: 18 nov 2026 (con los colores de RF-14)
+  - 💰 Pagado en total: S/ 60.00
+  - Debajo, cada compra: «18 oct 2026 → 18 nov 2026», su precio y `⋯` («Corregir»,
+    «Eliminar»; la única no lleva «Eliminar»).
+  - Sin compras: «Todavía no tiene compras. Regístrala con «Renovar».»
 - **Nota:** con su ícono; sin nota, «No hay nota» en gris (como «No hay comentarios» en
   id-pos).
 - **Perfiles:** nombre y PIN editables ahí mismo, `⋯` con «Eliminar». Al final,
   «Agregar perfil».
-- **Compras:** fecha, vencimiento y precio de cada una, la más nueva arriba, y el total
-  pagado. Cada una con `⋯` («Editar», «Eliminar»).
 
 ### Cambio en `/servicios`
 

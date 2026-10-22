@@ -11,6 +11,7 @@ import {
   ACCOUNT_PASSWORD_MAX_LENGTH,
   type IAccountResource,
 } from "@yiya/shared/accounts";
+import { formatSoles, toSolesInput } from "@yiya/shared/money";
 import type { IProviderResource } from "@yiya/shared/providers";
 import type { IBusinessServiceResource } from "@yiya/shared/services";
 import { useForm } from "@tanstack/react-form";
@@ -25,8 +26,16 @@ import Select, { CreatableSelect, type IOption } from "@/common/components/selec
 import { useAccountPassword } from "@/modules/accounts/hooks/use-account-password";
 import { useCreateAccount } from "@/modules/accounts/hooks/use-create-account";
 import { useUpdateAccount } from "@/modules/accounts/hooks/use-update-account";
+import {
+  type TPurchaseFormErrors,
+  buildFirstPurchaseValues,
+  toPurchasePayload,
+  validatePurchaseValues,
+} from "@/modules/accounts/utils/purchase-form";
 import { useCreateProvider } from "@/modules/providers/hooks/use-create-provider";
 import { toServiceOption } from "@/modules/services/utils/service-option";
+
+import PurchaseFields from "./purchase-fields";
 
 const FORM_ID = "account-form";
 const PROFILES_PATTERN = /^\d+$/;
@@ -56,6 +65,8 @@ const buildSchema = (isEdit: boolean) =>
             );
           }, PROFILES_MESSAGE),
     note: z.string().max(ACCOUNT_NOTE_MAX_LENGTH, "La nota es demasiado larga"),
+    /* Se valida en su campo (`validatePurchaseValues`), con un mensaje por dato. */
+    purchase: z.object({ price: z.string(), purchasedOn: z.string(), expiresOn: z.string() }),
   });
 
 const buildDefaults = (account?: IAccountResource) => ({
@@ -65,6 +76,8 @@ const buildDefaults = (account?: IAccountResource) => ({
   password: "",
   profileCount: "",
   note: account?.note ?? "",
+  /* Solo al crear: la primera compra (RF-08). Al editar, las compras van en el detalle. */
+  purchase: buildFirstPurchaseValues(null),
 });
 
 interface IAccountFormModalProps {
@@ -82,7 +95,7 @@ interface IAccountFormModalProps {
 
 /**
  * Alta y edición de una cuenta: servicio, proveedor, correo, contraseña, perfiles y nota.
- * Las compras (precio y vencimiento) van aparte y todavía no están.
+ * Al crear, además, su primera compra (precio y fechas). Las renovaciones van aparte.
  */
 export default function AccountFormModal({
   open,
@@ -124,6 +137,7 @@ export default function AccountFormModal({
             password: value.password,
             profileCount: Number(value.profileCount.trim()),
             note,
+            purchase: toPurchasePayload(value.purchase),
           });
 
       if (saved) {
@@ -153,13 +167,25 @@ export default function AccountFormModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, account]);
 
-  /* Elegir el servicio llena los perfiles con los que trae por defecto. */
+  /* Elegir el servicio llena los perfiles y el precio de la compra con los suyos. */
   const handleServiceChange = (serviceId: string) => {
     form.setFieldValue("serviceId", serviceId);
     const chosen = services.find((item) => item.id === serviceId);
     if (chosen) {
       form.setFieldValue("profileCount", String(chosen.profilesPerAccount));
+      form.setFieldValue("purchase", (previous) => ({
+        ...previous,
+        price: toSolesInput(chosen.purchasePrice),
+      }));
     }
+  };
+
+  /* «Referencial de Netflix: S/ 20.00» bajo el precio (RF-15b). */
+  const priceHintFor = (serviceId: string): string | undefined => {
+    const chosen = services.find((item) => item.id === serviceId);
+    return chosen?.purchasePrice != null
+      ? `Referencial de ${chosen.name}: ${formatSoles(chosen.purchasePrice)}`
+      : undefined;
   };
 
   const handleCreateProvider = async (name: string) => {
@@ -351,6 +377,33 @@ export default function AccountFormModal({
             </div>
           )}
         </form.Field>
+
+        {!isEdit && (
+          <form.Subscribe selector={(state) => state.values.serviceId}>
+            {(serviceId) => (
+              <form.Field
+                name="purchase"
+                validators={{ onSubmit: ({ value }) => validatePurchaseValues(value) }}
+              >
+                {(field) => (
+                  <section aria-labelledby="account-purchase-title" className="space-y-4 border-t border-border/60 pt-4">
+                    <h3 id="account-purchase-title" className="font-heading font-extrabold text-foreground">
+                      Primera compra
+                    </h3>
+                    <PurchaseFields
+                      idPrefix="account-purchase"
+                      value={field.state.value}
+                      errors={field.state.meta.errors[0] as TPurchaseFormErrors | undefined}
+                      priceHint={priceHintFor(serviceId)}
+                      onChange={field.handleChange}
+                      onBlur={field.handleBlur}
+                    />
+                  </section>
+                )}
+              </form.Field>
+            )}
+          </form.Subscribe>
+        )}
       </form>
     </Modal>
   );

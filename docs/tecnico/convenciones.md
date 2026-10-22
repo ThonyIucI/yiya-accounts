@@ -49,6 +49,11 @@ Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya
   `country_code`, que es el ISO «PE») y el número en dígitos. En la API,
   `{ countryPrefix, number }`. Validar y formatear solo con `@yiya/shared/phones`
   (`libphonenumber-js`).
+- **Fechas sin hora** (acordado 2026-10-13, código 2026-10-22): las compras guardan días
+  como texto «2026-10-22» (`purchased_on`, `expires_on`), que se comparan bien como texto.
+  «Hoy» es el de Perú (`todayInLima`) y los meses se suman con `addMonths` (31 ene + 1 mes =
+  28 feb), los dos de `@yiya/shared/dates`. Nunca `new Date("2026-10-22")` para mostrar:
+  lo lee en UTC y en Perú sale un día antes.
 - Al pedir `pnpm db:generate`, decir qué crea o cambia cada migración y para qué (como la
   tabla «Migraciones» de cada ERS), no solo el comando.
 
@@ -75,6 +80,19 @@ hacer. Nunca inglés, IDs, códigos ni texto de librerías.
   botón fallaba. El util prueba la API y, si no está, copia seleccionando el texto
   (`execCommand("copy")` sobre un `<span>`, para que el iPhone no abra el teclado). Avisa
   con un toast en los dos casos.
+- **Copiar algo que viene del server** (la contraseña, el acceso): se le pasa la
+  **promesa** a `copyToClipboard` / `CopyButton`, no el texto ya esperado. En iPhone, copiar
+  después de esperar la red pierde el permiso del toque; con la promesa, el pedido de
+  copia sale en el mismo toque (`ClipboardItem`).
+- **Pulsación larga** (`useLongPressCopy`, 2026-10-22): copia **al soltar** (`pointerup`),
+  no al cumplirse el tiempo. El navegador solo deja escribir en el portapapeles durante un
+  gesto del usuario, y el `setTimeout` de la pulsación no cuenta como gesto. Con mouse no
+  hace nada.
+- **Variantes con cva** (2026-10-22): una función de variantes que se usa suelta en un
+  `className` (p. ej. `iconButtonVariants` en un enlace o en el disparador de un menú)
+  debe devolver el resultado pasado por `cn`. Si no, quedan clases que chocan
+  (`border-transparent` y `border-border`) y gana la que Tailwind escriba después: así el
+  `⋯` de la tabla salía sin borde.
 
 ## Quién corre qué
 

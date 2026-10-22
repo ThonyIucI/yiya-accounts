@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@yiya/ui/components/table";
 import type { IAccountResource } from "@yiya/shared/accounts";
+import { accountExpiresOn } from "@yiya/shared/purchases";
 import { cn } from "@yiya/ui/lib/utils";
 import type { ReactNode } from "react";
 
@@ -18,10 +19,11 @@ import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import AccountCredentials from "./account-credentials";
 import type { IAccountListHandlers } from "./account-list-props";
+import ExpiryLabel from "./expiry-label";
 import SendAccessButton from "./send-access-button";
 
 const SKELETON_COUNT = 4;
-const COLUMN_COUNT = 6;
+const COLUMN_COUNT = 7;
 
 interface IAccountTableProps extends IAccountListHandlers {
   accounts: IAccountResource[];
@@ -51,6 +53,7 @@ export default function AccountTable({
             <TableHead>Cuenta</TableHead>
             <TableHead className="min-w-64">Credenciales</TableHead>
             <TableHead>Proveedor</TableHead>
+            <TableHead>Vence</TableHead>
             <TableHead>Perfiles</TableHead>
             <TableHead className="text-center">Activa</TableHead>
             <TableHead />
@@ -89,6 +92,9 @@ export default function AccountTable({
                     <AccountCredentials account={account} />
                   </TableCell>
                   <TableCell className="text-foreground">{account.provider.name}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <ExpiryLabel expiresOn={accountExpiresOn(account.purchases)} />
+                  </TableCell>
                   <TableCell className="font-semibold tabular-nums">
                     {freeProfiles(account.profiles).length} / {account.profiles.length} libres
                   </TableCell>

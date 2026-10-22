@@ -1,5 +1,5 @@
 import { createDb } from "@yiya/db";
-import { profile, streamingAccount } from "@yiya/db/schema/accounts";
+import { accountPurchase, profile, streamingAccount } from "@yiya/db/schema/accounts";
 import { provider } from "@yiya/db/schema/providers";
 import { businessService, service } from "@yiya/db/schema/services";
 import {
@@ -16,10 +16,11 @@ import { Hono } from "hono";
 import { z } from "zod";
 
 import { decryptPassword, encryptPassword } from "../lib/account-password";
-import { ACCOUNT_NOT_FOUND, type TDb, findAccount, listAccounts } from "../lib/account-queries";
+import { type TDb, findAccount, findAccountRow, listAccounts } from "../lib/account-queries";
 import type { TAppEnv } from "../lib/app-env";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
+import { purchaseSchema } from "../lib/purchase-input";
 import { ok } from "../lib/response";
 import { validateJson } from "../lib/validator";
 import { requireBusiness } from "../middleware/require-business";
@@ -69,6 +70,8 @@ const createAccountSchema = z.object({
     .min(ACCOUNT_MIN_PROFILES, PROFILES_MESSAGE)
     .max(ACCOUNT_MAX_PROFILES, `Una cuenta puede tener hasta ${ACCOUNT_MAX_PROFILES} perfiles.`),
   note: noteSchema.optional(),
+  /* No hay cuenta sin compra (RF-08): la primera va en el mismo formulario. */
+  purchase: purchaseSchema,
 });
 
 /* El servicio no se cambia: los perfiles dependen de él. */
@@ -139,19 +142,6 @@ const assertEmailAvailable = async (
   }
 };
 
-/** La fila de la cuenta (con su contraseña cifrada) de **este** negocio. */
-const findAccountRow = async (db: TDb, businessId: string, id: string) => {
-  const row = await db
-    .select()
-    .from(streamingAccount)
-    .where(and(eq(streamingAccount.id, id), eq(streamingAccount.businessId, businessId)))
-    .get();
-  if (!row) {
-    throw notFound(ACCOUNT_NOT_FOUND);
-  }
-  return row;
-};
-
 /**
  * Cuentas del negocio en el que se está. El negocio sale de `requireBusiness`, nunca del
  * request. La contraseña **solo** sale por `/accounts/:id/password`.
@@ -167,7 +157,8 @@ export const accountRoutes = new Hono<TAppEnv>()
     requireBusiness,
     validateJson(createAccountSchema),
     async (context) => {
-      const { serviceId, providerId, email, password, profileCount, note } = context.req.valid("json");
+      const { serviceId, providerId, email, password, profileCount, note, purchase } =
+        context.req.valid("json");
       const businessId = context.var.business.id;
       const db = createDb();
 
@@ -199,7 +190,13 @@ export const accountRoutes = new Hono<TAppEnv>()
           position: index + 1,
         }),
       );
-      await db.batch([insertAccount, ...insertProfiles]);
+      const insertPurchase = db.insert(accountPurchase).values({
+        id: newId(),
+        businessId,
+        accountId,
+        ...purchase,
+      });
+      await db.batch([insertAccount, insertPurchase, ...insertProfiles]);
 
       return ok(context, await findAccount(db, businessId, accountId), 201);
     },
@@ -262,7 +259,7 @@ export const accountRoutes = new Hono<TAppEnv>()
     },
   )
 
-  /* Sus perfiles se van con ella (FK `cascade`). Desde el paso 4, no si hay alquileres. */
+  /* Sus perfiles y sus compras se van con ella (FK `cascade`). Desde el paso 4, no si hay alquileres. */
   .delete(ACCOUNT_ROUTES.ACCOUNT, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;

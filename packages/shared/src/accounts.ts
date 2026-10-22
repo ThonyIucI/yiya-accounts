@@ -1,8 +1,10 @@
 /**
  * Cuentas de streaming y sus perfiles. La cuenta es el **acceso** (correo y contraseña);
  * cada perfil es la unidad que se alquila (nombre y PIN). Las compras y renovaciones van
- * aparte y todavía no están. Ver `docs/planes/03-inventario.md`.
+ * aparte (`purchases.ts`). Ver `docs/planes/03-inventario.md`.
  */
+
+import type { IPurchaseResource } from "./purchases";
 
 export const ACCOUNT_EMAIL_MAX_LENGTH = 254;
 export const ACCOUNT_PASSWORD_MAX_LENGTH = 200;
@@ -33,6 +35,11 @@ export interface IAccountResource {
   isActive: boolean;
   note: string | null;
   profiles: IProfileResource[];
+  /**
+   * Sus compras, la más nueva primero. Vacío solo en cuentas registradas antes de que
+   * existieran las compras (2026-10-22): desde entonces toda cuenta nace con una.
+   */
+  purchases: IPurchaseResource[];
   createdAt: string;
 }
 

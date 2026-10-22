@@ -1,6 +1,7 @@
 import { Skeleton } from "@yiya/ui/components/skeleton";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource } from "@yiya/shared/accounts";
+import { accountExpiresOn } from "@yiya/shared/purchases";
 import { cn } from "@yiya/ui/lib/utils";
 
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
@@ -8,6 +9,7 @@ import LongPressCopy from "@/common/components/long-press-copy";
 import { useRevealablePassword } from "@/modules/accounts/hooks/use-revealable-password";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
+import ExpiryLabel from "./expiry-label";
 import PasswordEyeButton from "./password-eye-button";
 import ProfileChips from "./profile-chips";
 import SendAccessButton from "./send-access-button";
@@ -26,7 +28,8 @@ interface IAccountCardProps {
  *   el proveedor. Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
  *   listo para WhatsApp), el switch y `⋯`; sin badge de «Activa».
  * - **Cuerpo:** correo y contraseña (oculta, con su ojo al lado de la etiqueta). Se copian
- *   **manteniéndolos presionados** (sin botones de copiar). Debajo, los perfiles plegados.
+ *   **manteniéndolos presionados** (sin botones de copiar). Debajo, el vencimiento y los
+ *   perfiles plegados.
  */
 export default function AccountCard({
   account,
@@ -102,6 +105,11 @@ export default function AccountCard({
             </p>
           </div>
         </div>
+
+        <p className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground">Vence</span>
+          <ExpiryLabel expiresOn={accountExpiresOn(account.purchases)} />
+        </p>
 
         <ProfileChips profiles={account.profiles} />
       </div>

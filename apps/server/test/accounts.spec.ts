@@ -18,6 +18,14 @@ interface IAccountData {
   service: { id: string; name: string };
   provider: { id: string; name: string };
   profiles: { id: string; name: string; pin: string | null; position: number }[];
+  purchases: IPurchaseData[];
+}
+
+interface IPurchaseData {
+  id: string;
+  price: number;
+  purchasedOn: string;
+  expiresOn: string;
 }
 
 interface IProviderData {
@@ -29,6 +37,7 @@ interface IProviderData {
 const OWNER_A = { name: "Dueña A", email: "cuentas-a@test.local", password: "password123" };
 const OWNER_B = { name: "Dueño B", email: "cuentas-b@test.local", password: "password123" };
 const SECRET = "Clave del proveedor 123";
+const FIRST_PURCHASE = { price: 20, purchasedOn: "2026-10-01", expiresOn: "2026-11-01" };
 
 describe("/accounts y /profiles", () => {
   let superadminCookie = "";
@@ -70,7 +79,14 @@ describe("/accounts y /profiles", () => {
   const create = (body: Record<string, unknown>, cookie = ownerACookie) =>
     postJson(
       "/api/v1/accounts",
-      { serviceId: netflixId, providerId: providerAId, password: SECRET, profileCount: 5, ...body },
+      {
+        serviceId: netflixId,
+        providerId: providerAId,
+        password: SECRET,
+        profileCount: 5,
+        purchase: FIRST_PURCHASE,
+        ...body,
+      },
       { cookie },
     );
 
@@ -334,6 +350,126 @@ describe("/accounts y /profiles", () => {
       );
 
       expect(response.status).toBe(404);
+    });
+  });
+
+  describe("compras", () => {
+    const renew = (accountId: string, body: Record<string, unknown>, cookie = ownerACookie) =>
+      postJson(`/api/v1/accounts/${accountId}/purchases`, body, { cookie });
+
+    it("registrar la cuenta registra su primera compra", async () => {
+      const created = await createAccount({ email: "compra1@gmail.com" });
+
+      expect(created.purchases).toEqual([expect.objectContaining(FIRST_PURCHASE)]);
+    });
+
+    it("no registra la cuenta sin su compra", async () => {
+      const response = await create({ email: "sin-compra@gmail.com", purchase: undefined });
+
+      expect(response.status).toBe(400);
+      expect(await errorOf(response)).toBe(
+        "Completa la compra: precio, fecha de compra y vencimiento.",
+      );
+    });
+
+    it("renovar agrega una compra y el listado la trae primero", async () => {
+      // Arrange
+      const created = await createAccount({ email: "renovar@gmail.com" });
+      const renewal = { price: 22.5, purchasedOn: "2026-11-01", expiresOn: "2026-12-01" };
+
+      // Act
+      const response = await renew(created.id, renewal);
+      const list = await (await get("/api/v1/accounts")).json<IBody<IAccountData[]>>();
+      const listed = list.data.find((item) => item.id === created.id);
+
+      // Assert
+      expect(response.status).toBe(201);
+      expect(listed?.purchases.map((item) => item.expiresOn)).toEqual(["2026-12-01", "2026-11-01"]);
+      expect(listed?.purchases[0]).toMatchObject(renewal);
+    });
+
+    it("no acepta un vencimiento antes de la compra", async () => {
+      const created = await createAccount({ email: "fechas@gmail.com" });
+
+      const response = await renew(created.id, {
+        price: 20,
+        purchasedOn: "2026-11-10",
+        expiresOn: "2026-11-09",
+      });
+
+      expect(response.status).toBe(400);
+      expect(await errorOf(response)).toBe("El vencimiento no puede ser antes de la fecha de compra.");
+    });
+
+    it.each(["2026-02-30", "22/10/2026", ""])("rechaza la fecha «%s»", async (purchasedOn) => {
+      const created = await createAccount({ email: `fecha-${purchasedOn.replaceAll("/", "")}@gmail.com` });
+
+      const response = await renew(created.id, { price: 20, purchasedOn, expiresOn: "2026-12-01" });
+
+      expect(response.status).toBe(400);
+      expect(await errorOf(response)).toBe("Elige una fecha válida.");
+    });
+
+    it("corrige una compra y compara la fecha nueva con la guardada", async () => {
+      // Arrange
+      const created = await createAccount({ email: "corregir@gmail.com" });
+      const path = `/api/v1/purchases/${created.purchases[0]!.id}`;
+
+      // Act
+      const saved = await (await patchJson(path, { price: 18 }, { cookie: ownerACookie })).json<
+        IBody<IAccountData>
+      >();
+      const invalid = await patchJson(path, { expiresOn: "2026-09-30" }, { cookie: ownerACookie });
+
+      // Assert
+      expect(saved.data.purchases[0]).toMatchObject({ ...FIRST_PURCHASE, price: 18 });
+      expect(invalid.status).toBe(400);
+    });
+
+    it("elimina una compra, pero no la única", async () => {
+      // Arrange
+      const created = await createAccount({ email: "eliminar-compra@gmail.com" });
+      const renewed = await (
+        await renew(created.id, { price: 20, purchasedOn: "2026-11-01", expiresOn: "2026-12-01" })
+      ).json<IBody<IAccountData>>();
+
+      // Act
+      const first = await remove(`/api/v1/purchases/${renewed.data.purchases[0]!.id}`);
+      const last = await remove(`/api/v1/purchases/${renewed.data.purchases[1]!.id}`);
+
+      // Assert
+      expect(first.status).toBe(200);
+      expect(last.status).toBe(400);
+      expect(await errorOf(last)).toBe("La cuenta necesita al menos una compra.");
+    });
+
+    it("eliminar la cuenta elimina sus compras", async () => {
+      const created = await createAccount({ email: "cuenta-con-compras@gmail.com" });
+
+      await remove(`/api/v1/accounts/${created.id}`);
+      const left = await env.DB.prepare(
+        "select count(*) as total from account_purchase where account_id = ?",
+      )
+        .bind(created.id)
+        .first<{ total: number }>();
+
+      expect(left?.total).toBe(0);
+    });
+
+    it("el negocio B no renueva, corrige ni elimina las compras de A", async () => {
+      // Arrange
+      const created = await createAccount({ email: "compras-a@gmail.com" });
+      const purchasePath = `/api/v1/purchases/${created.purchases[0]!.id}`;
+
+      // Act
+      const renewal = await renew(created.id, FIRST_PURCHASE, ownerBCookie);
+      const edit = await patchJson(purchasePath, { price: 1 }, { cookie: ownerBCookie });
+      const deletion = await remove(purchasePath, ownerBCookie);
+
+      // Assert
+      expect(renewal.status).toBe(404);
+      expect(edit.status).toBe(404);
+      expect(deletion.status).toBe(404);
     });
   });
 

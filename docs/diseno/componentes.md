@@ -131,6 +131,19 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
   (`modules/accounts/utils/access-text.ts`):
   `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.
 
+## Vencimientos (acordado 2026-10-22, `modules/accounts/components/expiry-label.tsx`)
+
+- `ExpiryLabel` muestra el vencimiento igual en la tabla, la card y el detalle:
+  - **«Vencida»** en rojo (`text-destructive`) si ya pasó;
+  - **«Vence hoy» / «Vence mañana» / «Vence en N días»** en ámbar (`text-warning`) si
+    faltan 3 días o menos; al pasar el mouse, la fecha;
+  - si no, la fecha corta («18 nov 2026»);
+  - **«Sin compras»** en gris si la cuenta todavía no tiene ninguna.
+- `--warning` es un ámbar oscuro para que se lea como texto sobre blanco; en modo oscuro,
+  uno claro.
+- Precio y fechas de una compra siempre con `PurchaseFields`: precio arriba, fecha de compra
+  y vencimiento lado a lado (`<input type="date">`, que abre el calendario del celular).
+
 ## Botones de ícono (acordado 2026-10-22)
 
 - **Todo botón de solo ícono es `IconButton`** (`@yiya/ui/components/icon-button`), nunca

@@ -45,6 +45,8 @@
   --spark-foreground: oklch(0.2418 0.0497 83.05);
   --success: oklch(0.5051 0.1481 147.5);
   --success-foreground: oklch(1 0 0);
+  /* Ámbar de aviso («Vence en 2 días»): oscuro para que se lea como texto sobre blanco. */
+  --warning: oklch(0.6 0.15 65);
   --info: oklch(0.5384 0.0912 210.81);
   --info-foreground: oklch(1 0 0);
   /* Un punto más oscuro que el rojo del logo para llegar a AA con texto blanco */
@@ -129,6 +131,7 @@
   --spark-foreground: oklch(0.2418 0.0497 83.05);
   --success: oklch(0.8003 0.1821 151.71);
   --success-foreground: oklch(0.2235 0.0515 152.48);
+  --warning: oklch(0.82 0.15 75);
   --info: oklch(0.8247 0.1052 206.9);
   --info-foreground: oklch(0.2634 0.042 213.19);
   --destructive: oklch(0.7638 0.1417 15.59);
@@ -180,6 +183,7 @@
   --color-spark-foreground: var(--spark-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-destructive: var(--destructive);

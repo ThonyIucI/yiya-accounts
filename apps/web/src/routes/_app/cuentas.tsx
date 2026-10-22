@@ -1,7 +1,9 @@
 import { Button } from "@yiya/ui/components/button";
 import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
+import { formatSoles } from "@yiya/shared/money";
+import { type IPurchaseResource, accountExpiresOn } from "@yiya/shared/purchases";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { KeyRound, Pencil, Plus, Search, Trash2, Tv } from "lucide-react";
+import { KeyRound, Pencil, Plus, RefreshCw, Search, Trash2, Tv } from "lucide-react";
 import { type ChangeEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -25,9 +27,13 @@ import AccountFiltersModal, {
 import AccountFormModal from "@/modules/accounts/components/account-form-modal";
 import AccountMobileList from "@/modules/accounts/components/account-mobile-list";
 import AccountTable from "@/modules/accounts/components/account-table";
+import PurchaseFormModal, {
+  type IPurchaseFormTarget,
+} from "@/modules/accounts/components/purchase-form-modal";
 import { useDeleteAccount } from "@/modules/accounts/hooks/use-delete-account";
 import { useListAccounts } from "@/modules/accounts/hooks/use-list-accounts";
 import { useAddProfile, useDeleteProfile } from "@/modules/accounts/hooks/use-profiles";
+import { useDeletePurchase } from "@/modules/accounts/hooks/use-purchases";
 import { useUpdateAccount } from "@/modules/accounts/hooks/use-update-account";
 import { useListProviders } from "@/modules/providers/hooks/use-list-providers";
 import { useListBusinessServices } from "@/modules/services/hooks/use-list-business-services";
@@ -51,9 +57,15 @@ const NO_ACTIVE_SERVICES_MESSAGE = "Activa un servicio en Servicios para registr
 const pluralize = (count: number, singular: string, plural: string) =>
   `${count} ${count === 1 ? singular : plural}`;
 
-/* Activas primero; después por servicio y por correo. */
-const byActiveServiceEmail = (a: IAccountResource, b: IAccountResource) =>
+/* Sin compras va al final: no hay fecha que comparar. «9999» queda después de toda fecha. */
+const NO_EXPIRY_SORT_KEY = "9999-12-31";
+
+/* RF-13: activas primero; la que vence antes, arriba; después por servicio y por correo. */
+const byActiveExpiryServiceEmail = (a: IAccountResource, b: IAccountResource) =>
   Number(b.isActive) - Number(a.isActive) ||
+  (accountExpiresOn(a.purchases) ?? NO_EXPIRY_SORT_KEY).localeCompare(
+    accountExpiresOn(b.purchases) ?? NO_EXPIRY_SORT_KEY,
+  ) ||
   a.service.name.localeCompare(b.service.name, "es") ||
   a.email.localeCompare(b.email, "es");
 
@@ -62,9 +74,14 @@ interface IProfileTarget {
   profile: IProfileResource;
 }
 
+interface IPurchaseDeleteTarget {
+  account: IAccountResource;
+  purchase: IPurchaseResource;
+}
+
 /**
- * Cuentas del negocio en el que se está: el acceso (correo y contraseña) y sus perfiles.
- * Las compras y renovaciones todavía no están. Ver docs/planes/03-inventario.md.
+ * Cuentas del negocio en el que se está: el acceso (correo y contraseña), sus compras con
+ * el proveedor (y su vencimiento) y sus perfiles. Ver docs/planes/03-inventario.md.
  */
 function AccountsPage() {
   const search = Route.useSearch();
@@ -77,11 +94,16 @@ function AccountsPage() {
   const DeleteAccount = useDeleteAccount();
   const AddProfile = useAddProfile();
   const DeleteProfile = useDeleteProfile();
+  const DeletePurchase = useDeletePurchase();
   const showForm = useBoolean();
 
   const [editTarget, setEditTarget] = useState<IAccountResource | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<IAccountResource | null>(null);
   const [profileTarget, setProfileTarget] = useState<IProfileTarget | null>(null);
+  const [purchaseTarget, setPurchaseTarget] = useState<IPurchaseFormTarget | null>(null);
+  const [purchaseDeleteTarget, setPurchaseDeleteTarget] = useState<IPurchaseDeleteTarget | null>(
+    null,
+  );
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [term, setTerm] = useState("");
   const [filters, setFilters] = useState<IAccountFilters>(EMPTY_ACCOUNT_FILTERS);
@@ -110,7 +132,7 @@ function AccountsPage() {
         (!filters.serviceId || item.service.id === filters.serviceId) &&
         (!filters.providerId || item.provider.id === filters.providerId),
     )
-    .sort(byActiveServiceEmail);
+    .sort(byActiveExpiryServiceEmail);
   const pager = usePagination(visible, { initialPageSize: PAGE_SIZE_OPTIONS[0] });
   const hasContent = !isLoading && visible.length > 0;
   const activeFilterCount = countAccountFilters(filters);
@@ -203,7 +225,24 @@ function AccountsPage() {
     setProfileTarget(null);
   };
 
+  const confirmDeletePurchase = async () => {
+    if (!purchaseDeleteTarget) {
+      return;
+    }
+    const saved = await DeletePurchase.handler(purchaseDeleteTarget.purchase);
+    if (saved) {
+      ListAccounts.onUpsert(saved);
+    }
+    setPurchaseDeleteTarget(null);
+  };
+
+  /* El referencial del servicio llena el precio de una cuenta que todavía no tiene compras. */
+  const referencePrice =
+    BusinessServices.services.find((item) => item.id === purchaseTarget?.account.service.id)
+      ?.purchasePrice ?? null;
+
   const buildActions = (account: IAccountResource): IRowAction[] => [
+    { icon: RefreshCw, label: "Renovar", onClick: () => setPurchaseTarget({ account }) },
     { icon: Pencil, label: "Editar", onClick: () => openEdit(account) },
     { icon: Trash2, label: "Eliminar", variant: "destructive", onClick: () => setDeleteTarget(account) },
   ];
@@ -321,6 +360,9 @@ function AccountsPage() {
         onToggleActive={handleToggleActive}
         onEdit={openEdit}
         onDelete={setDeleteTarget}
+        onRenew={(account) => setPurchaseTarget({ account })}
+        onPurchaseEdit={(account, purchase) => setPurchaseTarget({ account, purchase })}
+        onPurchaseDelete={(account, purchase) => setPurchaseDeleteTarget({ account, purchase })}
         onAddProfile={handleAddProfile}
         onProfileSaved={(account, profile) => ListAccounts.onProfileSaved(account.id, profile)}
         onProfileDelete={(account, profile) => setProfileTarget({ account, profile })}
@@ -350,12 +392,30 @@ function AccountsPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={`¿Eliminar la cuenta ${deleteTarget?.email ?? ""}?`}
-        description="Se borran también sus perfiles. Esto no se puede deshacer."
+        description="Se borran también sus perfiles y sus compras. Esto no se puede deshacer."
         confirmLabel="Eliminar"
         variant="destructive"
         loading={DeleteAccount.loading}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTarget(null)}
+      />
+
+      <PurchaseFormModal
+        target={purchaseTarget}
+        referencePrice={referencePrice}
+        onSaved={ListAccounts.onUpsert}
+        onClose={() => setPurchaseTarget(null)}
+      />
+
+      <ConfirmModal
+        open={purchaseDeleteTarget !== null}
+        title={`¿Eliminar la compra de ${purchaseDeleteTarget ? formatSoles(purchaseDeleteTarget.purchase.price) : ""}?`}
+        description="El vencimiento de la cuenta se recalcula con sus otras compras. Esto no se puede deshacer."
+        confirmLabel="Eliminar"
+        variant="destructive"
+        loading={DeletePurchase.loading}
+        onConfirm={confirmDeletePurchase}
+        onCancel={() => setPurchaseDeleteTarget(null)}
       />
 
       <ConfirmModal

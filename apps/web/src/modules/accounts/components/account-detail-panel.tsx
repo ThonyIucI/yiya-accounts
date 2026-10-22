@@ -1,6 +1,7 @@
 import { Button } from "@yiya/ui/components/button";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
+import type { IPurchaseResource } from "@yiya/shared/purchases";
 import {
   ClipboardCopy,
   Loader2,
@@ -9,6 +10,7 @@ import {
   MessageSquareText,
   Pencil,
   Plus,
+  RefreshCw,
   Trash2,
   Truck,
 } from "lucide-react";
@@ -26,6 +28,7 @@ import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import PasswordEyeButton from "./password-eye-button";
 import ProfileList from "./profile-list";
+import PurchaseList from "./purchase-list";
 
 const PASSWORD_LOADING_MESSAGE = "Un momento: estamos trayendo la contraseña.";
 
@@ -36,6 +39,9 @@ interface IAccountDetailPanelProps {
   onToggleActive: (account: IAccountResource) => void;
   onEdit: (account: IAccountResource) => void;
   onDelete: (account: IAccountResource) => void;
+  onRenew: (account: IAccountResource) => void;
+  onPurchaseEdit: (account: IAccountResource, purchase: IPurchaseResource) => void;
+  onPurchaseDelete: (account: IAccountResource, purchase: IPurchaseResource) => void;
   onAddProfile: (account: IAccountResource) => void;
   onProfileSaved: (account: IAccountResource, profile: IProfileResource) => void;
   onProfileDelete: (account: IAccountResource, profile: IProfileResource) => void;
@@ -44,10 +50,9 @@ interface IAccountDetailPanelProps {
 
 /**
  * Detalle lateral de una cuenta, con la estructura del detalle de cliente de id-pos:
- * Cuenta (correo, contraseña —cada uno con su copiar— y proveedor), Nota y Perfiles. «Copiar
- * acceso» del `⋯` copia todo listo para WhatsApp. La contraseña solo se ve acá.
- *
- * Las compras y renovaciones no se muestran hasta que existan: no hay filas vacías.
+ * Cuenta (correo, contraseña —cada uno con su copiar— y proveedor), Compras, Nota y
+ * Perfiles. «Copiar acceso» del `⋯` copia todo listo para WhatsApp. La contraseña solo se
+ * ve acá.
  */
 export default function AccountDetailPanel({
   account,
@@ -55,6 +60,9 @@ export default function AccountDetailPanel({
   onToggleActive,
   onEdit,
   onDelete,
+  onRenew,
+  onPurchaseEdit,
+  onPurchaseDelete,
   onAddProfile,
   onProfileSaved,
   onProfileDelete,
@@ -126,6 +134,7 @@ export default function AccountDetailPanel({
     ? [
         { icon: ClipboardCopy, label: "Copiar acceso", onClick: copyAccess },
         { icon: Pencil, label: "Editar", onClick: () => onEdit(current) },
+        { icon: RefreshCw, label: "Renovar", onClick: () => onRenew(current) },
         { icon: Trash2, label: "Eliminar", variant: "destructive", onClick: () => onDelete(current) },
       ]
     : [];
@@ -205,6 +214,22 @@ export default function AccountDetailPanel({
                 {current.provider.name}
               </DetailRow>
             </DetailList>
+          </DetailSection>
+
+          <DetailSection
+            title={`Compras (${current.purchases.length})`}
+            action={
+              <Button type="button" variant="ghost" size="sm" onClick={() => onRenew(current)}>
+                <RefreshCw />
+                Renovar
+              </Button>
+            }
+          >
+            <PurchaseList
+              purchases={current.purchases}
+              onEdit={(purchase) => onPurchaseEdit(current, purchase)}
+              onDelete={(purchase) => onPurchaseDelete(current, purchase)}
+            />
           </DetailSection>
 
           <DetailSection title="Nota">
