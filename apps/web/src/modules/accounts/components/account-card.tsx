@@ -2,16 +2,15 @@ import { Skeleton } from "@yiya/ui/components/skeleton";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource } from "@yiya/shared/accounts";
 import { cn } from "@yiya/ui/lib/utils";
-import { SendHorizontal } from "lucide-react";
 
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
-import CopyButton from "@/common/components/copy-button";
+import LongPressCopy from "@/common/components/long-press-copy";
 import { useRevealablePassword } from "@/modules/accounts/hooks/use-revealable-password";
-import { buildAccessText } from "@/modules/accounts/utils/access-text";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import PasswordEyeButton from "./password-eye-button";
 import ProfileChips from "./profile-chips";
+import SendAccessButton from "./send-access-button";
 
 interface IAccountCardProps {
   account: IAccountResource;
@@ -26,9 +25,8 @@ interface IAccountCardProps {
  * - **Cabecera** (fondo gris, como las cards de id-pos): logo, **el servicio como título** y
  *   el proveedor. Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
  *   listo para WhatsApp), el switch y `⋯`; sin badge de «Activa».
- * - **Cuerpo:** correo y contraseña (oculta), cada uno con su copiar al lado de la etiqueta
- *   (así no se corre con el ancho del texto); la contraseña además con su ojo. Debajo, los
- *   perfiles plegados.
+ * - **Cuerpo:** correo y contraseña (oculta, con su ojo al lado de la etiqueta). Se copian
+ *   **manteniéndolos presionados** (sin botones de copiar). Debajo, los perfiles plegados.
  */
 export default function AccountCard({
   account,
@@ -38,10 +36,6 @@ export default function AccountCard({
   onOpen,
 }: IAccountCardProps) {
   const password = useRevealablePassword(account.id);
-
-  /* La contraseña se pide en el mismo toque: `CopyButton` acepta la promesa. */
-  const getAccessText = async () =>
-    buildAccessText(account.service.name, account.email, await password.getText());
 
   return (
     <article
@@ -80,33 +74,32 @@ export default function AccountCard({
             aria-label={account.isActive ? "Desactivar cuenta" : "Activar cuenta"}
             onCheckedChange={onToggleActive}
           />
-          {/* Enviar = copia el acceso listo para pegarlo en WhatsApp. */}
-          <CopyButton
-            label={`Copiar el acceso de ${account.email} para enviarlo`}
-            icon={SendHorizontal}
-            getText={getAccessText}
-            className="bg-success/15 text-success hover:bg-success/25 hover:text-success"
-          />
+          <SendAccessButton account={account} getPassword={password.getText} />
           <RowActions actions={actions} />
         </div>
       </div>
 
       <div className="space-y-3 px-4 py-3">
+        {/* En el celular se copia manteniendo presionado el dato (sin botones de copiar). */}
         <div className="grid grid-cols-[minmax(0,1fr)_max-content] gap-x-4">
           <div className="min-w-0">
-            <div className="flex items-center text-muted-foreground">
-              Correo
-              <CopyButton label="Copiar correo" getText={() => account.email} />
-            </div>
-            <p className="truncate font-semibold text-foreground">{account.email}</p>
+            <p className="flex h-9 items-center text-muted-foreground">Correo</p>
+            <p className="truncate font-semibold text-foreground">
+              <LongPressCopy getText={() => account.email} successMessage="Correo copiado">
+                {account.email}
+              </LongPressCopy>
+            </p>
           </div>
           <div className="min-w-0">
-            <div className="flex items-center text-muted-foreground">
+            <div className="flex h-9 items-center text-muted-foreground">
               Contraseña
               <PasswordEyeButton isVisible={password.isVisible} onToggle={password.toggle} />
-              <CopyButton label="Copiar contraseña" getText={password.getText} />
             </div>
-            <p className="truncate font-mono font-semibold text-foreground">{password.text}</p>
+            <p className="truncate font-mono font-semibold text-foreground">
+              <LongPressCopy getText={password.getText} successMessage="Contraseña copiada">
+                {password.text}
+              </LongPressCopy>
+            </p>
           </div>
         </div>
 

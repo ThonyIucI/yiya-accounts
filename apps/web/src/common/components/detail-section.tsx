@@ -2,6 +2,9 @@ import { cn } from "@yiya/ui/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import CopyButton from "@/common/components/copy-button";
+import LongPressCopy from "@/common/components/long-press-copy";
+
 interface IDetailSectionProps {
   title: string;
   /** A la derecha del título (p. ej. «Agregar perfil»). */
@@ -27,15 +30,12 @@ export function DetailSection({ title, action, children, className }: IDetailSec
 }
 
 /**
- * Las filas `DetailRow` de una sección. Comparten columnas (etiqueta · acciones · valor):
- * todos los valores arrancan en el mismo punto, sin importar lo largo de cada etiqueta, y
- * los botones van antes del valor, así no se corren cuando el texto cambia de ancho.
+ * Las filas `DetailRow` de una sección. Comparten columnas (etiqueta · valor): todos los
+ * valores arrancan en el mismo punto, sin importar lo largo de cada etiqueta.
  */
 export function DetailList({ children }: { children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[max-content_max-content_minmax(0,1fr)] items-center gap-x-3">
-      {children}
-    </div>
+    <div className="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-x-3">{children}</div>
   );
 }
 
@@ -44,29 +44,52 @@ interface IDetailRowProps {
   label: string;
   /** Sin valor se muestra «—» en gris: el dato todavía no está, no se inventa. */
   children?: ReactNode;
-  /** Botones entre la etiqueta y el valor (copiar, ver…). */
+  /** Botones a la izquierda del valor, dentro de su columna (p. ej. el ojo). */
   actions?: ReactNode;
+  /**
+   * Para copiar el dato: en escritorio, un botón de copiar a la izquierda del valor; en el
+   * celular, manteniendo presionado el valor.
+   */
+  copy?: { label: string; successMessage: string; getText: () => string | Promise<string> | null };
 }
 
-/** Una fila **ícono + etiqueta: [acciones] valor** del detalle. Va dentro de `DetailList`. */
-export function DetailRow({ icon: Icon, label, children, actions }: IDetailRowProps) {
+/**
+ * Una fila **ícono + etiqueta: valor** del detalle. Va dentro de `DetailList`. Los botones
+ * van dentro de la columna del valor y a su izquierda: no mueven las etiquetas ni se corren
+ * cuando el texto cambia de ancho.
+ */
+export function DetailRow({ icon: Icon, label, children, actions, copy }: IDetailRowProps) {
   const isEmpty = children === undefined || children === null || children === "";
+  const value = isEmpty ? "—" : children;
 
   return (
-    <div className="col-span-3 grid min-h-11 grid-cols-subgrid items-center py-1">
+    <div className="col-span-2 grid min-h-11 grid-cols-subgrid items-center py-1">
       <span className="flex items-center gap-2 text-muted-foreground">
         <Icon aria-hidden className="size-4.5 shrink-0" />
         {label}:
       </span>
-      <div className="-mx-1.5 flex items-center">{actions}</div>
-      <span
-        className={cn(
-          "min-w-0 truncate font-semibold",
-          isEmpty ? "text-muted-foreground" : "text-foreground",
+      <div className="flex min-w-0 items-center gap-1">
+        {(copy || actions) && (
+          <div className="-ml-2 flex shrink-0 items-center">
+            {copy && <CopyButton label={copy.label} getText={copy.getText} className="hidden md:inline-flex" />}
+            {actions}
+          </div>
         )}
-      >
-        {isEmpty ? "—" : children}
-      </span>
+        <span
+          className={cn(
+            "min-w-0 truncate font-semibold",
+            isEmpty ? "text-muted-foreground" : "text-foreground",
+          )}
+        >
+          {copy && !isEmpty ? (
+            <LongPressCopy getText={copy.getText} successMessage={copy.successMessage}>
+              {value}
+            </LongPressCopy>
+          ) : (
+            value
+          )}
+        </span>
+      </div>
     </div>
   );
 }

@@ -22,7 +22,9 @@ de cards genéricas.
 - Skeletons con la forma de la fila o de la card, no un spinner.
 - El estado también va en texto («Activo / Desactivado») cuando no hay un control que lo
   muestre. Si la fila ya tiene su switch, no se repite (ver «No repetir lo que ya se ve»).
-- Acciones de fila con `RowActions` (`common/components/row-actions.tsx`).
+- Acciones de fila con `RowActions` (`common/components/row-actions.tsx`). **En la tabla de
+  escritorio van con borde** (`isBordered`, acordado 2026-10-22). En cuentas, antes del `⋯`
+  va **enviar** (`SendAccessButton`), que copia el acceso para WhatsApp.
 - Referencia en Yiya: `apps/web/src/modules/businesses`.
 
 ## Menú lateral (acordado 2026-10-12, `components/app-sidebar.tsx`)
@@ -112,9 +114,13 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 ## Copiar
 
 - Cada dato que se le pasa a un cliente lleva su ícono de copiar, y copia **solo ese dato**.
-- **El copiar y el ojo van antes del texto**, nunca después (acordado 2026-10-22): al lado
-  de la etiqueta o a la izquierda del valor, para que no se corran cuando el texto cambia
-  de ancho.
+- **En el celular, un dato se copia manteniéndolo presionado** (acordado 2026-10-22): sin
+  botón de copiar. Al pasar el tiempo vibra y el dato se resalta; se copia al soltar y sale
+  un toast («Correo copiado»). `LongPressCopy` (`common/components/long-press-copy.tsx`).
+- **En escritorio, el copiar (y el ojo) van a la izquierda del valor y dentro de su
+  columna**, nunca junto a la etiqueta ni después del texto: así no mueven las etiquetas
+  de abajo ni se corren cuando el texto cambia de ancho (`DetailRow` con `copy`).
+- En la card de celular el ojo de la contraseña va al lado de su etiqueta.
 - **Siempre con `CopyButton`** (`common/components/copy-button.tsx`, acordado 2026-10-13):
   al tocarlo pasa a **cargando**, luego a un **check** por 2 s y vuelve al ícono de copiar.
   No lleva toast de «Copiado» (el check ya lo dice); si falla, el error sí va en un toast.

@@ -21,13 +21,17 @@ export interface IRowAction {
 
 interface IRowActionsProps {
   actions: IRowAction[];
+  /** Botones con borde, para la tabla de escritorio (acordado 2026-10-22). */
+  isBordered?: boolean;
 }
+
+const BORDERED_CLASS = "border border-border bg-card";
 
 /**
  * Acciones de una fila de tabla o de una card de listado (mismo patrón que el saas).
  * Frena el clic para que no abra el detalle de la fila que la contiene.
  */
-export default function RowActions({ actions }: IRowActionsProps) {
+export default function RowActions({ actions, isBordered = false }: IRowActionsProps) {
   const inlineActions = actions.filter((action) => action.inline);
   const menuActions = actions.filter((action) => !action.inline);
 
@@ -42,7 +46,10 @@ export default function RowActions({ actions }: IRowActionsProps) {
           title={label}
           aria-label={label}
           onClick={onClick}
-          className={cn(variant === "destructive" && "hover:bg-destructive/10 hover:text-destructive")}
+          className={cn(
+            isBordered && BORDERED_CLASS,
+            variant === "destructive" && "hover:bg-destructive/10 hover:text-destructive",
+          )}
         >
           <Icon />
         </Button>
@@ -54,7 +61,7 @@ export default function RowActions({ actions }: IRowActionsProps) {
             type="button"
             title="Más acciones"
             aria-label="Más acciones"
-            className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), isBordered && BORDERED_CLASS)}
           >
             <MoreVertical />
           </DropdownMenuTrigger>

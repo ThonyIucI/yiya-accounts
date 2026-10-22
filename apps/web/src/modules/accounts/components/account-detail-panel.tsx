@@ -15,7 +15,6 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import CopyButton from "@/common/components/copy-button";
 import { DetailList, DetailRow, DetailSection } from "@/common/components/detail-section";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import SidePanel from "@/common/components/side-panel";
@@ -171,12 +170,28 @@ export default function AccountDetailPanel({
               <DetailRow
                 icon={Mail}
                 label="Correo"
+                copy={{
+                  label: "Copiar correo",
+                  successMessage: "Correo copiado",
+                  getText: () => current.email,
+                }}
               >
                 {current.email}
               </DetailRow>
               <DetailRow
                 icon={Lock}
                 label="Contraseña"
+                copy={{
+                  label: "Copiar contraseña",
+                  successMessage: "Contraseña copiada",
+                  getText: getPasswordText,
+                }}
+                actions={
+                  <PasswordEyeButton
+                    isVisible={isPasswordVisible}
+                    onToggle={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
+                  />
+                }
               >
                 <span className="font-mono">
                   {AccountPassword.loading
@@ -185,10 +200,6 @@ export default function AccountDetailPanel({
                       ? password
                       : HIDDEN_PASSWORD}
                 </span>
-                <PasswordEyeButton
-                     isVisible={isPasswordVisible}
-                     onToggle={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
-                    />
               </DetailRow>
               <DetailRow icon={Truck} label="Proveedor">
                 {current.provider.name}

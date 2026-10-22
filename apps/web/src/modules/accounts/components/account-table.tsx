@@ -18,6 +18,7 @@ import ServiceAvatar from "@/modules/services/components/service-avatar";
 
 import AccountCredentials from "./account-credentials";
 import type { IAccountListHandlers } from "./account-list-props";
+import SendAccessButton from "./send-access-button";
 
 const SKELETON_COUNT = 4;
 const COLUMN_COUNT = 6;
@@ -103,8 +104,9 @@ export default function AccountTable({
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end">
-                      <RowActions actions={buildActions(account)} />
+                    <div className="flex justify-end gap-1">
+                      <SendAccessButton account={account} isBordered />
+                      <RowActions actions={buildActions(account)} isBordered />
                     </div>
                   </TableCell>
                 </TableRow>
