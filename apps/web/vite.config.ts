@@ -1,6 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
+import { codeInspectorPlugin } from "code-inspector-plugin";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
@@ -36,6 +37,8 @@ export default defineConfig({
       autoCodeSplitting: true,
     }),
     react(),
+    // Solo en dev: mantener Alt + Shift y hacer clic abre el componente en el editor.
+    codeInspectorPlugin({ bundler: "vite", editor: "code" }),
     VitePWA({
       registerType: "autoUpdate",
       manifest: {

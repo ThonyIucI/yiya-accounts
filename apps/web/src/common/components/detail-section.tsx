@@ -27,12 +27,13 @@ export function DetailSection({ title, action, children, className }: IDetailSec
 }
 
 /**
- * Las filas `DetailRow` de una sección. Comparten columnas (etiqueta · valor · acciones):
- * todos los valores arrancan en el mismo punto, sin importar lo largo de cada etiqueta.
+ * Las filas `DetailRow` de una sección. Comparten columnas (etiqueta · acciones · valor):
+ * todos los valores arrancan en el mismo punto, sin importar lo largo de cada etiqueta, y
+ * los botones van antes del valor, así no se corren cuando el texto cambia de ancho.
  */
 export function DetailList({ children }: { children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[max-content_minmax(0,1fr)_max-content] items-center gap-x-3">
+    <div className="grid grid-cols-[max-content_max-content_minmax(0,1fr)] items-center gap-x-3">
       {children}
     </div>
   );
@@ -43,11 +44,11 @@ interface IDetailRowProps {
   label: string;
   /** Sin valor se muestra «—» en gris: el dato todavía no está, no se inventa. */
   children?: ReactNode;
-  /** Botones al final de la fila (copiar, ver…). */
+  /** Botones entre la etiqueta y el valor (copiar, ver…). */
   actions?: ReactNode;
 }
 
-/** Una fila **ícono + etiqueta: valor** del detalle, con sus acciones al final. Va dentro de `DetailList`. */
+/** Una fila **ícono + etiqueta: [acciones] valor** del detalle. Va dentro de `DetailList`. */
 export function DetailRow({ icon: Icon, label, children, actions }: IDetailRowProps) {
   const isEmpty = children === undefined || children === null || children === "";
 
@@ -57,6 +58,7 @@ export function DetailRow({ icon: Icon, label, children, actions }: IDetailRowPr
         <Icon aria-hidden className="size-4.5 shrink-0" />
         {label}:
       </span>
+      <div className="-mx-1.5 flex items-center">{actions}</div>
       <span
         className={cn(
           "min-w-0 truncate font-semibold",
@@ -65,7 +67,6 @@ export function DetailRow({ icon: Icon, label, children, actions }: IDetailRowPr
       >
         {isEmpty ? "—" : children}
       </span>
-      <div className="-mr-2 flex items-center">{actions}</div>
     </div>
   );
 }

@@ -83,6 +83,8 @@ escribe el código y dice qué correr.
 
 ## Herramientas de desarrollo (acordado 2026-10-22)
 
-- **click-to-component** (`click-to-react-component-next`, solo en `pnpm dev`): Alt + clic
-  sobre un elemento abre el archivo de su componente en el editor. Va cargado de forma
-  perezosa en `routes/__root.tsx` y no entra al build de producción.
+- **code-inspector-plugin** (solo en `pnpm dev`, cambiado 2026-10-21): mantener Alt + Shift
+  y hacer clic sobre un elemento abre el archivo de su componente en el editor. Es un plugin
+  de Vite (`vite.config.ts`) que marca el HTML al compilar. Reemplaza a
+  `click-to-react-component-next`, que no funciona con React 19 (React quitó `_debugSource`
+  y la librería entra en recursión infinita) y no entra al build de producción.

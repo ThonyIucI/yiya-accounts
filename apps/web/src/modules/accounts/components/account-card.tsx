@@ -2,13 +2,15 @@ import { Skeleton } from "@yiya/ui/components/skeleton";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource } from "@yiya/shared/accounts";
 import { cn } from "@yiya/ui/lib/utils";
+import { SendHorizontal } from "lucide-react";
 
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import CopyButton from "@/common/components/copy-button";
-import { getAccountPasswordRequest } from "@/modules/accounts/services/account.service";
+import { useRevealablePassword } from "@/modules/accounts/hooks/use-revealable-password";
 import { buildAccessText } from "@/modules/accounts/utils/access-text";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
+import PasswordEyeButton from "./password-eye-button";
 import ProfileChips from "./profile-chips";
 
 interface IAccountCardProps {
@@ -20,12 +22,13 @@ interface IAccountCardProps {
 }
 
 /**
- * Card de una cuenta (acordado 2026-10-13):
- * - **Cabecera:** logo, correo y el nombre del proveedor. Tocarla abre el detalle (no hay
- *   botón «Gestionar»). Copiar copia **el acceso completo** (correo y contraseña), listo
- *   para WhatsApp. A la derecha el switch y `⋯`; sin badge de «Activa».
- * - **Perfiles:** plegados, con chevron, en el cuerpo (cabecera y cuerpo van en fondos
- *   distintos, como las cards de id-pos).
+ * Card de una cuenta (acordado 2026-10-13, ajustado 2026-10-22):
+ * - **Cabecera** (fondo gris, como las cards de id-pos): logo, **el servicio como título** y
+ *   el proveedor. Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
+ *   listo para WhatsApp), el switch y `⋯`; sin badge de «Activa».
+ * - **Cuerpo:** correo y contraseña (oculta), cada uno con su copiar al lado de la etiqueta
+ *   (así no se corre con el ancho del texto); la contraseña además con su ojo. Debajo, los
+ *   perfiles plegados.
  */
 export default function AccountCard({
   account,
@@ -34,11 +37,11 @@ export default function AccountCard({
   onToggleActive,
   onOpen,
 }: IAccountCardProps) {
+  const password = useRevealablePassword(account.id);
+
   /* La contraseña se pide en el mismo toque: `CopyButton` acepta la promesa. */
-  const getAccessText = () =>
-    getAccountPasswordRequest(account.id).then(({ password }) =>
-      buildAccessText(account.service.name, account.email, password),
-    );
+  const getAccessText = async () =>
+    buildAccessText(account.service.name, account.email, await password.getText());
 
   return (
     <article
@@ -47,7 +50,7 @@ export default function AccountCard({
         !account.isActive && "opacity-70",
       )}
     >
-      <div className="flex items-start justify-between gap-2 bg-muted px-4 py-3">
+      <div className="flex items-center justify-between gap-2 bg-muted px-4 py-3">
         {/* Toda la cabecera abre el detalle; copiar, el switch y `⋯` no. */}
         <div
           role="button"
@@ -64,11 +67,8 @@ export default function AccountCard({
         >
           <ServiceAvatar name={account.service.name} imageUrl={account.service.imageUrl} />
           <div className="min-w-0">
-            <div className="flex min-w-0 items-center">
-              <p className="truncate font-heading text-sm font-bold text-foreground">{account.email}</p>
-              <CopyButton label={`Copiar el acceso de ${account.email}`} getText={getAccessText} />
-            </div>
-            <p className="truncate text-sm text-muted-foreground">{account.provider.name}</p>
+            <p className="truncate font-heading font-bold text-foreground">{account.service.name}</p>
+            <p className="truncate text-muted-foreground">{account.provider.name}</p>
           </div>
         </div>
 
@@ -80,11 +80,36 @@ export default function AccountCard({
             aria-label={account.isActive ? "Desactivar cuenta" : "Activar cuenta"}
             onCheckedChange={onToggleActive}
           />
+          {/* Enviar = copia el acceso listo para pegarlo en WhatsApp. */}
+          <CopyButton
+            label={`Copiar el acceso de ${account.email} para enviarlo`}
+            icon={SendHorizontal}
+            getText={getAccessText}
+            className="bg-success/15 text-success hover:bg-success/25 hover:text-success"
+          />
           <RowActions actions={actions} />
         </div>
       </div>
 
-      <div className="px-4 py-3">
+      <div className="space-y-3 px-4 py-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_max-content] gap-x-4">
+          <div className="min-w-0">
+            <div className="flex items-center text-muted-foreground">
+              Correo
+              <CopyButton label="Copiar correo" getText={() => account.email} />
+            </div>
+            <p className="truncate font-semibold text-foreground">{account.email}</p>
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center text-muted-foreground">
+              Contraseña
+              <PasswordEyeButton isVisible={password.isVisible} onToggle={password.toggle} />
+              <CopyButton label="Copiar contraseña" getText={password.getText} />
+            </div>
+            <p className="truncate font-mono font-semibold text-foreground">{password.text}</p>
+          </div>
+        </div>
+
         <ProfileChips profiles={account.profiles} />
       </div>
     </article>

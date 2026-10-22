@@ -12,7 +12,10 @@ de cards genéricas.
   - identidad arriba a la izquierda (ícono + nombre + dato secundario);
   - switch + menú de acciones arriba a la derecha;
   - detalles abajo. La card separa **cabecera y cuerpo con fondos distintos** (`bg-muted`
-    arriba, blanco abajo; acordado 2026-10-22). Una nota libre va con el ícono `MessageSquareText` a la izquierda,
+    arriba, blanco abajo) sobre una **página blanca**, como id-pos: así no se apilan tres
+    tonos (fondo, card, cabecera) (acordado 2026-10-22).
+  - Los datos del cuerpo van **etiqueta arriba, valor abajo**, en dos columnas, con su
+    copiar (y el ojo, si es contraseña) al lado de la etiqueta. Una nota libre va con el ícono `MessageSquareText` a la izquierda,
     para que se lea como nota y no como otro dato (acordado 2026-10-13).
 - `PageHeader`: título, contadores («3 negocios · 2 activos») y la acción «Crear».
 - `EmptyState`: ícono, título y la acción para salir del vacío («Crear el primero»).
@@ -109,10 +112,14 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 ## Copiar
 
 - Cada dato que se le pasa a un cliente lleva su ícono de copiar, y copia **solo ese dato**.
+- **El copiar y el ojo van antes del texto**, nunca después (acordado 2026-10-22): al lado
+  de la etiqueta o a la izquierda del valor, para que no se corran cuando el texto cambia
+  de ancho.
 - **Siempre con `CopyButton`** (`common/components/copy-button.tsx`, acordado 2026-10-13):
   al tocarlo pasa a **cargando**, luego a un **check** por 2 s y vuelve al ícono de copiar.
   No lleva toast de «Copiado» (el check ya lo dice); si falla, el error sí va en un toast.
-- **«Copiar acceso»** de una cuenta (el ícono de copiar de su card y el `⋯` del detalle)
+- **«Copiar acceso»** de una cuenta (el botón **enviar**, verde, en la cabecera de su card
+  —`CopyButton` con `icon={SendHorizontal}`, acordado 2026-10-22— y el `⋯` del detalle)
   copia el bloque listo para WhatsApp
   (`modules/accounts/utils/access-text.ts`):
   `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.

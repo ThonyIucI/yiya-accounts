@@ -1,6 +1,6 @@
 import { Button } from "@yiya/ui/components/button";
 import { cn } from "@yiya/ui/lib/utils";
-import { Check, Copy, Loader2 } from "lucide-react";
+import { Check, Copy, Loader2, type LucideIcon } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { type MouseEvent, useEffect, useRef, useState } from "react";
 
@@ -14,7 +14,6 @@ const MIN_LOADING_MS = 350;
 
 type TCopyState = "idle" | "copying" | "copied";
 
-const ICONS = { idle: Copy, copying: Loader2, copied: Check } as const;
 
 interface ICopyButtonProps {
   /**
@@ -26,6 +25,8 @@ interface ICopyButtonProps {
   label: string;
   /** `lg`: el de 52 px de las filas con WhatsApp al lado. */
   size?: "sm" | "lg";
+  /** El ícono en reposo; por defecto, el de copiar (p. ej. `SendHorizontal` para el acceso). */
+  icon?: LucideIcon;
   className?: string;
 }
 
@@ -40,6 +41,7 @@ export default function CopyButton({
   getText,
   label,
   size = "sm",
+  icon = Copy,
   className,
 }: ICopyButtonProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -84,7 +86,7 @@ export default function CopyButton({
     timerRef.current = setTimeout(() => setState("idle"), COPIED_MS);
   };
 
-  const Icon = ICONS[state];
+  const Icon = { idle: icon, copying: Loader2, copied: Check }[state];
 
   return (
     <Button

@@ -3,8 +3,6 @@ import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource, IProfileResource } from "@yiya/shared/accounts";
 import {
   ClipboardCopy,
-  Eye,
-  EyeOff,
   Loader2,
   Lock,
   Mail,
@@ -23,12 +21,13 @@ import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import SidePanel from "@/common/components/side-panel";
 import { copyToClipboard } from "@/common/utils/clipboard";
 import { useAccountPassword } from "@/modules/accounts/hooks/use-account-password";
+import { HIDDEN_PASSWORD } from "@/modules/accounts/hooks/use-revealable-password";
 import { buildAccessText } from "@/modules/accounts/utils/access-text";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
+import PasswordEyeButton from "./password-eye-button";
 import ProfileList from "./profile-list";
 
-const HIDDEN_PASSWORD = "••••••••";
 const PASSWORD_LOADING_MESSAGE = "Un momento: estamos trayendo la contraseña.";
 
 interface IAccountDetailPanelProps {
@@ -172,29 +171,12 @@ export default function AccountDetailPanel({
               <DetailRow
                 icon={Mail}
                 label="Correo"
-                actions={
-                  <CopyButton label="Copiar correo" getText={() => current.email} />
-                }
               >
                 {current.email}
               </DetailRow>
               <DetailRow
                 icon={Lock}
                 label="Contraseña"
-                actions={
-                  <>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={isPasswordVisible ? "Ocultar contraseña" : "Ver contraseña"}
-                      onClick={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
-                    >
-                      {isPasswordVisible ? <EyeOff /> : <Eye />}
-                    </Button>
-                    <CopyButton label="Copiar contraseña" getText={getPasswordText} />
-                  </>
-                }
               >
                 <span className="font-mono">
                   {AccountPassword.loading
@@ -203,6 +185,10 @@ export default function AccountDetailPanel({
                       ? password
                       : HIDDEN_PASSWORD}
                 </span>
+                <PasswordEyeButton
+                     isVisible={isPasswordVisible}
+                     onToggle={() => withPassword(() => setIsPasswordVisible((visible) => !visible))}
+                    />
               </DetailRow>
               <DetailRow icon={Truck} label="Proveedor">
                 {current.provider.name}

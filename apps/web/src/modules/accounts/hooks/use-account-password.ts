@@ -14,5 +14,8 @@ export const useAccountPassword = () => {
   /* Al cambiar de cuenta o cerrar el detalle, se olvida. */
   const forget = () => request.setData(() => null);
 
-  return { password: request.data, loading: request.loading, handler, forget };
+  /* Guarda una contraseña que se trajo por otro lado (p. ej. al copiarla). */
+  const remember = (password: string) => request.setData(() => password);
+
+  return { password: request.data, loading: request.loading, handler, forget, remember };
 };

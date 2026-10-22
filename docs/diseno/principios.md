@@ -44,6 +44,13 @@ Antes de diseñar o tocar UI, leer:
 - **Scrollbar como el del saas** (`apps/web/src/index.css`): oculta, y aparece fina al pasar
   el mouse por un elemento con scroll.
 
+## Fondo y controles (acordado 2026-10-22)
+
+- **La página tiene el mismo tono que la card**: blanca en claro y el azul de la card en
+  oscuro (`--background` en `packages/ui/src/styles/globals.css`). Las cards se separan con
+  su sombra y su cabecera en `bg-muted`.
+- El switch mide 24 px de alto: discreto dentro de una card o una fila.
+
 ## Cursor (acordado 2026-10-22)
 
 - En escritorio, **todo lo clickeable lleva manita** (`cursor: pointer`): botones, filas y

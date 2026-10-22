@@ -293,7 +293,9 @@ react-select.
     de «Activa».
   - **Perfiles: plegados por defecto**, con chevron: «Perfiles · 4 / 5 libres ⌄». Al
     abrir, un chip por perfil («P1»… «P5»).
-  - La contraseña no se ve en la card: solo en el detalle y, oculta con ojo, en la tabla.
+  - **Ajuste 2026-10-22:** la cabecera lleva **el servicio como título** y el proveedor
+    debajo; el copiar del acceso pasa a la derecha, junto al switch. En el cuerpo, correo
+    y contraseña (oculta), cada uno con su copiar y la contraseña con su ojo.
 - **Tabla:** Cuenta (logo y servicio) · **Credenciales** (correo arriba, contraseña oculta abajo con ojo) · Proveedor · Perfiles · Activa · acciones. Sin columna de renovación hasta que existan las compras (acordado 2026-10-22).
 - Barra pegajosa con el buscador y, al lado, el **botón de filtros** (servicio y
   proveedor), que abre su modal. Los filtros no van sueltos en la pantalla.
