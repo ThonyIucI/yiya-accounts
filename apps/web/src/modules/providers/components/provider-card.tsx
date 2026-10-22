@@ -23,14 +23,14 @@ export default function ProviderCard({ provider, actions }: IProviderCardProps) 
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <Truck className="size-5" />
           </span>
-          <p className="min-w-0 truncate font-heading text-lg font-bold text-foreground">
+          <p className="min-w-0 truncate font-heading text-base font-bold text-foreground">
             {provider.name}
           </p>
         </div>
         <RowActions actions={actions} />
       </div>
 
-      <div className="mt-3 space-y-1 border-t border-border/60 pt-1 text-base">
+      <div className="mt-3 space-y-1 border-t border-border/60 pt-1 text-sm">
         <ProviderPhone phone={provider.phone} />
         <p className="text-sm font-semibold text-muted-foreground">
           {provider.accountCount === 1 ? "1 cuenta" : `${provider.accountCount} cuentas`}

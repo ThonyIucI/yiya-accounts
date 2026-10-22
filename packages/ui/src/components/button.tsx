@@ -7,7 +7,7 @@ import { cva, type VariantProps } from "class-variance-authority";
   generosos y "sombra sticker" que se hunde al presionar. Colores solo por token.
 */
 const buttonVariants = cva(
-  "group/button relative inline-flex shrink-0 items-center justify-center rounded-xl border border-transparent bg-clip-padding font-heading text-base font-bold whitespace-nowrap transition-all outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+  "group/button relative inline-flex shrink-0 items-center justify-center rounded-xl border border-transparent bg-clip-padding font-heading text-sm font-bold whitespace-nowrap transition-all outline-none select-none focus-visible:ring-4 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
   {
     variants: {
       variant: {
@@ -28,7 +28,7 @@ const buttonVariants = cva(
         default: "h-11 gap-2 px-4",
         xs: "h-8 gap-1 rounded-lg px-2.5 text-sm [&_svg:not([class*='size-'])]:size-4",
         sm: "h-9 gap-1.5 rounded-lg px-3 text-sm [&_svg:not([class*='size-'])]:size-4",
-        lg: "h-13 gap-2 px-5 text-lg",
+        lg: "h-13 gap-2 px-5 text-base",
         xl: "h-14 w-full gap-2 px-6 text-xl",
         icon: "size-11",
         "icon-xs": "size-8 rounded-lg [&_svg:not([class*='size-'])]:size-4",

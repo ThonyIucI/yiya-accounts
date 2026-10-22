@@ -13,7 +13,7 @@ import {
 import { EASE_OUT } from "@/common/constants/motion";
 
 const LINK_CLASS =
-  "flex items-center gap-3 rounded-xl px-3 py-3 font-heading text-base font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary";
+  "flex items-center gap-3 rounded-xl px-3 py-3 font-heading text-sm font-bold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary";
 
 interface ISidebarLinkProps {
   item: INavItem;

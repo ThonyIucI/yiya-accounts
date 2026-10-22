@@ -34,7 +34,7 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
       <div className="space-y-4 px-4 pt-5 pb-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <p className="truncate font-heading text-lg font-extrabold text-foreground">
+            <p className="truncate font-heading text-base font-extrabold text-foreground">
               {session?.user.name}
             </p>
             {role && <p className="text-sm text-muted-foreground">{userRoleLabels[role]}</p>}
@@ -58,7 +58,7 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
         <button
           type="button"
           onClick={signOut}
-          className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 font-heading text-base font-bold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-3 font-heading text-sm font-bold text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut className="size-5" />
           Cerrar sesión

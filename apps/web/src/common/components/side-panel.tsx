@@ -93,7 +93,7 @@ export default function SidePanel({
             transition={{ duration: prefersReducedMotion ? 0 : ENTER_SECONDS, ease: EASE_DRAWER }}
           >
             <header className="flex shrink-0 items-center justify-between gap-2 bg-card px-2 pt-[max(env(safe-area-inset-top),0.5rem)] pb-2 shadow-edge-bottom">
-              <Button variant="ghost" className="gap-1 px-2 font-heading text-base" onClick={onClose}>
+              <Button variant="ghost" className="gap-1 px-2 font-heading text-sm" onClick={onClose}>
                 <ChevronLeft className="size-5" />
                 {backLabel}
               </Button>

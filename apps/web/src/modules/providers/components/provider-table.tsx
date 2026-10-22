@@ -58,7 +58,7 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
                       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <Truck className="size-5" />
                       </span>
-                      <span className="truncate font-heading text-base font-bold text-foreground">
+                      <span className="truncate font-heading text-sm font-bold text-foreground">
                         {provider.name}
                       </span>
                     </div>

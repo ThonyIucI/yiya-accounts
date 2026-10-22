@@ -89,7 +89,7 @@ export default function InlineTextField({
           value={isEditing ? text : value}
           aria-invalid={error !== null}
           aria-describedby={error ? messageId : undefined}
-          className="h-11 text-base"
+          className="h-11 text-base md:text-sm"
           onFocus={() => {
             setText(value);
             setIsEditing(true);

@@ -143,7 +143,7 @@ export default function PhoneInput({ id, value, onChange, onBlur, isInvalid, dis
         }}
         classNames={{
           container: () => "shrink-0",
-          control: () => "h-full cursor-pointer rounded-l-[0.625rem] pr-1 pl-3 text-lg hover:bg-muted/60",
+          control: () => "h-full cursor-pointer rounded-l-[0.625rem] pr-1 pl-3 text-base md:text-sm hover:bg-muted/60",
           valueContainer: () => "gap-1",
           singleValue: () => "text-foreground",
           input: () => "w-14 text-foreground",
@@ -153,14 +153,14 @@ export default function PhoneInput({ id, value, onChange, onBlur, isInvalid, dis
           menuList: () => "max-h-64",
           option: ({ isFocused, isSelected }) =>
             cn(
-              "cursor-pointer rounded-lg px-3 py-2.5 text-base",
+              "cursor-pointer rounded-lg px-3 py-2.5 text-sm",
               isSelected
                 ? "bg-primary/10 font-semibold text-primary"
                 : isFocused
                   ? "bg-muted text-foreground"
                   : "text-foreground",
             ),
-          noOptionsMessage: () => "px-3 py-3 text-base text-muted-foreground",
+          noOptionsMessage: () => "px-3 py-3 text-sm text-muted-foreground",
         }}
       />
 
@@ -177,7 +177,7 @@ export default function PhoneInput({ id, value, onChange, onBlur, isInvalid, dis
         value={formatted}
         onBlur={onBlur}
         onChange={(event) => handleNumberChange(event.target.value)}
-        className="min-w-0 flex-1 rounded-r-[0.625rem] bg-transparent px-3 text-lg font-medium text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground disabled:cursor-not-allowed"
+        className="min-w-0 flex-1 rounded-r-[0.625rem] bg-transparent px-3 text-base md:text-sm font-medium text-foreground outline-none placeholder:font-normal placeholder:text-muted-foreground disabled:cursor-not-allowed"
       />
     </div>
   );

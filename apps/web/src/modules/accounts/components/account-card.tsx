@@ -65,7 +65,7 @@ export default function AccountCard({
           <ServiceAvatar name={account.service.name} imageUrl={account.service.imageUrl} />
           <div className="min-w-0">
             <div className="flex min-w-0 items-center">
-              <p className="truncate font-heading text-base font-bold text-foreground">{account.email}</p>
+              <p className="truncate font-heading text-sm font-bold text-foreground">{account.email}</p>
               <CopyButton label={`Copiar el acceso de ${account.email}`} getText={getAccessText} />
             </div>
             <p className="truncate text-sm text-muted-foreground">{account.provider.name}</p>

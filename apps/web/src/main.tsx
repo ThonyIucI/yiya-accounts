@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { z } from "zod";
 
 import Loader from "./components/loader";
+import NotFound from "./components/not-found";
 import RouteError from "./components/route-error";
 import { reloadForNewVersion } from "./lib/new-version";
 import { routeTree } from "./routeTree.gen";
@@ -26,6 +27,7 @@ const router = createRouter({
   scrollRestoration: true,
   defaultPendingComponent: () => <Loader />,
   defaultErrorComponent: RouteError,
+  defaultNotFoundComponent: NotFound,
   context: {},
 });
 

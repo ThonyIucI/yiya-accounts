@@ -45,7 +45,7 @@ export default function Header() {
           */}
           <nav
             className={cn(
-              "hidden gap-4 font-heading text-base font-bold sm:flex",
+              "hidden gap-4 font-heading text-sm font-bold sm:flex",
               hasSidebar && "md:hidden",
             )}
           >

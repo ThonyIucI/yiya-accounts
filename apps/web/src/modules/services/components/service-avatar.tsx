@@ -19,7 +19,7 @@ export default function ServiceAvatar({ name, imageUrl, className }: IServiceAva
   return (
     <span
       className={cn(
-        "flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 font-heading text-lg font-extrabold text-primary",
+        "flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-primary/10 font-heading text-base font-extrabold text-primary",
         className,
       )}
     >

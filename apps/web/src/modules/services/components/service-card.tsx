@@ -43,7 +43,7 @@ export default function ServiceCard({
         <div className="flex min-w-0 items-center gap-3">
           <ServiceAvatar name={service.name} imageUrl={service.imageUrl} />
           <div className="min-w-0">
-            <p className="truncate font-heading text-lg font-bold text-foreground">{service.name}</p>
+            <p className="truncate font-heading text-base font-bold text-foreground">{service.name}</p>
             <p className="text-sm text-muted-foreground">
               {pluralize(service.profilesPerAccount, "perfil", "perfiles")} por cuenta
             </p>

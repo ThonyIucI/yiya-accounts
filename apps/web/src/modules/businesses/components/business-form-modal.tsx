@@ -149,7 +149,7 @@ export default function BusinessFormModal({
         {isEdit ? (
           <div className="space-y-1 rounded-xl bg-muted px-4 py-3">
             <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">Dueño</p>
-            <p className="text-base font-semibold text-foreground">
+            <p className="text-sm font-semibold text-foreground">
               {business?.owner ? `${business.owner.name} · ${business.owner.email}` : "Sin dueño"}
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function BusinessFormModal({
                 {hasNoOwners ? (
                   /* Al intentar crear, el mismo aviso aparece como error (abajo) y este se va. */
                   field.state.meta.errors.length === 0 && (
-                    <p className="rounded-xl bg-muted px-4 py-3 text-base text-muted-foreground">
+                    <p className="rounded-xl bg-muted px-4 py-3 text-sm text-muted-foreground">
                       {NO_OWNERS_MESSAGE}
                     </p>
                   )

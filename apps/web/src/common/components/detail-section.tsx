@@ -15,7 +15,7 @@ export function DetailSection({ title, action, children, className }: IDetailSec
   return (
     <section className={cn("rounded-2xl bg-card shadow-card", className)}>
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
-        <h3 className="font-heading text-base font-extrabold text-foreground">{title}</h3>
+        <h3 className="font-heading text-sm font-extrabold text-foreground">{title}</h3>
         {action}
       </div>
       <div className="px-4 pb-4">{children}</div>
@@ -39,10 +39,10 @@ export function DetailRow({ icon: Icon, label, children, actions }: IDetailRowPr
   return (
     <div className="flex min-h-11 items-center gap-3 py-1">
       <Icon aria-hidden className="size-4.5 shrink-0 text-muted-foreground" />
-      <span className="shrink-0 text-base text-muted-foreground">{label}:</span>
+      <span className="shrink-0 text-sm text-muted-foreground">{label}:</span>
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-base font-semibold",
+          "min-w-0 flex-1 truncate text-sm font-semibold",
           isEmpty ? "text-muted-foreground" : "text-foreground",
         )}
       >

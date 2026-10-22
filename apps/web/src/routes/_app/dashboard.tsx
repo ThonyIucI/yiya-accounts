@@ -22,13 +22,13 @@ function DashboardPage() {
           Hola, {user.name}
         </h1>
         {isSuperadmin && (
-          <p className="mt-0.5 text-base text-muted-foreground">{userRoleLabels[user.role]}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{userRoleLabels[user.role]}</p>
         )}
       </div>
 
       {!isSuperadmin && <MyBusinessCard />}
 
-      <div className="rounded-2xl border border-dashed border-border p-6 text-center text-base text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
         Cuentas, perfiles y alquileres llegan en las próximas etapas.
       </div>
     </div>
@@ -58,10 +58,10 @@ function MyBusinessCard() {
         <Store className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="truncate font-heading text-lg font-bold text-foreground">
+        <p className="truncate font-heading text-base font-bold text-foreground">
           {MyBusiness.business.name}
         </p>
-        <p className="text-base text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {businessAccessLabels[MyBusiness.business.role]}
         </p>
       </div>

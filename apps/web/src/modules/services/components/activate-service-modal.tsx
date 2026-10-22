@@ -136,7 +136,7 @@ export default function ActivateServiceModal({
           <form.Subscribe selector={(state) => state.values}>
             {(values) => (
               <ServiceProfit
-                className="rounded-xl bg-muted/60 px-4 py-3 text-base"
+                className="rounded-xl bg-muted/60 px-4 py-3 text-sm"
                 service={{
                   profilesPerAccount: service.profilesPerAccount,
                   purchasePrice: parseSoles(values.purchasePrice),

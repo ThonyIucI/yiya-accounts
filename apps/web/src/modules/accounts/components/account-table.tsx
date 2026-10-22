@@ -79,7 +79,7 @@ export default function AccountTable({
                         className="size-10"
                       />
                       <div className="min-w-0">
-                        <p className="truncate font-heading text-base font-bold text-foreground">
+                        <p className="truncate font-heading text-sm font-bold text-foreground">
                           {account.email}
                         </p>
                         <p className="truncate text-sm text-muted-foreground">{account.service.name}</p>

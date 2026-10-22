@@ -16,7 +16,7 @@ export default function SolesInput({ isCompact = false, isSaving = false, classN
         aria-hidden
         className={cn(
           "pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 font-semibold text-muted-foreground",
-          isCompact ? "text-base" : "text-lg",
+          isCompact ? "text-sm" : "text-base",
         )}
       >
         S/
@@ -25,7 +25,7 @@ export default function SolesInput({ isCompact = false, isSaving = false, classN
         inputMode="decimal"
         autoComplete="off"
         placeholder="0.00"
-        className={cn("pr-9 pl-10 tabular-nums", isCompact && "h-11 text-base", className)}
+        className={cn("pr-9 pl-10 tabular-nums", isCompact && "h-11 text-base md:text-sm", className)}
         {...props}
       />
       {isSaving && (

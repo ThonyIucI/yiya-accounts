@@ -1,8 +1,9 @@
-import { Button } from "@yiya/ui/components/button";
-import type { ErrorComponentProps } from "@tanstack/react-router";
+import { Button, buttonVariants } from "@yiya/ui/components/button";
+import { Link, type ErrorComponentProps } from "@tanstack/react-router";
 import { RefreshCw, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import ErrorScreen from "@/components/error-screen";
 import { isStaleVersionError, reloadForNewVersion } from "@/lib/new-version";
 
 /**
@@ -19,29 +20,30 @@ export default function RouteError({ error }: ErrorComponentProps) {
     }
   }, [isStaleVersion]);
 
+  if (isReloading) {
+    return (
+      <ErrorScreen
+        icon={RefreshCw}
+        isIconSpinning
+        title="Hay una versión nueva"
+        description="Estamos cargándola, un momento."
+      />
+    );
+  }
+
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col items-center px-4 py-16 text-center">
-      <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
-        {isReloading ? (
-          <RefreshCw className="size-7 animate-spin text-muted-foreground motion-reduce:animate-none" />
-        ) : (
-          <TriangleAlert className="size-7 text-muted-foreground" strokeWidth={1.5} />
-        )}
-      </div>
-      <p className="mt-4 font-heading text-lg font-bold text-foreground">
-        {isReloading ? "Hay una versión nueva" : "Algo salió mal"}
-      </p>
-      <p className="mt-1 text-base text-muted-foreground">
-        {isReloading
-          ? "Estamos cargándola, un momento."
-          : "No pudimos mostrar esta pantalla. Recarga la página; si sigue pasando, avísanos."}
-      </p>
-      {!isReloading && (
-        <Button type="button" className="mt-4" onClick={() => window.location.reload()}>
-          <RefreshCw />
-          Recargar
-        </Button>
-      )}
-    </div>
+    <ErrorScreen
+      icon={TriangleAlert}
+      title="Algo salió mal"
+      description="No pudimos mostrar esta pantalla. Recarga la página; si sigue pasando, avísanos."
+    >
+      <Button type="button" size="lg" onClick={() => window.location.reload()}>
+        <RefreshCw />
+        Recargar
+      </Button>
+      <Link to="/" className={buttonVariants({ variant: "ghost", size: "lg" })}>
+        Volver al inicio
+      </Link>
+    </ErrorScreen>
   );
 }

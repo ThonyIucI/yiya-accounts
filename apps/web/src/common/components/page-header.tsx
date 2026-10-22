@@ -19,7 +19,7 @@ export default function PageHeader({ title, subtitle, isLoadingSubtitle, action 
         {isLoadingSubtitle ? (
           <Skeleton className="mt-1.5 h-4 w-32 rounded-md" />
         ) : (
-          subtitle && <p className="mt-0.5 text-base text-muted-foreground">{subtitle}</p>
+          subtitle && <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
         )}
       </div>
       {action}

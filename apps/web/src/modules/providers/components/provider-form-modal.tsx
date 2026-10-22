@@ -173,7 +173,7 @@ export default function ProviderFormModal({ open, provider, onSaved, onClose }: 
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
-                className="min-h-24 rounded-xl border-2 bg-card px-4 py-3 text-lg font-medium focus-visible:ring-4 focus-visible:ring-ring/30 md:text-lg"
+                className="min-h-24 rounded-xl border-2 bg-card px-4 py-3 text-base font-medium focus-visible:ring-4 focus-visible:ring-ring/30 md:text-base"
               />
               <FieldError errors={field.state.meta.errors} />
             </div>

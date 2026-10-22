@@ -105,8 +105,8 @@ function UserCards({ users, isLoading }: IUserListProps) {
                 <UserRound className="size-5" />
               </span>
               <div className="min-w-0">
-                <p className="truncate font-heading text-lg font-bold text-foreground">{user.name}</p>
-                <p className="truncate text-base text-muted-foreground">{user.email}</p>
+                <p className="truncate font-heading text-base font-bold text-foreground">{user.name}</p>
+                <p className="truncate text-sm text-muted-foreground">{user.email}</p>
               </div>
             </div>
 

@@ -220,7 +220,7 @@ function ServicesPage() {
       {hasNoBusinesses && (
         <div className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
           <Store className="size-5 shrink-0 text-muted-foreground" />
-          <p className="text-base text-foreground">
+          <p className="text-sm text-foreground">
             Crea un negocio para activar servicios y poner precios.{" "}
             <Link to="/negocios" className="font-semibold text-primary">
               Ir a Negocios

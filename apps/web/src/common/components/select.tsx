@@ -87,7 +87,7 @@ const sharedSelectProps = (isInvalid: boolean | undefined) =>
     classNames: {
       control: ({ isFocused, isDisabled }) =>
         cn(
-          "rounded-xl border-2 bg-card px-4 text-lg font-medium transition-colors",
+          "rounded-xl border-2 bg-card px-4 text-base md:text-sm font-medium transition-colors",
           isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
           isInvalid
             ? "border-destructive ring-4 ring-destructive/20"
@@ -107,14 +107,14 @@ const sharedSelectProps = (isInvalid: boolean | undefined) =>
       menuList: () => "max-h-64",
       option: ({ isFocused, isSelected }) =>
         cn(
-          "cursor-pointer rounded-lg px-3 py-2.5 text-base",
+          "cursor-pointer rounded-lg px-3 py-2.5 text-sm",
           isSelected
             ? "bg-primary/10 font-semibold text-primary"
             : isFocused
               ? "bg-muted text-foreground"
               : "text-foreground",
         ),
-      noOptionsMessage: () => "px-3 py-3 text-base text-muted-foreground",
-      loadingMessage: () => "px-3 py-3 text-base text-muted-foreground",
+      noOptionsMessage: () => "px-3 py-3 text-sm text-muted-foreground",
+      loadingMessage: () => "px-3 py-3 text-sm text-muted-foreground",
     },
   }) satisfies Partial<ReactSelectProps<IOption, false>>;

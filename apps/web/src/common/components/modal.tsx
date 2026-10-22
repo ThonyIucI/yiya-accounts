@@ -212,7 +212,7 @@ export default function Modal({
 
             <div ref={bodyRef} onScroll={measure} className="min-h-0 flex-1 overflow-y-auto px-5 pb-5">
               <div>
-                {description && <p className="mb-4 text-base text-muted-foreground">{description}</p>}
+                {description && <p className="mb-4 text-sm text-muted-foreground">{description}</p>}
                 {children}
               </div>
             </div>

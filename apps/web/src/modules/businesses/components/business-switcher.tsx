@@ -30,7 +30,7 @@ export default function BusinessSwitcher({ onChosen, onNavigate }: IBusinessSwit
     return (
       <div className="flex items-center gap-3 rounded-xl bg-muted/60 px-4 py-3">
         <Store className="size-5 shrink-0 text-muted-foreground" />
-        <div className="min-w-0 text-base">
+        <div className="min-w-0 text-sm">
           <p className="font-semibold text-foreground">Todavía no hay negocios</p>
           <Link to="/negocios" onClick={onNavigate} className="font-semibold text-primary">
             Crear el primero

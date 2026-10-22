@@ -261,8 +261,8 @@
     -webkit-text-size-adjust: 100%;
   }
   body {
-    /* Body 18 px y nunca peso 300: se lee en un celular barato y a contraluz. */
-    @apply bg-background font-sans text-lg font-medium text-foreground antialiased;
+    /* Body 14 px y nunca peso 300: se lee en un celular barato y a contraluz. */
+    @apply bg-background font-sans text-sm font-medium text-foreground antialiased;
   }
   h1,
   h2,

@@ -247,7 +247,7 @@ function AccountsPage() {
       {!BusinessServices.loading && !hasActiveServices && (
         <div className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-card">
           <Tv className="size-5 shrink-0 text-muted-foreground" />
-          <p className="text-base text-foreground">
+          <p className="text-sm text-foreground">
             {NO_ACTIVE_SERVICES_MESSAGE}{" "}
             <Link to="/servicios" className="font-semibold text-primary">
               Ir a Servicios

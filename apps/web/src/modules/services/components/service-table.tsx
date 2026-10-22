@@ -98,7 +98,7 @@ function ServiceTableRow({
       <TableCell>
         <div className="flex min-w-0 items-center gap-3">
           <ServiceAvatar name={service.name} imageUrl={service.imageUrl} className="size-10" />
-          <span className="truncate font-heading text-base font-bold text-foreground">
+          <span className="truncate font-heading text-sm font-bold text-foreground">
             {service.name}
           </span>
         </div>

@@ -78,7 +78,7 @@ export default function BusinessTable({
                       <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                         <Store className="size-5" />
                       </span>
-                      <span className="truncate font-heading text-base font-bold text-foreground">
+                      <span className="truncate font-heading text-sm font-bold text-foreground">
                         {business.name}
                       </span>
                     </div>

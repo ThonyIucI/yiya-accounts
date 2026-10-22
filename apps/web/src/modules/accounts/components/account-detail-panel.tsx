@@ -167,7 +167,7 @@ export default function AccountDetailPanel({
               <h2 className="truncate font-heading text-xl font-extrabold text-foreground">
                 {current.service.name}
               </h2>
-              <p className="truncate text-base text-muted-foreground">{current.email}</p>
+              <p className="truncate text-sm text-muted-foreground">{current.email}</p>
             </div>
           </div>
 
@@ -220,7 +220,7 @@ export default function AccountDetailPanel({
           </DetailSection>
 
           <DetailSection title="Nota">
-            <p className="flex items-start gap-2 text-base">
+            <p className="flex items-start gap-2 text-sm">
               <MessageSquareText aria-hidden className="mt-0.5 size-4.5 shrink-0 text-muted-foreground" />
               <span className={current.note ? "text-foreground" : "text-muted-foreground"}>
                 {current.note ?? "No hay nota"}
