@@ -7,6 +7,7 @@ import type { IPurchaseResource } from "@yiya/shared/purchases";
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import { notFound } from "./errors";
+import { SERVICE_SUMMARY_COLUMNS } from "./service-summary";
 
 /**
  * Consultas de cuentas que usan las rutas de cuentas y de perfiles. Todas filtran por el
@@ -39,7 +40,7 @@ const selectAccounts = (db: TDb, businessId: string, accountId?: string) =>
   db
     .select({
       account: streamingAccount,
-      service: { id: service.id, name: service.name, imageUrl: service.imageUrl },
+      service: SERVICE_SUMMARY_COLUMNS,
       provider: { id: provider.id, name: provider.name },
     })
     .from(streamingAccount)

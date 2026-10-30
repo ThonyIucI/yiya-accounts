@@ -10,14 +10,22 @@ export const SERVICE_NAME_MAX_LENGTH = 40;
 export const SERVICE_MIN_PROFILES = 1;
 export const SERVICE_IMAGE_URL_MAX_LENGTH = 500;
 
-/** Un servicio del catálogo global. */
-export interface IServiceResource {
+/**
+ * Lo justo para mostrar un servicio (nombre y logo) dentro de otra cosa: una cuenta, un
+ * proveedor, un alquiler. Va el link de la imagen, no la imagen: el PNG lo guarda en caché
+ * el navegador (acordado 2026-10-30).
+ */
+export interface IServiceSummary {
   id: string;
   name: string;
-  /** Valor por defecto para las cuentas del paso 3. */
-  profilesPerAccount: number;
   /** Link `https://` a un PNG alojado afuera. Sin imagen se muestra la inicial. */
   imageUrl: string | null;
+}
+
+/** Un servicio del catálogo global. */
+export interface IServiceResource extends IServiceSummary {
+  /** Valor por defecto para las cuentas del paso 3. */
+  profilesPerAccount: number;
   createdAt: string;
 }
 

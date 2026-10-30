@@ -1,6 +1,98 @@
 # Convenciones de código
 
-Las de electrolitos (`~/own/amautas/CLAUDE.md`) aplican igual. Lo propio de Yiya:
+Reglas copiadas de `~/own/saas/planning/rules.md` (Frontend y General) y de
+`~/idbi/id-backend/docs/RULES-DEV-GUIDELINES.md` (General, Frontend, Alcance) el
+2026-10-30, adaptadas al stack de Yiya. **Las que están acá son las que valen**: no hace
+falta abrir esos archivos, y lo que de ahí no está acá no aplica (Nest, MikroORM, Laravel,
+yup, react-hook-form, `idbi-components`).
+
+## Código TS/React (acordado 2026-10-30)
+
+### Nombres y tipos
+
+- **Interfaces `IFoo`, types `TFoo`, enums `EFoo`.** Nunca un `type` con `I` ni una
+  `interface` con `T`.
+- **Una forma que se repite se declara una vez**, como interface base, y las demás la
+  extienden (`IServiceResource extends IServiceSummary`). `Pick` / `Omit` solo cuando no se
+  pueda extender. Nunca la misma forma escrita suelta en dos lugares.
+- Opciones de dominio fijas (estados de una entidad): enum con su objeto de labels.
+  ```ts
+  export enum EFooStatus { ACTIVE = "ACTIVE", INACTIVE = "INACTIVE" }
+  export const fooStatusLabels: Record<EFooStatus, string> = { … };
+  export type TFooStatus = `${EFooStatus}`;
+  ```
+  Variantes de la UI (tono, tamaño de un componente) van como union `TFoo`.
+- Sin `any` ni `unknown`, salvo datos de afuera que se validan después. El tipado se deja
+  inferir cuando es obvio: legibilidad antes que sobre-tipar.
+- **Nombres en inglés y camelCase**; constantes en `UPPER_SNAKE_CASE`; booleanos con `is`,
+  `has`, `should`, `can`. Los textos que ve la persona, en español.
+- **Sin abreviaciones ni monosílabos**: `items.map((option) => option.id)`, nunca
+  `(o) => o.id`; `catch (error)`, nunca `catch (e)`.
+
+### Funciones
+
+- Arrow functions para todo lo que no es componente. Los componentes son
+  `export default function Nombre()` (así está todo el front).
+- Una arrow con 2 o más sentencias va en varias líneas, nunca en una.
+- **Parámetros:** hasta 2, posicionales; 3 o más, un solo objeto desestructurado.
+- **No incrustar llamadas como argumento:** el resultado va primero a una variable con
+  nombre y después se pasa. El código se lee línea por línea.
+- Sin valores sueltos: rutas, límites, tiempos y tipos van en constantes con nombre.
+- JSDoc en utils y hooks que no se entienden por el nombre; los hooks del CRUD no lo
+  necesitan.
+
+### Archivos e imports
+
+- Un componente por archivo, en **kebab-case** (`provider-card.tsx`).
+- `export default` para componentes; sin barrels: se importa del archivo directo.
+- Lo que se repite en dos módulos va a `common/` (componentes, hooks, utils).
+
+### Hooks y estado
+
+- Hooks de petición instanciados como objeto: `const ListProviders = useListProviders()`
+  → `ListProviders.data`, `.handler`, `.loading`.
+- Sin `useState` aparte para un listado: el `data` del hook, con `onUpsert(item)` y
+  `onRemove(id)` para actualizar al toque, sin volver a pedir.
+- Las peticiones se disparan desde el componente de la pantalla, no con un `useEffect`
+  dentro del hook. Nada de `useEffect` para encadenar peticiones.
+- Flags de abrir/cerrar con `useBoolean`, no `useState<boolean>`.
+- Mínimo de `useEffect`, `useMemo` y `useCallback`: mejor un callback que diga el evento
+  (`onEntered`). `useCallback` solo si la función es dependencia de un efecto o va a un
+  hijo con `React.memo`.
+
+### Pantallas
+
+- **Skeleton mientras carga**, con la forma del contenido final: nunca el estado vacío
+  mientras la petición sigue. Los contadores y subtítulos que salen de datos remotos
+  también (`PageHeader` con `isLoadingSubtitle`, `ResultsCounter`).
+- Toda mutación muestra que está cargando, avisa el error (lo hace `useRequest`) y
+  sincroniza la lista sin recargar.
+- **Toda acción destructiva pide confirmación** en modal (`ConfirmModal`), con la opción
+  del menú en rojo.
+- El texto de un botón nunca se parte en dos líneas: si no entra, se ajusta el layout.
+- Búsqueda en el front mientras la lista sea acotada (menos de ~500); en el server, con
+  debounce de 300 ms, cuando crece sin límite.
+- Fechas siempre con `dayjs` y el locale de `APP_LOCALE` (`common/utils/format-date.ts`).
+- Animaciones con `motion/react` y `AnimatePresence`, respetando `useReducedMotion()`.
+- Para enfocar un campo al abrir una modal, nunca `autoFocus` (en el celular sube el
+  teclado en medio de la animación).
+
+Lo que en esas guías choca con un acuerdo de Yiya **no se copió**: el submit deshabilitado
+por `loading` (acá ningún botón se desactiva) y el tamaño mínimo de texto (acá la base es
+14 px y los badges y avisos van en 12 px). Ver [principios](../diseno/principios.md).
+
+### Alcance de los cambios
+
+1. **Solo se toca lo que se pidió.** Describir cómo debería comportarse algo no es una
+   orden de hacerlo: se responde qué implicaría y se sigue con lo que se estaba haciendo.
+2. **Si el mensaje trae preguntas, primero se responden** y se propone cómo se va a hacer;
+   se codea cuando Thony lo aprueba (acordado 2026-10-30).
+3. **Antes de tocar un flujo, se recorre entero**: una validación nueva en una capa puede
+   sobrar o romper algo si otra capa ya resuelve el caso.
+
+---
+
+Lo que sigue es propio de Yiya.
 
 ## API
 

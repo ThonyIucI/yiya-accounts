@@ -32,6 +32,7 @@ interface IProviderData {
   id: string;
   name: string;
   accountCount: number;
+  services: { id: string; name: string; imageUrl: string | null }[];
 }
 
 const OWNER_A = { name: "Dueña A", email: "cuentas-a@test.local", password: "password123" };
@@ -490,6 +491,26 @@ describe("/accounts y /profiles", () => {
       expect(await errorOf(response)).toBe(
         "No puedes eliminar a «Con cuentas»: tiene 2 cuentas. Cámbiales el proveedor o elimínalas primero.",
       );
+    });
+
+    it("lista los servicios que vende, una vez cada uno y por nombre", async () => {
+      // Arrange
+      const providerId = await createProvider("Vende varios", ownerACookie);
+      const emptyId = await createProvider("Sin cuentas aún", ownerACookie);
+      await createAccount({ email: "varios-n1@gmail.com", providerId });
+      await createAccount({ email: "varios-n2@gmail.com", providerId });
+      await createAccount({ email: "varios-d1@gmail.com", providerId, serviceId: disneyId, profileCount: 7 });
+
+      // Act
+      const providers = (await (await get("/api/v1/providers")).json<IBody<IProviderData[]>>()).data;
+      const seller = providers.find((item) => item.id === providerId);
+      const empty = providers.find((item) => item.id === emptyId);
+
+      // Assert
+      expect(seller?.accountCount).toBe(3);
+      expect(seller?.services.map((item) => item.name)).toEqual(["Disney+", "Netflix"]);
+      expect(seller?.services[0]).toEqual({ id: disneyId, name: "Disney+", imageUrl: null });
+      expect(empty?.services).toEqual([]);
     });
   });
 

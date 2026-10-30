@@ -8,15 +8,16 @@ import {
   TableRow,
 } from "@yiya/ui/components/table";
 import type { IProviderResource } from "@yiya/shared/providers";
-import { Truck } from "lucide-react";
 import type { ReactNode } from "react";
 
+import InitialsAvatar from "@/common/components/initials-avatar";
+import PhoneValue from "@/common/components/phone-value";
 import RowActions, { type IRowAction } from "@/common/components/row-actions";
-
-import ProviderPhone from "./provider-phone";
+import WhatsAppButton from "@/common/components/whatsapp-button";
+import ServiceAvatarStack from "@/modules/services/components/service-avatar-stack";
 
 const SKELETON_COUNT = 4;
-const COLUMN_COUNT = 5;
+const COLUMN_COUNT = 6;
 
 interface IProviderTableProps {
   providers: IProviderResource[];
@@ -26,15 +27,19 @@ interface IProviderTableProps {
   footer?: ReactNode;
 }
 
-/** Tabla de escritorio. Oculta en celular: allí se usa `ProviderMobileList`. */
+/**
+ * Tabla de escritorio. Oculta en celular: allí se usa `ProviderMobileList`. Las acciones van
+ * con borde: WhatsApp y `⋯`, como enviar y `⋯` en cuentas (acordado 2026-10-30).
+ */
 export default function ProviderTable({ providers, isLoading, buildActions, footer }: IProviderTableProps) {
   return (
     <div className="hidden overflow-hidden rounded-md bg-card shadow-card md:block">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted hover:bg-muted">
-            <TableHead className="w-[32%]">Proveedor</TableHead>
-            <TableHead className="w-[28%]">WhatsApp</TableHead>
+            <TableHead className="w-[28%]">Proveedor</TableHead>
+            <TableHead>Celular</TableHead>
+            <TableHead>Servicios</TableHead>
             <TableHead>Cuentas</TableHead>
             <TableHead>Nota</TableHead>
             <TableHead />
@@ -55,16 +60,17 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
                 <TableRow key={provider.id}>
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <Truck className="size-5" />
-                      </span>
-                      <span className="truncate font-heading text-sm font-bold text-foreground">
+                      <InitialsAvatar name={provider.name} />
+                      <span className="truncate font-heading font-bold text-foreground">
                         {provider.name}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <ProviderPhone phone={provider.phone} />
+                    <PhoneValue phone={provider.phone} />
+                  </TableCell>
+                  <TableCell>
+                    <ServiceAvatarStack services={provider.services} />
                   </TableCell>
                   <TableCell className="font-semibold tabular-nums">{provider.accountCount}</TableCell>
                   <TableCell className="max-w-72">
@@ -73,8 +79,9 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
                     </p>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end">
-                      <RowActions actions={buildActions(provider)} />
+                    <div className="flex justify-end gap-1">
+                      <WhatsAppButton phone={provider.phone} isBordered />
+                      <RowActions actions={buildActions(provider)} isBordered />
                     </div>
                   </TableCell>
                 </TableRow>

@@ -18,6 +18,7 @@ import ProviderMobileList from "@/modules/providers/components/provider-mobile-l
 import ProviderTable from "@/modules/providers/components/provider-table";
 import { useDeleteProvider } from "@/modules/providers/hooks/use-delete-provider";
 import { useListProviders } from "@/modules/providers/hooks/use-list-providers";
+import { formatAccountCount } from "@/modules/providers/utils/account-count";
 
 export const Route = createFileRoute("/_app/proveedores")({
   component: ProvidersPage,
@@ -87,7 +88,7 @@ function ProvidersPage() {
   /* Con cuentas no se puede: se avisa cuántas tiene en vez de pedir confirmación. */
   const isDeleteBlocked = (deleteTarget?.accountCount ?? 0) > 0;
   const blockedMessage = deleteTarget
-    ? `Tiene ${deleteTarget.accountCount === 1 ? "1 cuenta" : `${deleteTarget.accountCount} cuentas`}. Cámbiales el proveedor o elimínalas primero.`
+    ? `Tiene ${formatAccountCount(deleteTarget.accountCount)}. Cámbiales el proveedor o elimínalas primero.`
     : "";
 
   const confirmDelete = async () => {

@@ -5,6 +5,7 @@
  */
 
 import type { IPurchaseResource } from "./purchases";
+import type { IServiceSummary } from "./services";
 
 export const ACCOUNT_EMAIL_MAX_LENGTH = 254;
 export const ACCOUNT_PASSWORD_MAX_LENGTH = 200;
@@ -29,7 +30,7 @@ export interface IProfileResource {
 /** Lo que trae el listado. **Nunca** la contraseña. */
 export interface IAccountResource {
   id: string;
-  service: { id: string; name: string; imageUrl: string | null };
+  service: IServiceSummary;
   provider: { id: string; name: string };
   email: string;
   isActive: boolean;

@@ -1,13 +1,13 @@
 import type { TExpiryStatus } from "@yiya/shared/purchases";
+import { Badge } from "@yiya/ui/components/badge";
 
-import Badge, { type TBadgeTone } from "@/common/components/badge";
-import { describeExpiry, expiryOf } from "@/modules/accounts/utils/expiry";
+import { EXPIRY_COLORS, describeExpiry, expiryOf } from "@/modules/accounts/utils/expiry";
 
-const BADGES: Record<TExpiryStatus, { label: string; tone: TBadgeTone }> = {
-  expired: { label: "Vencida", tone: "expired" },
-  today: { label: "Por vencer", tone: "today" },
-  soon: { label: "Por vencer", tone: "soon" },
-  ok: { label: "Al día", tone: "success" },
+const LABELS: Record<TExpiryStatus, string> = {
+  expired: "Vencida",
+  today: "Por vencer",
+  soon: "Por vencer",
+  ok: "Al día",
 };
 
 /**
@@ -21,11 +21,10 @@ export default function ExpiryBadge({ expiresOn }: { expiresOn: string | null })
   }
 
   const expiry = expiryOf(expiresOn);
-  const badge = BADGES[expiry.status];
 
   return (
-    <span title={describeExpiry(expiresOn, expiry)}>
-      <Badge tone={badge.tone}>{badge.label}</Badge>
-    </span>
+    <Badge color={EXPIRY_COLORS[expiry.status]} title={describeExpiry(expiresOn, expiry)}>
+      {LABELS[expiry.status]}
+    </Badge>
   );
 }

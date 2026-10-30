@@ -1,16 +1,26 @@
 import { todayInLima } from "@yiya/shared/dates";
 import { type IExpiry, type TExpiryStatus, getExpiry } from "@yiya/shared/purchases";
+import type { TBadgeColor } from "@yiya/ui/components/badge";
 
 import { formatCompactDate, isCurrentYear } from "@/common/utils/format-date";
 
 /**
- * Cómo se ve un vencimiento (RF-14, acordado 2026-10-22): rojo si venció, naranja si vence
- * hoy, amarillo si faltan 1 o 2 días. Los tres colores pasan 4.5:1 de contraste.
+ * El color de cada estado de vencimiento (RF-14, acordado 2026-10-22): rojo si venció,
+ * naranja si vence hoy, amarillo si faltan 1 o 2 días, verde al día. Acá vive el significado;
+ * los componentes genéricos solo conocen colores (2026-10-30).
  */
+export const EXPIRY_COLORS: Record<TExpiryStatus, TBadgeColor> = {
+  expired: "destructive",
+  today: "orange",
+  soon: "yellow",
+  ok: "success",
+};
+
+/** El mismo color como texto (4.5:1). Al día, la fecha va en el color normal del texto. */
 export const EXPIRY_TEXT_CLASSES: Record<TExpiryStatus, string> = {
-  expired: "text-status-expired",
-  today: "text-status-today",
-  soon: "text-status-soon",
+  expired: "text-destructive-on-muted",
+  today: "text-orange",
+  soon: "text-yellow",
   ok: "text-foreground",
 };
 

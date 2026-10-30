@@ -1,6 +1,7 @@
 import { createDb } from "@yiya/db";
 import { streamingAccount } from "@yiya/db/schema/accounts";
 import { provider } from "@yiya/db/schema/providers";
+import { service } from "@yiya/db/schema/services";
 import { PHONE_MAX_DIGITS, isKnownCountryPrefix, phoneError } from "@yiya/shared/phones";
 import {
   type IProviderResource,
@@ -9,6 +10,7 @@ import {
   PROVIDER_NOTE_MAX_LENGTH,
   toProviderNameKey,
 } from "@yiya/shared/providers";
+import type { IServiceSummary } from "@yiya/shared/services";
 import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -17,6 +19,7 @@ import type { TAppEnv } from "../lib/app-env";
 import { conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
 import { ok } from "../lib/response";
+import { SERVICE_SUMMARY_COLUMNS } from "../lib/service-summary";
 import { validateJson } from "../lib/validator";
 import { requireBusiness } from "../middleware/require-business";
 import { requireAuth } from "../middleware/require-role";
@@ -84,13 +87,22 @@ type TDb = ReturnType<typeof createDb>;
 type TProviderRow = typeof provider.$inferSelect;
 type TPhoneInput = z.infer<typeof phoneSchema>;
 
-const toProviderResource = (row: TProviderRow, accountCount: number): IProviderResource => ({
+const toProviderResource = ({
+  row,
+  accountCount,
+  services,
+}: {
+  row: TProviderRow;
+  accountCount: number;
+  services: IServiceSummary[];
+}): IProviderResource => ({
   id: row.id,
   name: row.name,
   phone:
     row.countryPrefix && row.phone ? { countryPrefix: row.countryPrefix, number: row.phone } : null,
   note: row.note,
   accountCount,
+  services,
   createdAt: row.createdAt.toISOString(),
 });
 
@@ -104,12 +116,47 @@ const selectProviders = (db: TDb, businessId: string, id?: string) =>
     .groupBy(provider.id)
     .orderBy(provider.nameKey);
 
+/**
+ * Qué servicios vende cada proveedor, sacado de sus cuentas: un par proveedor-servicio por
+ * fila, sin repetir. Todo el negocio en una consulta (o solo el proveedor `id`).
+ */
+const selectProviderServices = (db: TDb, businessId: string, id?: string) =>
+  db
+    .selectDistinct({ providerId: streamingAccount.providerId, service: SERVICE_SUMMARY_COLUMNS })
+    .from(streamingAccount)
+    .innerJoin(service, eq(service.id, streamingAccount.serviceId))
+    .where(
+      and(
+        eq(streamingAccount.businessId, businessId),
+        id ? eq(streamingAccount.providerId, id) : undefined,
+      ),
+    )
+    .orderBy(service.nameKey);
+
+/** Proveedores con sus cuentas y sus servicios, en dos consultas para todo el negocio. */
+const listProviderResources = async (db: TDb, businessId: string, id?: string) => {
+  const [rows, serviceRows] = await Promise.all([
+    selectProviders(db, businessId, id),
+    selectProviderServices(db, businessId, id),
+  ]);
+  const servicesByProvider = Map.groupBy(serviceRows, (serviceRow) => serviceRow.providerId);
+
+  return rows.map((row) => {
+    const providerServices = servicesByProvider.get(row.provider.id) ?? [];
+    return toProviderResource({
+      row: row.provider,
+      accountCount: row.accountCount,
+      services: providerServices.map((serviceRow) => serviceRow.service),
+    });
+  });
+};
+
 const findProviderResource = async (db: TDb, businessId: string, id: string) => {
-  const [row] = await selectProviders(db, businessId, id);
-  if (!row) {
+  const [resource] = await listProviderResources(db, businessId, id);
+  if (!resource) {
     throw notFound(PROVIDER_NOT_FOUND);
   }
-  return toProviderResource(row.provider, row.accountCount);
+  return resource;
 };
 
 const pluralizeAccounts = (total: number) => `${total} ${total === 1 ? "cuenta" : "cuentas"}`;
@@ -151,11 +198,7 @@ const assertNameAvailable = async (db: TDb, businessId: string, name: string, ex
  */
 export const providerRoutes = new Hono<TAppEnv>()
   .get(PROVIDER_ROUTES.PROVIDERS, requireAuth, requireBusiness, async (context) => {
-    const rows = await selectProviders(createDb(), context.var.business.id);
-    return ok(
-      context,
-      rows.map((row) => toProviderResource(row.provider, row.accountCount)),
-    );
+    return ok(context, await listProviderResources(createDb(), context.var.business.id));
   })
 
   .post(
@@ -182,7 +225,7 @@ export const providerRoutes = new Hono<TAppEnv>()
         })
         .returning();
 
-      return ok(context, toProviderResource(created!, 0), 201);
+      return ok(context, toProviderResource({ row: created!, accountCount: 0, services: [] }), 201);
     },
   )
 

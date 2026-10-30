@@ -4,6 +4,7 @@
  * aparte. Ver `docs/planes/03-inventario.md`.
  */
 import type { IPhone } from "./phones";
+import type { IServiceSummary } from "./services";
 
 export const PROVIDER_NAME_MIN_LENGTH = 2;
 export const PROVIDER_NAME_MAX_LENGTH = 60;
@@ -17,6 +18,8 @@ export interface IProviderResource {
   note: string | null;
   /** Cuántas cuentas se le compraron. Con alguna, no se puede eliminar. */
   accountCount: number;
+  /** Lo que vende, sacado de sus cuentas: cada servicio una vez, por nombre. */
+  services: IServiceSummary[];
   createdAt: string;
 }
 

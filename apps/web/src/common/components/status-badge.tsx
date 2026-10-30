@@ -1,4 +1,4 @@
-import Badge from "./badge";
+import { Badge } from "@yiya/ui/components/badge";
 
 interface IStatusBadgeProps {
   isActive: boolean;
@@ -13,6 +13,6 @@ export default function StatusBadge({
   inactiveLabel = "Inactivo",
 }: IStatusBadgeProps) {
   return (
-    <Badge tone={isActive ? "primary" : "neutral"}>{isActive ? activeLabel : inactiveLabel}</Badge>
+    <Badge color={isActive ? "primary" : "neutral"}>{isActive ? activeLabel : inactiveLabel}</Badge>
   );
 }

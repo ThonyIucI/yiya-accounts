@@ -132,28 +132,61 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
   copia el bloque listo para WhatsApp
   (`modules/accounts/utils/access-text.ts`):
   `📺 *CUENTA: NETFLIX*` / `📧 Correo: …` / `🔑 Contraseña: …`.
+- **Un número** (`PhoneValue`, `common/components/phone-value.tsx`, 2026-10-30): bandera y
+  número sin prefijo; se copia completo, con prefijo, con las dos reglas de arriba. Sin
+  número, «—».
+
+## Personas y servicios (acordado 2026-10-30)
+
+- **Una persona** (proveedor, cliente) se identifica con sus **iniciales**, nunca con un
+  ícono genérico: `InitialsAvatar` (`common/components/initials-avatar.tsx`), círculo de
+  40 px. «Yeremi Vil» → «YV», «Alain» → «A». Proveedores en el color primario; los clientes
+  llevarán un color por nombre (paso 4a).
+- **WhatsApp** (`WhatsAppButton`, `common/components/whatsapp-button.tsx`): botón verde
+  que abre el chat, en la cabecera de la card al lado del `⋯` (donde cuentas tiene
+  enviar); con borde en la tabla. Es lo único que abre el chat. Sin número, no se muestra.
+- **Varios servicios** (`ServiceAvatarStack`, `modules/services/components/`): los logos
+  en círculos de 24 px, encimados, hasta 4 y «+N». El nombre va en el tooltip y para el
+  lector de pantalla, no escrito.
+- El servicio dentro de otra cosa (cuenta, proveedor, alquiler) viaja siempre como
+  `IServiceSummary` (id, nombre y link de la imagen).
 
 ## Vencimientos (acordado 2026-10-22, `modules/accounts/components/expiry-label.tsx`)
 
 - Cuatro estados: **vencida** (rojo), **vence hoy** (naranja), **por vencer** (amarillo,
-  faltan 1 o 2 días) y **al día**. Colores propios (`--status-expired`, `--status-today`,
-  `--status-soon`), oscuros en modo claro para pasar 4.5:1 sobre blanco **y** sobre el gris de
-  la cabecera; `--destructive` no llega como texto.
+  faltan 1 o 2 días) y **al día** (verde). Los tokens nombran el color (`--orange`,
+  `--yellow`, `--destructive-on-muted` para el rojo como texto), oscuros en modo claro para
+  pasar 4.5:1 sobre blanco **y** sobre el gris de la cabecera; `--destructive` no llega como
+  texto. Qué color lleva cada estado está **solo** en `modules/accounts/utils/expiry.ts`
+  (`EXPIRY_COLORS`, `EXPIRY_TEXT_CLASSES`).
 - Un componente por lugar:
   - **Card de celular:** `ExpiryNotice`, un aviso en la cabecera solo si hace falta
-    («● Venció el 06-set»; de otro año, «● Venció en oct-2025»), en 12 px. Al día no dice
+    («● Venció el 06-sep»; de otro año, «● Venció en oct-2025»), en 12 px. Al día no dice
     nada.
-  - Los meses van en 3 letras y septiembre es «set», como en Perú (acordado 2026-10-22).
+  - Los meses van en 3 letras y septiembre es «sep» (acordado 2026-10-22).
   - Los `Badge` van en 12 px.
   - **Tabla y detalle:** `ExpiryDate`, la fecha («18 nov 2026») pintada según el estado; al
     pasar el mouse, «Vence en 2 días».
   - **Encabezado del detalle:** `ExpiryBadge` al lado del nombre: Vencida · Por vencer · Al día.
   - **A la derecha del nombre, en la card y la tabla:** `ExpiryIcon` (acordado 2026-10-22):
     check verde (al día), círculo con x rojo (venció), triángulo naranja (vence hoy),
-    reloj amarillo (1 o 2 días), círculo con «−» gris (sin compras). El ícono gris de «no
+    reloj amarillo (1 o 2 días), círculo punteado gris (sin compras). El ícono gris de «no
     alquilada» llega con los alquileres (paso 4b).
-- Las píldoras de estado son `Badge` (`common/components/badge.tsx`), con `tone`; nunca
-  clases sueltas.
+- Las píldoras de estado son `Badge`; nunca clases sueltas (ver «Badge» abajo).
+
+## Badge (acordado 2026-10-30, `packages/ui/src/components/badge.tsx`)
+
+- **Copiado del saas** (`front/src/components/ui/badge.tsx`): `color × variant`, como el
+  `Button`.
+  - `color`: `primary` · `neutral` · `success` · `destructive` · `orange` · `yellow`.
+  - `variant`: `soft` (por defecto: fondo del color al 15 %) · `solid` · `outline` · `ghost`.
+  - `size`: `md` (12 px, por defecto) · `lg` (14 px). Sin el `sm` del saas, que va en 10 px.
+- **Los tonos de un componente genérico nombran un color, nunca una funcionalidad**: `orange`,
+  no `today`. El significado («vence hoy es naranja») lo pone el módulo que lo usa.
+- **No cargar una cabecera con dos manchas del mismo color**: si ya hay un avatar primario,
+  el dato de al lado va en texto gris, no en badge (proveedores, 2026-10-30).
+- Dónde se usa hoy: `StatusBadge` (activo / inactivo, en negocios) y `ExpiryBadge` (detalle de
+  la cuenta).
 - Precio y fechas de una compra siempre con `PurchaseFields`: precio arriba, fecha de compra
   y vencimiento lado a lado (`<input type="date">`, que abre el calendario del celular).
 
