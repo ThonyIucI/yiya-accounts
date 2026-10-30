@@ -29,7 +29,7 @@ interface IAccountCardProps {
  * Card de una cuenta (acordado 2026-10-13, ajustado 2026-10-22):
  * - **Cabecera** (fondo gris, como las cards de id-pos): logo, **el servicio como título**,
  *   el proveedor y, solo si hace falta, el aviso de vencimiento en color («● Venció el
- *   06-set», en 12 px). Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
+ *   06-sep», en 12 px). Tocarla abre el detalle. A la derecha, **enviar** (copia el acceso completo
  *   listo para WhatsApp), el switch y `⋯`; sin badge de «Activa».
  * - **Cuerpo:** correo y contraseña (oculta, con su ojo al lado de la etiqueta). Se copian
  *   **manteniéndolos presionados** (sin botones de copiar). Los perfiles, ocultos hasta los

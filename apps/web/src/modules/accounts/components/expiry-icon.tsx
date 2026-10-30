@@ -32,7 +32,7 @@ interface IExpiryIconProps {
 /**
  * El estado de la cuenta como ícono, a la derecha de su nombre (acordado 2026-10-22):
  * check verde si está al día, círculo con x rojo si venció, triángulo naranja si vence
- * hoy, reloj amarillo si faltan 1 o 2 días y círculo con «−» gris si no tiene compras. El
+ * hoy, reloj amarillo si faltan 1 o 2 días y círculo punteado gris si no tiene compras. El
  * texto va en el `title` y para el lector de pantalla.
  *
  * PENDIENTE (paso 4b): el ícono gris de «no alquilada» se agrega con los alquileres; hoy no

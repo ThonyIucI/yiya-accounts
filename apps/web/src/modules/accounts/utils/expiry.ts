@@ -17,11 +17,11 @@ export const EXPIRY_TEXT_CLASSES: Record<TExpiryStatus, string> = {
 /** El estado con «hoy» en Perú. */
 export const expiryOf = (expiresOn: string): IExpiry => getExpiry(expiresOn, todayInLima());
 
-/* «el 06-set» si es de este año; «en oct-2025» si no (un mes no lleva «el»). */
+/* «el 06-sep» si es de este año; «en oct-2025» si no (un mes no lleva «el»). */
 const whenText = (expiresOn: string): string =>
   `${isCurrentYear(expiresOn) ? "el" : "en"} ${formatCompactDate(expiresOn)}`;
 
-/** «Venció el 06-set» · «Venció en oct-2025» · «Vence hoy» · «Vence mañana» · «Vence en 2 días» · «Vence el 18-nov». */
+/** «Venció el 06-sep» · «Venció en oct-2025» · «Vence hoy» · «Vence mañana» · «Vence en 2 días» · «Vence el 18-nov». */
 export const describeExpiry = (expiresOn: string, expiry: IExpiry): string => {
   switch (expiry.status) {
     case "expired":

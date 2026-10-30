@@ -8,7 +8,7 @@ interface IExpiryNoticeProps {
 }
 
 /**
- * El aviso de la cabecera de la card (acordado 2026-10-22): «● Venció el 06-set» en
+ * El aviso de la cabecera de la card (acordado 2026-10-22): «● Venció el 06-sep» en
  * rojo, «● Vence hoy» en naranja, «● Vence mañana» en amarillo. **Al día no dice nada**: la
  * card no lleva la fecha, que está en la tabla y en el detalle.
  */
