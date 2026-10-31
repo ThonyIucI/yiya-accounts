@@ -13,13 +13,22 @@ import SearchInput from "@/common/components/search-input";
 import StickyToolbar from "@/common/components/sticky-toolbar";
 import { useBoolean } from "@/common/hooks/use-boolean";
 import { usePagination } from "@/common/hooks/use-pagination";
+import CustomerDetailPanel from "@/modules/customers/components/customer-detail-panel";
 import CustomerFormModal from "@/modules/customers/components/customer-form-modal";
 import CustomerMobileList from "@/modules/customers/components/customer-mobile-list";
 import CustomerTable from "@/modules/customers/components/customer-table";
 import { useDeleteCustomer } from "@/modules/customers/hooks/use-delete-customer";
 import { useListCustomers } from "@/modules/customers/hooks/use-list-customers";
 
+interface ICustomersSearch {
+  /** El cliente abierto en el detalle lateral: así se puede recargar o compartir el link. */
+  cliente?: string;
+}
+
 export const Route = createFileRoute("/_app/clientes")({
+  validateSearch: (search: Record<string, unknown>): ICustomersSearch => ({
+    cliente: typeof search.cliente === "string" ? search.cliente : undefined,
+  }),
   component: CustomersPage,
 });
 
@@ -49,10 +58,12 @@ function CustomersPage() {
   const ListCustomers = useListCustomers();
   const DeleteCustomer = useDeleteCustomer();
   const showForm = useBoolean();
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const [editTarget, setEditTarget] = useState<ICustomerResource | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<ICustomerResource | null>(null);
-  const [search, setSearch] = useState("");
+  const [term, setTerm] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -64,17 +75,23 @@ function CustomersPage() {
   const { customers } = ListCustomers;
   const isLoading = ListCustomers.loading && customers.length === 0;
 
-  const term = search.trim().toLowerCase();
+  /* Se busca en la lista ya cargada: abrir un link con `?cliente=` no pide nada más. */
+  const openCustomer = customers.find((item) => item.id === search.cliente) ?? null;
+
+  const normalizedTerm = term.trim().toLowerCase();
   const visible = customers
-    .filter((customer) => !term || matchesSearch(customer, term))
+    .filter((customer) => !normalizedTerm || matchesSearch(customer, normalizedTerm))
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
   const pager = usePagination(visible, { initialPageSize: PAGE_SIZE_OPTIONS[0] });
   const hasContent = !isLoading && visible.length > 0;
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearch(event.target.value);
+    setTerm(event.target.value);
     pager.resetPage();
   };
+
+  const openDetail = (customer: ICustomerResource) => navigate({ search: { cliente: customer.id } });
+  const closeDetail = () => navigate({ search: {} });
 
   const openCreate = () => {
     setEditTarget(undefined);
@@ -93,6 +110,9 @@ function CustomersPage() {
     const deleted = await DeleteCustomer.handler(deleteTarget);
     if (deleted) {
       ListCustomers.onRemove(deleted.id);
+      if (search.cliente === deleted.id) {
+        closeDetail();
+      }
     }
     setDeleteTarget(null);
   };
@@ -138,7 +158,7 @@ function CustomersPage() {
             <SearchInput
               placeholder="Buscar cliente…"
               aria-label="Buscar cliente por nombre, número, usuario o nota"
-              value={search}
+              value={term}
               onChange={handleSearchChange}
             />
           </div>
@@ -159,7 +179,7 @@ function CustomersPage() {
       )}
 
       {!isLoading && customers.length > 0 && visible.length === 0 && (
-        <EmptyState icon={Search} title={`Sin resultados para "${search.trim()}"`} />
+        <EmptyState icon={Search} title={`Sin resultados para "${term.trim()}"`} />
       )}
 
       {(isLoading || visible.length > 0) && (
@@ -175,18 +195,28 @@ function CustomersPage() {
             customers={pager.pagedItems}
             isLoading={isLoading}
             buildActions={buildActions}
+            onOpen={openDetail}
             footer={hasContent ? pagination : undefined}
           />
           <CustomerMobileList
             customers={pager.pagedItems}
             isLoading={isLoading}
             buildActions={buildActions}
+            onOpen={openDetail}
           />
           {hasContent && (
             <div className="rounded-xl bg-card px-4 py-3 shadow-card md:hidden">{pagination}</div>
           )}
         </>
       )}
+
+      {/* Editar desde acá actualiza la lista, y el panel lee de la lista: se refresca solo. */}
+      <CustomerDetailPanel
+        customer={openCustomer}
+        onEdit={openEdit}
+        onDelete={setDeleteTarget}
+        onClose={closeDetail}
+      />
 
       <CustomerFormModal
         open={showForm.active}

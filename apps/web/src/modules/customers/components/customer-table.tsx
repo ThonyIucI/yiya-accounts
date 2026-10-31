@@ -23,15 +23,23 @@ interface ICustomerTableProps {
   customers: ICustomerResource[];
   isLoading: boolean;
   buildActions: (customer: ICustomerResource) => IRowAction[];
+  onOpen: (customer: ICustomerResource) => void;
   /** El paginado, dentro de la card (como el saas). */
   footer?: ReactNode;
 }
 
 /**
  * Tabla de escritorio. Oculta en celular: allí se usa `CustomerMobileList`. Cliente ·
- * WhatsApp · acciones con borde; desde el 4b suma Servicios y Alquileres. Sin nota.
+ * WhatsApp · acciones con borde; desde el 4b suma Servicios y Alquileres. Sin nota. Tocar
+ * la fila abre el detalle; copiar, WhatsApp y `⋯` no.
  */
-export default function CustomerTable({ customers, isLoading, buildActions, footer }: ICustomerTableProps) {
+export default function CustomerTable({
+  customers,
+  isLoading,
+  buildActions,
+  onOpen,
+  footer,
+}: ICustomerTableProps) {
   return (
     <div className="hidden overflow-hidden rounded-md bg-card shadow-card md:block">
       <Table>
@@ -54,7 +62,11 @@ export default function CustomerTable({ customers, isLoading, buildActions, foot
                 </TableRow>
               ))
             : customers.map((customer) => (
-                <TableRow key={customer.id}>
+                <TableRow
+                  key={customer.id}
+                  className="cursor-pointer"
+                  onClick={() => onOpen(customer)}
+                >
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-3">
                       <InitialsAvatar name={customer.name} color={avatarColorOf(customer.name)} />

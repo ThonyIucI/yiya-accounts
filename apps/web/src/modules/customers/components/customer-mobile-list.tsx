@@ -14,10 +14,16 @@ interface ICustomerMobileListProps {
   customers: ICustomerResource[];
   isLoading: boolean;
   buildActions: (customer: ICustomerResource) => IRowAction[];
+  onOpen: (customer: ICustomerResource) => void;
 }
 
 /** Cards en celular. Oculta desde `md`: allí se usa `CustomerTable`. */
-export default function CustomerMobileList({ customers, isLoading, buildActions }: ICustomerMobileListProps) {
+export default function CustomerMobileList({
+  customers,
+  isLoading,
+  buildActions,
+  onOpen,
+}: ICustomerMobileListProps) {
   const prefersReducedMotion = useReducedMotion();
 
   if (isLoading) {
@@ -48,7 +54,11 @@ export default function CustomerMobileList({ customers, isLoading, buildActions 
               delay: prefersReducedMotion ? 0 : Math.min(index, MAX_STAGGERED) * STAGGER_SECONDS,
             }}
           >
-            <CustomerCard customer={customer} actions={buildActions(customer)} />
+            <CustomerCard
+              customer={customer}
+              actions={buildActions(customer)}
+              onOpen={() => onOpen(customer)}
+            />
           </motion.li>
         ))}
       </AnimatePresence>

@@ -11,6 +11,7 @@ import CustomerWhatsAppValue from "./customer-whatsapp-value";
 interface ICustomerCardProps {
   customer: ICustomerResource;
   actions: IRowAction[];
+  onOpen: () => void;
 }
 
 /**
@@ -19,12 +20,28 @@ interface ICustomerCardProps {
  *   oct 2026». A la derecha, WhatsApp (abre el chat) y `⋯`.
  * - **Cuerpo:** «WhatsApp», el número o el usuario. Desde el 4b, «Servicios» al lado.
  * - **Sin nota:** se ve solo en el detalle.
+ *
+ * La cabecera abre el detalle, como en cuentas: el cuerpo no, porque ahí se mantiene
+ * presionado el número para copiarlo.
  */
-export default function CustomerCard({ customer, actions }: ICustomerCardProps) {
+export default function CustomerCard({ customer, actions, onOpen }: ICustomerCardProps) {
   return (
     <article className="overflow-hidden rounded-2xl bg-card shadow-card">
       <div className="flex items-center justify-between gap-2 bg-muted px-3 py-3">
-        <div className="flex min-w-0 items-center gap-3">
+        {/* Toda la cabecera abre el detalle; WhatsApp y `⋯` no. */}
+        <div
+          role="button"
+          tabIndex={0}
+          aria-label={`Ver a ${customer.name}`}
+          onClick={onOpen}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onOpen();
+            }
+          }}
+          className="-m-1 flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-xl p-1"
+        >
           <InitialsAvatar name={customer.name} color={avatarColorOf(customer.name)} />
           <div className="min-w-0">
             <p className="truncate font-heading font-bold text-foreground">{customer.name}</p>
