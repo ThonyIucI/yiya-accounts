@@ -32,7 +32,34 @@ diseñan cuando lleguemos a alquileres, sin rehacer lo anterior.
    nota) y su detalle con lo que tiene alquilado. El módulo de alquileres es como **Ventas**
    de id-pos: se elige el cliente y se agregan perfiles.
 
+## Lo que se compra y lo que se vende, en vistas separadas (acordado 2026-10-22)
+
+**Cuentas** es lo que el negocio le compra al proveedor; **Alquileres** es lo que le vende
+al cliente. Los perfiles y su estado (libre, alquilado, a quién) **no vuelven a la vista de
+cuentas**: viven en Alquileres, para no mezclar las dos cosas ni cargar la card.
+
+Propuesta para revisar, tomada del reporte de órdenes de id-pos (`/reports/orders-v2`):
+
+- **Listado de alquileres**, una fila por alquiler como una orden: código (`AL-000012`),
+  cliente, servicios (logos de sus líneas), monto total, a cobrar, vence (la línea que vence
+  primero, con los colores de las cuentas) y fecha. En celular, la card de orden de id-pos:
+  fecha arriba, cliente como título, «servicios · código» debajo y monto, a cobrar y vence
+  en dos columnas.
+- **Enviar (▷)**, como en id-pos: copia el mensaje con el acceso de cada línea (correo,
+  contraseña, perfil, PIN y vencimiento), listo para WhatsApp.
+- **`⋯`:** Renovar, Cobrar y Liberar.
+- **Detalle con pestañas**, como el de la orden: *Perfiles* (las líneas), *Cobros*, *Datos*.
+- **Filtros:** fecha, estado (vigente, por vencer, vencido), servicio y cliente. Lo de id-pos
+  que no aplica (caja, comprobantes, moneda, zonas, vendedor) no se copia.
+- **«Seleccionar» en lote** queda para después (por ejemplo, mandar varios avisos juntos).
+- Los perfiles se **eligen** al armar el alquiler: el select muestra solo los libres de ese
+  servicio, agrupados por cuenta. El nombre y el PIN se siguen editando en el detalle de la
+  cuenta, en una pestaña *Perfiles* aparte (la configuración es de la cuenta).
+
 ## Por definir al llegar a esta etapa
+
+- ¿Se registra **lo cobrado** (pagado / por cobrar, como «Monto a cobrar» de id-pos) o se
+  asume que se cobra al alquilar?
 
 - Renovar una línea: ¿crea un alquiler nuevo con ese perfil o alarga la línea? (Propuesta:
   un alquiler nuevo, igual que las compras de la cuenta, así queda el historial de lo cobrado.)

@@ -35,6 +35,10 @@ cada tema está en `docs/` ([índice](docs/README.md)); acá solo lo que no se p
   `drizzle-kit generate`.
 - **Nunca borrar ni recomendar borrar una base**, local o de producción (acordado
   2026-10-13): si una migración falla, se arregla conservando los datos.
+- **Por funcionalidad, no por capa** (acordado 2026-10-31): cada paso se parte en porciones
+  (p. ej. primero el CRUD en back **y** front), Thony la prueba y recién se sigue con la
+  siguiente. Nunca todo el back y luego todo el front: mejor varias cosas bien hechas que
+  una sola mal hecha.
 - **Thony corre todos los comandos.** Claude escribe el código y dice qué correr, aclarando
   qué no está verificado.
 

@@ -2,7 +2,6 @@ import { createDb } from "@yiya/db";
 import { streamingAccount } from "@yiya/db/schema/accounts";
 import { provider } from "@yiya/db/schema/providers";
 import { service } from "@yiya/db/schema/services";
-import { PHONE_MAX_DIGITS, isKnownCountryPrefix, phoneError } from "@yiya/shared/phones";
 import {
   type IProviderResource,
   PROVIDER_NAME_MAX_LENGTH,
@@ -18,6 +17,7 @@ import { z } from "zod";
 import type { TAppEnv } from "../lib/app-env";
 import { conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
+import { phoneSchema, toPhoneColumns, toPhoneResource } from "../lib/phone-input";
 import { ok } from "../lib/response";
 import { SERVICE_SUMMARY_COLUMNS } from "../lib/service-summary";
 import { validateJson } from "../lib/validator";
@@ -31,7 +31,6 @@ export const PROVIDER_ROUTES = {
 
 const PROVIDER_NOT_FOUND = "No encontramos ese proveedor.";
 const NO_CHANGES_MESSAGE = "No hay cambios para guardar.";
-const PHONE_DIGITS_MESSAGE = "El número solo lleva dígitos.";
 
 const nameSchema = z
   .string("Escribe el nombre del proveedor.")
@@ -39,25 +38,6 @@ const nameSchema = z
   .min(PROVIDER_NAME_MIN_LENGTH, "El nombre del proveedor es demasiado corto.")
   .max(PROVIDER_NAME_MAX_LENGTH, "El nombre del proveedor es demasiado largo.")
   .transform((value) => value.replace(/\s+/g, " "));
-
-/* `null` = sin teléfono. Se valida contra el país: un número de Perú no sirve con +1. */
-const phoneSchema = z
-  .object({
-    countryPrefix: z
-      .string("Elige el país del número.")
-      .refine(isKnownCountryPrefix, "Elige el país del número."),
-    number: z
-      .string(PHONE_DIGITS_MESSAGE)
-      .regex(/^\d+$/, PHONE_DIGITS_MESSAGE)
-      .max(PHONE_MAX_DIGITS, "El número es demasiado largo."),
-  })
-  .superRefine((phone, context) => {
-    const message = phoneError(phone.countryPrefix, phone.number);
-    if (message) {
-      context.addIssue({ code: "custom", message });
-    }
-  })
-  .nullable();
 
 /* Vacío o `null` = sin nota. */
 const noteSchema = z
@@ -85,7 +65,6 @@ const updateProviderSchema = z
 
 type TDb = ReturnType<typeof createDb>;
 type TProviderRow = typeof provider.$inferSelect;
-type TPhoneInput = z.infer<typeof phoneSchema>;
 
 const toProviderResource = ({
   row,
@@ -98,8 +77,7 @@ const toProviderResource = ({
 }): IProviderResource => ({
   id: row.id,
   name: row.name,
-  phone:
-    row.countryPrefix && row.phone ? { countryPrefix: row.countryPrefix, number: row.phone } : null,
+  phone: toPhoneResource(row),
   note: row.note,
   accountCount,
   services,
@@ -160,12 +138,6 @@ const findProviderResource = async (db: TDb, businessId: string, id: string) => 
 };
 
 const pluralizeAccounts = (total: number) => `${total} ${total === 1 ? "cuenta" : "cuentas"}`;
-
-/* El teléfono viaja como un objeto y se guarda en dos columnas. */
-const toPhoneColumns = (phone: TPhoneInput) => ({
-  countryPrefix: phone?.countryPrefix ?? null,
-  phone: phone?.number ?? null,
-});
 
 /** Un proveedor de **este** negocio. El de otro negocio da 404, como si no existiera. */
 const findProvider = async (db: TDb, businessId: string, id: string) => {

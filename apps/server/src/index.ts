@@ -14,6 +14,7 @@ import { AppError } from "./lib/errors";
 import { fail } from "./lib/response";
 import { accountRoutes } from "./routes/accounts";
 import { businessRoutes } from "./routes/businesses";
+import { customerRoutes } from "./routes/customers";
 import { healthRoutes } from "./routes/health";
 import { internalRoutes } from "./routes/internal";
 import { meRoutes } from "./routes/me";
@@ -70,6 +71,7 @@ app
   .route("/", accountRoutes)
   .route("/", profileRoutes)
   .route("/", purchaseRoutes)
+  .route("/", customerRoutes)
   .route("/", internalRoutes);
 
 app.notFound((context) => fail(context, "Recurso no encontrado.", 404));

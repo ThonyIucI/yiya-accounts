@@ -42,6 +42,9 @@ dayjs.updateLocale(APP_LOCALE, {
 export const formatShortDate = (date: string | Date): string =>
   dayjs(date).format("DD MMM YYYY");
 
+/** `"2026-10-22"` → `"oct 2026"`. Para «Cliente desde oct 2026». */
+export const formatMonthYear = (date: string | Date): string => dayjs(date).format("MMM YYYY");
+
 /** Si la fecha es de este año: decide entre «06-sep» y «oct-2025». */
 export const isCurrentYear = (date: string | Date): boolean => dayjs(date).year() === dayjs().year();
 

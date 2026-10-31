@@ -56,3 +56,6 @@ coverage
 .cache
 tmp
 temp
+
+# Volcados de la base (tienen hashes de contraseñas y sesiones): nunca al repo.
+apps/server/*.sql

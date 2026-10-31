@@ -1,4 +1,5 @@
 import {
+  Contact,
   KeyRound,
   LayoutDashboard,
   ShoppingCart,
@@ -17,6 +18,7 @@ import { EUserRole, type TUserRole } from "@yiya/shared/roles";
  */
 export type TNavPath =
   | "/dashboard"
+  | "/clientes"
   | "/cuentas"
   | "/servicios"
   | "/proveedores"
@@ -48,6 +50,7 @@ const DASHBOARD: INavItem = {
   shortLabel: "Panel",
   icon: LayoutDashboard,
 };
+const CUSTOMERS: INavItem = { to: "/clientes", label: "Clientes", shortLabel: "Clientes", icon: Contact };
 const ACCOUNTS: INavItem = { to: "/cuentas", label: "Cuentas", shortLabel: "Cuentas", icon: KeyRound };
 const SERVICES: INavItem = { to: "/servicios", label: "Servicios", shortLabel: "Servicios", icon: Tv };
 const PROVIDERS: INavItem = {
@@ -64,7 +67,11 @@ const BUSINESSES: INavItem = {
 };
 const USERS: INavItem = { to: "/usuarios", label: "Usuarios", shortLabel: "Usuarios", icon: Users };
 
-const APP_NAV: readonly INavItem[] = [DASHBOARD, ACCOUNTS, SERVICES, PROVIDERS];
+/*
+  Clientes entra provisorio como quinto botón. La barra nueva (Panel · Clientes · Cuentas ·
+  Alquileres) y el menú lateral del dueño son la porción de navegación del 4a.
+*/
+const APP_NAV: readonly INavItem[] = [DASHBOARD, CUSTOMERS, ACCOUNTS, SERVICES, PROVIDERS];
 
 /* Negocios y Usuarios no son del día a día: no van en la barra inferior (ver abajo). */
 const SUPERADMIN_NAV: readonly INavItem[] = [...APP_NAV, BUSINESSES, USERS];
@@ -75,6 +82,7 @@ const SUPERADMIN_NAV: readonly INavItem[] = [...APP_NAV, BUSINESSES, USERS];
  */
 const SUPERADMIN_SIDEBAR: readonly TSidebarEntry[] = [
   DASHBOARD,
+  CUSTOMERS,
   SERVICES,
   { label: "Compras", icon: ShoppingCart, items: [PROVIDERS, ACCOUNTS] },
   BUSINESSES,

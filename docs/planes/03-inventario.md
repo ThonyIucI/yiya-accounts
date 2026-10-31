@@ -213,7 +213,7 @@ negocio responde 404, como si no existiera.
 
 | Método y ruta | Qué hace |
 |---|---|
-| `GET /api/v1/providers` | Proveedores del negocio, con `accountCount` |
+| `GET /api/v1/providers` | Proveedores del negocio, con `accountCount` y `services` (lo que vende, sacado de sus cuentas) |
 | `POST /api/v1/providers` | Crea `{ name, phone?, note? }` → 201 |
 | `PATCH /api/v1/providers/:id` | Cambia `{ name?, phone?, note? }` |
 | `DELETE /api/v1/providers/:id` | Elimina. Con cuentas → 409 |
@@ -278,12 +278,20 @@ react-select.
 
 ### `/proveedores`
 
-- **Card:** nombre a la izquierda; `⋯` con «Editar» y «Eliminar» a la derecha; abajo el
-  WhatsApp y la nota (y «3 cuentas», cuando existan).
-- **El WhatsApp** se muestra con la bandera y el número sin prefijo. Al costado: copiar
-  (copia el número completo con prefijo) y el ícono de WhatsApp, que es lo único que abre
-  el chat (acordado 2026-10-13).
-- **Tabla:** Proveedor · WhatsApp · Cuentas · acciones.
+- **Card** (rehecha el 2026-10-30 con el formato de la de cuentas):
+  - **Cabecera gris:** avatar con las **iniciales** (un solo color, el primario), el nombre
+    y debajo «3 cuentas» en gris («Sin cuentas» si no tiene; en badge cargaba la cabecera
+    con dos manchas de primario). A la derecha, **WhatsApp**
+    (abre el chat; es lo único que lo abre) y `⋯` con «Editar» y «Eliminar».
+  - **Cuerpo, en dos columnas:** «Celular» (bandera y número sin prefijo; se copia
+    completo, con prefijo, **manteniéndolo presionado**) y «Servicios» (los logos de lo que
+    vende en círculos chicos, hasta 4 y «+N»; el nombre va en el tooltip). La nota debajo.
+- **Los servicios del proveedor** salen de sus cuentas: `GET /providers` trae
+  `services: IServiceSummary[]` (id, nombre y link de la imagen), sin repetir. Va el link, no
+  la imagen: el navegador guarda el PNG en caché. Guardarlos en localStorage se descartó
+  (2026-10-30): ahorra poco y deja logos viejos cuando cambian.
+- **Tabla:** Proveedor (iniciales y nombre) · Celular (con copiar a la izquierda) ·
+  Servicios · Cuentas · Nota · acciones con borde (WhatsApp y `⋯`).
 - **Modal crear / editar:** nombre, WhatsApp y nota.
 - **Eliminar:** sin cuentas, `ConfirmModal`; con cuentas, una modal con el mensaje de RF-05
   y un solo botón «Entendido».
@@ -303,7 +311,7 @@ react-select.
     abrir, un chip por perfil («P1»… «P5»).
   - **Vencimiento** (2026-10-22): **sin fecha ni fila «Vence»**. En la cabecera, debajo del
     proveedor, solo un aviso en color cuando hace falta, en 12 px como los badges: «● Venció
-    el 06-set» (rojo; si es de otro año, «● Venció en oct-2025», para no cargar la card),
+    el 06-sep» (rojo; si es de otro año, «● Venció en oct-2025», para no cargar la card),
     «● Vence hoy» (naranja), «● Vence mañana» / «● Vence en 2 días» (amarillo). Al día no
     dice nada. Sin compras, «Sin compras» en gris. El `⋯` lleva «Renovar».
   - **Perfiles ocultos** hasta los alquileres (2026-10-22, `ARE_PROFILES_SHOWN`): hoy todos

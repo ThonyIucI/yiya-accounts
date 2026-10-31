@@ -121,6 +121,11 @@ Lo que sigue es propio de Yiya.
 ## Base de datos
 
 - Esquema en `packages/db/src/schema/<tabla>.ts`.
+- **Tablas en plural** (acordado 2026-10-30): `customers`, `providers`. Solo las
+  intermedias van en singular (`business_service`). Las tablas de antes de este acuerdo
+  siguen en singular; pasarlas a plural es una migración aparte, que se renombra conservando
+  los datos (anotada en los refactors pendientes de la
+  [hoja de ruta](../negocio/hoja-de-ruta.md)).
 - Migraciones **solo** con `pnpm db:generate`, nunca SQL a mano. Se aplican con wrangler
   (ver [despliegue](despliegue.md)).
 - Escrituras de varias filas en `db.batch([...])`.

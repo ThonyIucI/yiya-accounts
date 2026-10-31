@@ -28,7 +28,7 @@ export default function ProviderCard({ provider, actions }: IProviderCardProps) 
       <div className="flex items-center justify-between gap-2 bg-muted px-3 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <InitialsAvatar name={provider.name} />
-          <div className="flsex space-x-2 min-w-0 space-y-0">
+          <div className="space-x-2 min-w-0 space-y-0">
             <p className="truncate font-heading font-bold text-foreground">{provider.name}</p>
             <span className="text-primary text-xs font-semibold">{formatAccountCount(provider.accountCount)}</span>
           </div>
