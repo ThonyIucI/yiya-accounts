@@ -2,11 +2,8 @@ import { cn } from "@yiya/ui/lib/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion } from "motion/react";
 
-import { EUserRole } from "@yiya/shared/roles";
-
 import { useChromeHidden } from "@/common/hooks/use-chrome-hidden";
-import { useNavItems } from "@/common/hooks/use-nav-items";
-import { useSessionRole } from "@/common/hooks/use-session-role";
+import { useHasSidebar, useNavItems } from "@/common/hooks/use-nav-items";
 
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
@@ -18,7 +15,7 @@ export default function Header() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   /* Los enlaces dependen del rol. */
   const navItems = useNavItems();
-  const hasSidebar = useSessionRole() === EUserRole.SUPERADMIN;
+  const hasSidebar = useHasSidebar();
   const isHidden = useChromeHidden();
 
   if (CHROMELESS_ROUTES.includes(pathname)) {
@@ -40,8 +37,8 @@ export default function Header() {
           </Link>
 
           {/*
-            En móvil los mismos enlaces están en la barra inferior, y en escritorio el
-            superadmin los tiene en su menú lateral: no se repiten acá.
+            En móvil están la barra inferior y el menú lateral, y en escritorio el menú
+            lateral fijo: no se repiten acá. Solo se ven en tablets angostas (`sm` a `md`).
           */}
           <nav
             className={cn(

@@ -1,5 +1,5 @@
 import { IconButton } from "@yiya/ui/components/icon-button";
-import { userRoleLabels } from "@yiya/shared/roles";
+import { EUserRole, userRoleLabels } from "@yiya/shared/roles";
 import { ChevronRight, LogOut, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -46,7 +46,8 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
           )}
         </div>
 
-        <BusinessSwitcher onChosen={onClose} onNavigate={onClose} />
+        {/* El dueño tiene un solo negocio: no hay a cuál cambiar. */}
+        {role === EUserRole.SUPERADMIN && <BusinessSwitcher onChosen={onClose} onNavigate={onClose} />}
       </div>
 
       <nav aria-label="Módulos" className="flex-1 overflow-y-auto px-3 pb-4">
@@ -69,13 +70,14 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
 }
 
 /**
- * Menú lateral del superadmin, como el de id-pos: arriba quién es y el select del negocio
- * en el que trabaja, luego los módulos. **Complementa** la barra inferior, no la reemplaza.
+ * Menú lateral, como el de id-pos: arriba quién es (y, para el superadmin, el select del
+ * negocio en el que trabaja), luego los módulos. **Complementa** la barra inferior, no la
+ * reemplaza: lo que no entra en la barra (Proveedores, Servicios) se abre desde acá.
  *
  * - Escritorio (`md:`): fijo a la izquierda; el layout le deja `md:pl-64`.
  * - Celular: panel que entra desde el borde con la pestaña `›`.
  *
- * El dueño todavía no lo tiene: le llegará cuando haya opciones que lo justifiquen.
+ * Lo tienen el dueño y el superadmin (acordado 2026-10-31).
  */
 export default function AppSidebar() {
   const [isOpen, setIsOpen] = useState(false);

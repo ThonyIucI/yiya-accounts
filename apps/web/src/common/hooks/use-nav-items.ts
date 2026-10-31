@@ -1,4 +1,8 @@
-import { navItemsForRole, quickAccessItemsForRole } from "@/common/constants/routes";
+import {
+  hasSidebarForRole,
+  navItemsForRole,
+  quickAccessItemsForRole,
+} from "@/common/constants/routes";
 import { useSessionRole } from "@/common/hooks/use-session-role";
 
 /**
@@ -7,5 +11,8 @@ import { useSessionRole } from "@/common/hooks/use-session-role";
  */
 export const useNavItems = () => navItemsForRole(useSessionRole());
 
-/** Los de la barra inferior: sin Negocios ni Usuarios, que van solo en el menú lateral. */
+/** Los de la barra inferior: solo lo más usado; el resto, en el menú lateral. */
 export const useQuickAccessItems = () => quickAccessItemsForRole(useSessionRole());
+
+/** Si la sesión tiene menú lateral (dueño y superadmin). */
+export const useHasSidebar = () => hasSidebarForRole(useSessionRole());

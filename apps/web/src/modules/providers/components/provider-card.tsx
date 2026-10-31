@@ -8,7 +8,6 @@ import RowActions, { type IRowAction } from "@/common/components/row-actions";
 import WhatsAppButton from "@/common/components/whatsapp-button";
 import { formatAccountCount } from "@/modules/providers/utils/account-count";
 import ServiceAvatarStack from "@/modules/services/components/service-avatar-stack";
-import { Badge } from "@yiya/ui/components/badge";
 
 interface IProviderCardProps {
   provider: IProviderResource;

@@ -5,7 +5,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { EUserRole } from "@yiya/shared/roles";
 
-import { useNavItems } from "@/common/hooks/use-nav-items";
+import { useHasSidebar, useNavItems } from "@/common/hooks/use-nav-items";
 import { useSessionRole } from "@/common/hooks/use-session-role";
 import AppSidebar from "@/components/app-sidebar";
 import BottomNav from "@/components/bottom-nav";
@@ -35,8 +35,10 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 function RootComponent() {
   /* El hueco para la barra inferior solo se reserva cuando la barra existe (hay sesión). */
   const hasBottomNav = useNavItems().length > 0;
-  /* Por ahora el menú lateral (y el cambio de negocio) es solo del superadmin. */
-  const hasSidebar = useSessionRole() === EUserRole.SUPERADMIN;
+  /* El menú lateral lo tienen el dueño y el superadmin (acordado 2026-10-31). */
+  const hasSidebar = useHasSidebar();
+  /* Cambiar de negocio sigue siendo solo del superadmin: el dueño tiene uno. */
+  const canSwitchBusiness = useSessionRole() === EUserRole.SUPERADMIN;
 
   return (
     <>
@@ -48,7 +50,7 @@ function RootComponent() {
         enableSystem
         storageKey="vite-ui-theme"
       >
-        <ActiveBusinessProvider isEnabled={hasSidebar}>
+        <ActiveBusinessProvider isEnabled={canSwitchBusiness}>
           {/* En escritorio el menú lateral va `fixed`: el resto se corre su ancho. */}
           <div className={cn("grid min-h-svh grid-rows-[auto_1fr]", hasSidebar && "md:pl-64")}>
             <Header />
