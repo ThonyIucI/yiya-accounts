@@ -105,6 +105,9 @@ const sharedSelectProps = (isInvalid: boolean | undefined) =>
       clearIndicator: () => "text-muted-foreground hover:text-foreground",
       menu: () => "mt-2 overflow-hidden rounded-2xl bg-popover p-1.5 shadow-elevated",
       menuList: () => "max-h-64",
+      /* Opciones agrupadas (p. ej. los perfiles por cuenta): el título del grupo, chico y gris. */
+      group: () => "pt-1",
+      groupHeading: () => "truncate px-3 pt-2 pb-1 text-xs font-bold text-muted-foreground",
       option: ({ isFocused, isSelected }) =>
         cn(
           "cursor-pointer rounded-lg px-3 py-2.5 text-sm",

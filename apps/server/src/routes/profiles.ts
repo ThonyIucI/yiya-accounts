@@ -12,6 +12,7 @@ import { z } from "zod";
 import { type TDb, toProfileResource } from "../lib/account-queries";
 import type { TAppEnv } from "../lib/app-env";
 import { badRequest, notFound } from "../lib/errors";
+import { assertProfileWithoutRentals } from "../lib/rental-guards";
 import { ok } from "../lib/response";
 import { validateJson } from "../lib/validator";
 import { requireBusiness } from "../middleware/require-business";
@@ -84,13 +85,14 @@ export const profileRoutes = new Hono<TAppEnv>()
     },
   )
 
-  /* Desde el paso 4, tampoco si el perfil está alquilado. */
+  /* Tampoco si el perfil tiene alquileres (RF-30 del 4b). */
   .delete(PROFILE_ROUTES.PROFILE, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;
     const db = createDb();
 
     const current = await findProfile(db, businessId, id);
+    await assertProfileWithoutRentals(db, id);
     const siblings = await db
       .select({ total: count() })
       .from(profile)

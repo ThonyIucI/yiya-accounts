@@ -31,18 +31,19 @@ de cards genéricas.
 ## Menú lateral (acordado 2026-10-12, `components/app-sidebar.tsx`)
 
 Como el de id-pos. **Complementa** la barra inferior, que se queda para todos como acceso
-rápido con los módulos del negocio. Negocios y Usuarios van **solo en el menú lateral**, que
-tiene más espacio: con seis botones la barra inferior no entra en un celular (acordado
-2026-10-13). Por ahora **solo lo tiene el superadmin**; el dueño lo tendrá cuando haya opciones
-que lo justifiquen.
+rápido. **Lo tienen el dueño y el superadmin** (acordado 2026-10-31).
 
-- **Arriba:** nombre del usuario y, debajo, el select del negocio. Siempre hay uno elegido
-  (por defecto, el primero de la lista); solo falta cuando no existe ningún negocio.
+- **Barra inferior** (acordado 2026-10-30): solo lo más usado, **Panel · Clientes ·
+  Cuentas** (en el 4b se suma Alquileres). Lo demás (Proveedores, Servicios y, para el
+  superadmin, Negocios y Usuarios) se abre desde el menú lateral.
+- **Arriba:** nombre del usuario y su rol. Para el superadmin, debajo, el select del
+  negocio: siempre hay uno elegido (por defecto, el primero); solo falta cuando no existe
+  ningún negocio. El dueño tiene un solo negocio y no ve el select.
 - **Luego:** los módulos.
 - **Submenús** (acordado 2026-10-13, `components/sidebar-nav.tsx`): los módulos que van
-  juntos se agrupan. Hoy: Panel · Servicios · **Compras** (Proveedores, Cuentas) ·
-  Negocios · Usuarios. El grupo se abre solo si se está en uno de sus módulos, y se puede
-  cerrar. La barra inferior **no** lleva grupos: sigue plana, como acceso rápido. La
+  juntos se agrupan. Dueño: Panel · Clientes · **Compras** (Proveedores, Cuentas) ·
+  Servicios. El superadmin suma Negocios · Usuarios. El grupo se abre solo si se está en
+  uno de sus módulos, y se puede cerrar. La barra inferior **no** lleva grupos: sigue plana, como acceso rápido. La
   estructura está en `sidebarEntriesForRole` (`common/constants/routes.ts`).
 - **Al pie:** salir.
 - **En celular**, un panel que se abre desde el borde. **En escritorio**, fijo a la

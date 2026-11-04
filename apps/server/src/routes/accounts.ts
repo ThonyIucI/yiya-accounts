@@ -21,6 +21,7 @@ import type { TAppEnv } from "../lib/app-env";
 import { badRequest, conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
 import { purchaseSchema } from "../lib/purchase-input";
+import { assertAccountWithoutRentals } from "../lib/rental-guards";
 import { ok } from "../lib/response";
 import { validateJson } from "../lib/validator";
 import { requireBusiness } from "../middleware/require-business";
@@ -259,13 +260,14 @@ export const accountRoutes = new Hono<TAppEnv>()
     },
   )
 
-  /* Sus perfiles y sus compras se van con ella (FK `cascade`). Desde el paso 4, no si hay alquileres. */
+  /* Sus perfiles y sus compras se van con ella (FK `cascade`), pero no si hay alquileres (RF-30 del 4b). */
   .delete(ACCOUNT_ROUTES.ACCOUNT, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;
     const db = createDb();
 
     await findAccountRow(db, businessId, id);
+    await assertAccountWithoutRentals(db, id);
     await db
       .delete(streamingAccount)
       .where(and(eq(streamingAccount.id, id), eq(streamingAccount.businessId, businessId)));

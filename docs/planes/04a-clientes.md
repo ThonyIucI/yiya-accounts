@@ -228,9 +228,9 @@ seguir ([CLAUDE.md](../../CLAUDE.md)).
 | # | Porción | Estado |
 |---|---|---|
 | 1 | **CRUD:** tabla `customers`, API, tests, `/clientes` con tabla, card, modal y eliminar. Clientes entra provisorio como quinto botón de la barra | Probada por Thony (2026-10-31) |
-| 2 | **Detalle lateral** (RF-06, `/clientes?cliente=<id>`) con la nota. En la card lo abre la cabecera, como en cuentas: el cuerpo se mantiene presionado para copiar | En código (2026-10-31); falta probar |
-| 3 | **Navegación:** menú lateral del dueño y barra Panel · Clientes · Cuentas | — |
-| 4 | **Select de clientes** con «Crear «…»» (RF-07) | Puede esperar al 4b, que es quien lo usa |
+| 2 | **Detalle lateral** (RF-06, `/clientes?cliente=<id>`) con la nota. En la card lo abre la cabecera, como en cuentas: el cuerpo se mantiene presionado para copiar | Probada por Thony (2026-10-31) |
+| 3 | **Navegación:** menú lateral del dueño y barra Panel · Clientes · Cuentas | En código (2026-10-31); falta probar |
+| 4 | **Select de clientes** con «Crear «…»» (RF-07) | Pasa a la porción 1 del [4b](04b-alquileres.md) (2026-10-31) |
 
 ## 11. Al terminar
 

@@ -2,8 +2,17 @@
 
 ## Regla central (acordada)
 
-Al crear un alquiler, sus perfiles pasan a **no disponibles**. Al liberarlo, vuelven a
-**disponibles**. Nunca puede quedar un perfil alquilado a dos clientes a la vez.
+Al crear un alquiler, sus perfiles pasan a **ocupados**. Al liberarlo, vuelven a
+**libres**.
+
+**Un perfil se puede compartir** (Thony, 2026-10-31; reemplaza «nunca dos clientes a la
+vez»): cuando hay mucha demanda, un mismo perfil se presta por un tiempo a más de un
+cliente, y una cuenta de 5 perfiles puede tener más de 5 clientes. El sistema lo avisa al
+elegir el perfil, pero **no lo impide**.
+
+**Cada perfil alquilado vence por su lado** (Thony, 2026-10-31): un cliente puede tener
+perfiles de distintas cuentas, alquilados en distintos días, y cada uno lleva su propio
+contador.
 
 ## Planes (acordado 2026-10-12, se implementa después)
 
@@ -31,6 +40,15 @@ diseñan cuando lleguemos a alquileres, sin rehacer lo anterior.
 3. **Clientes antes que alquileres.** Cada cliente final tiene su ficha (nombre, WhatsApp,
    nota) y su detalle con lo que tiene alquilado. El módulo de alquileres es como **Ventas**
    de id-pos: se elige el cliente y se agregan perfiles.
+
+## El cliente es la orden (Thony, 2026-10-31)
+
+Cada perfil alquilado es un **producto** de la orden del cliente: alquilarle otro perfil es
+agregar un producto. El listado de alquileres va **una fila por cliente** (nombre, logos de
+sus servicios con su estado y su vencimiento más cercano), y el detalle de cada perfil se ve
+al abrirlo. Reemplaza la fila por alquiler con código `AL-000012` de la propuesta de abajo.
+Un perfil vencido **sigue ocupado** hasta que se renueva o se libera. Detalle en el
+[ERS del 4b](../planes/04b-alquileres.md).
 
 ## Lo que se compra y lo que se vende, en vistas separadas (acordado 2026-10-22)
 

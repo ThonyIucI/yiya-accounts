@@ -21,6 +21,7 @@ import type { TAppEnv } from "../lib/app-env";
 import { conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
 import { type TPhoneInput, phoneSchema, toPhoneColumns, toPhoneResource } from "../lib/phone-input";
+import { assertCustomerWithoutRentals } from "../lib/rental-guards";
 import { ok } from "../lib/response";
 import { validateJson } from "../lib/validator";
 import { requireBusiness } from "../middleware/require-business";
@@ -236,13 +237,14 @@ export const customerRoutes = new Hono<TAppEnv>()
     },
   )
 
-  /* Hoy sin condiciones. Desde el 4b, solo si no tiene alquileres (RF-05). */
+  /* Solo si no tiene alquileres (RF-05, y RF-29 del 4b). */
   .delete(CUSTOMER_ROUTES.CUSTOMER, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;
     const db = createDb();
 
-    await findCustomer(db, businessId, id);
+    const current = await findCustomer(db, businessId, id);
+    await assertCustomerWithoutRentals(db, id, current.name);
     await db.delete(customers).where(and(eq(customers.id, id), eq(customers.businessId, businessId)));
 
     return ok(context, { id });

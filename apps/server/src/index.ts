@@ -21,6 +21,7 @@ import { meRoutes } from "./routes/me";
 import { profileRoutes } from "./routes/profiles";
 import { providerRoutes } from "./routes/providers";
 import { purchaseRoutes } from "./routes/purchases";
+import { rentalRoutes } from "./routes/rentals";
 import { serviceRoutes } from "./routes/services";
 import { userRoutes } from "./routes/users";
 
@@ -72,6 +73,7 @@ app
   .route("/", profileRoutes)
   .route("/", purchaseRoutes)
   .route("/", customerRoutes)
+  .route("/", rentalRoutes)
   .route("/", internalRoutes);
 
 app.notFound((context) => fail(context, "Recurso no encontrado.", 404));
