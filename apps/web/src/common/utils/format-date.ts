@@ -55,6 +55,13 @@ export const isCurrentYear = (date: string | Date): boolean => dayjs(date).year(
 export const formatCompactDate = (date: string | Date): string =>
   dayjs(date).format(isCurrentYear(date) ? "DD-MMM" : "MMM-YYYY");
 
+/**
+ * `"2026-11-04"` → `"04 nov"`; de otro año, con el año (`"04 ene 2027"`). Para rangos como
+ * «Del 04 nov → 04 dic».
+ */
+export const formatDayMonth = (date: string | Date): string =>
+  dayjs(date).format(isCurrentYear(date) ? "DD MMM" : "DD MMM YYYY");
+
 /** `"2026-09-12"` → `"12 de septiembre de 2026"`. Para textos corridos, no para tarjetas. */
 export const formatLongDate = (date: string | Date): string =>
   dayjs(date).format("DD [de] MMMM [de] YYYY");

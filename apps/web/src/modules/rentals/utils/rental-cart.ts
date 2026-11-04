@@ -60,6 +60,17 @@ export const buildLine = (accountId: string, profileId: string): ICartLine => {
 export const suggestedTotalOf = (lines: ICartLine[], serviceOf: (accountId: string) => string, priceOf: TPriceOf) =>
   roundSoles(lines.reduce((total, line) => total + (priceOf(serviceOf(line.accountId)) ?? 0) * monthsOf(line), 0));
 
+const weightsOf = (lines: ICartLine[], serviceOf: (accountId: string) => string, priceOf: TPriceOf) =>
+  lines.map((line) => (priceOf(serviceOf(line.accountId)) ?? 0) * monthsOf(line));
+
+/** La parte del total de cada línea, en el mismo orden. Es lo que se muestra en el carrito. */
+export const lineAmountsOf = (
+  lines: ICartLine[],
+  total: number,
+  serviceOf: (accountId: string) => string,
+  priceOf: TPriceOf,
+): number[] => splitAmount(total, weightsOf(lines, serviceOf, priceOf));
+
 /**
  * Lo que manda el carrito a la API. El total se reparte entre los perfiles según lo que
  * valdría cada uno (precio de venta × meses), para que cada alquiler guarde su parte: de
@@ -74,7 +85,7 @@ export const toRentalItems = (
   serviceOf: (accountId: string) => string,
   priceOf: TPriceOf,
 ): IRentalItemPayload[] => {
-  const weights = lines.map((line) => (priceOf(serviceOf(line.accountId)) ?? 0) * monthsOf(line));
+  const weights = weightsOf(lines, serviceOf, priceOf);
   const prices = splitAmount(total, weights);
   const paidParts = paid >= total ? prices : splitAmount(paid, weights);
   return lines.map((line, index) => {

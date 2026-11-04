@@ -3,10 +3,11 @@ import { Input } from "@yiya/ui/components/input";
 import { Label } from "@yiya/ui/components/label";
 import { Switch } from "@yiya/ui/components/switch";
 import type { IAccountResource } from "@yiya/shared/accounts";
-import { formatSoles, parseSoles } from "@yiya/shared/money";
-import { Loader2, ShoppingBag, Trash2 } from "lucide-react";
+import { formatSoles } from "@yiya/shared/money";
+import { Loader2, Plus, ShoppingBag, Trash2, Wallet } from "lucide-react";
 
 import FieldError from "@/common/components/field-error";
+import { FormSection } from "@/common/components/form-section";
 import type { TRentalCart } from "@/modules/rentals/hooks/use-rental-cart";
 import type { TProfileHolders } from "@/modules/rentals/utils/profile-options";
 import SolesInput from "@/modules/services/components/soles-input";
@@ -19,80 +20,93 @@ interface IRentalCartLinesProps {
   cart: TRentalCart;
   accountsById: Map<string, IAccountResource>;
   holders: TProfileHolders;
+  /** Abre el detalle de la línea (la misma modal que el catálogo). */
+  onOpenLine: (key: string) => void;
+  /** Celular: abre el catálogo para elegir perfiles (en escritorio está siempre a la izquierda). */
+  onBrowse?: () => void;
 }
 
 /**
  * Lo que va en el carrito, como la canasta de id-pos: «Carrito · 2» con «Vaciar» y un perfil
  * por línea. Va en el cuerpo que scrollea; el cobro (`RentalCartCheckout`) queda fijo abajo.
  */
-export function RentalCartLines({ cart, accountsById, holders }: IRentalCartLinesProps) {
+export function RentalCartLines({ cart, accountsById, holders, onOpenLine, onBrowse }: IRentalCartLinesProps) {
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between gap-2">
-        <p className="flex items-center gap-2 font-heading font-bold text-foreground">
+    <FormSection
+      icon={ShoppingBag}
+      title={
+        <>
           Carrito
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary tabular-nums">
             {cart.lines.length}
           </span>
-        </p>
-        {cart.lines.length > 0 && (
+        </>
+      }
+      action={
+        cart.lines.length > 0 && (
           <Button type="button" variant="ghost" size="xs" className="text-destructive" onClick={cart.clear}>
             <Trash2 />
             Vaciar
           </Button>
-        )}
-      </div>
+        )
+      }
+    >
 
       {cart.lines.length === 0 ? (
         <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border px-4 py-8 text-center">
           <ShoppingBag aria-hidden className="size-7 text-muted-foreground" strokeWidth={1.5} />
           <p className="font-semibold text-foreground">El carrito está vacío</p>
-          <p className="text-muted-foreground">Toca una cuenta para agregar uno de sus perfiles.</p>
+          <p className="text-muted-foreground">
+            {onBrowse ? "Elige los perfiles que va a alquilar." : "Toca una cuenta para agregar uno de sus perfiles."}
+          </p>
+          {onBrowse && (
+            <Button type="button" className="mt-1" onClick={onBrowse}>
+              <Plus />
+              Elegir perfiles
+            </Button>
+          )}
           <FieldError errors={asErrors(cart.errors.lines)} />
         </div>
       ) : (
+        <>
         <ul className="divide-y divide-border/60">
-          {cart.lines.map((line) => {
+          {cart.lines.map((line, index) => {
             const account = accountsById.get(line.accountId);
             if (!account) {
               return null;
             }
-            const takenProfileIds = new Set(
-              cart.lines.filter((other) => other.key !== line.key).map((other) => other.profileId),
-            );
             return (
               <RentalCartLine
                 key={line.key}
                 line={line}
                 account={account}
+                amount={cart.lineAmounts[index] ?? 0}
                 holders={holders}
-                takenProfileIds={takenProfileIds}
-                onChange={cart.changeLine}
+                onOpen={() => onOpenLine(line.key)}
                 onRemove={() => cart.removeLine(line.key)}
               />
             );
           })}
         </ul>
+        {onBrowse && (
+          <Button type="button" variant="ghost" size="sm" className="w-full text-primary" onClick={onBrowse}>
+            <Plus />
+            Agregar más perfiles
+          </Button>
+        )}
+        </>
       )}
-    </div>
+    </FormSection>
   );
 }
 
-interface IRentalCartCheckoutProps {
-  cart: TRentalCart;
-  isSubmitting: boolean;
-  onSubmit: () => void;
-}
-
 /**
- * El cobro, fijo al pie del carrito: **un solo total** (lleno con el sugerido y editable), si
- * pagó completo y el botón con el monto, como «Crear S/ 18.00» de id-pos (2026-11-04).
+ * El cobro, **en el cuerpo del formulario** (acordado 2026-11-04, como id-pos): un solo
+ * total (lleno con el sugerido y editable), si pagó completo, cuánto pagó y cuándo paga.
  */
-export function RentalCartCheckout({ cart, isSubmitting, onSubmit }: IRentalCartCheckoutProps) {
-  const total = parseSoles(cart.totalInput);
-
+export function RentalCartPayment({ cart }: { cart: TRentalCart }) {
   return (
-    <div className="space-y-3">
+    <FormSection icon={Wallet} title="Cobro">
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-baseline justify-between gap-2">
@@ -150,10 +164,26 @@ export function RentalCartCheckout({ cart, isSubmitting, onSubmit }: IRentalCart
           </div>
         </div>
       )}
+    </FormSection>
+  );
+}
 
-      <Button type="button" size="lg" className="w-full" onClick={onSubmit}>
+interface IRentalCartActionsProps {
+  isSubmitting: boolean;
+  onCancel: () => void;
+  onSubmit: () => void;
+}
+
+/** El pie: **solo** Cancelar y Alquilar (acordado 2026-11-04); los montos van en el cuerpo. */
+export function RentalCartActions({ isSubmitting, onCancel, onSubmit }: IRentalCartActionsProps) {
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <Button type="button" variant="outline" size="lg" onClick={onCancel}>
+        Cancelar
+      </Button>
+      <Button type="button" size="lg" onClick={onSubmit}>
         {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
-        Alquilar{total !== null && ` ${formatSoles(total)}`}
+        Alquilar
       </Button>
     </div>
   );

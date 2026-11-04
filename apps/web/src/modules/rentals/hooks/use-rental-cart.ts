@@ -13,6 +13,7 @@ import type { IRentalItemPayload } from "@/modules/rentals/services/rental.servi
 import {
   type ICartLine,
   type TPriceOf,
+  lineAmountsOf,
   suggestedTotalOf,
   toRentalItems,
 } from "@/modules/rentals/utils/rental-cart";
@@ -40,12 +41,15 @@ export const useRentalCart = (serviceOf: (accountId: string) => string, priceOf:
 
   const suggestedTotal = suggestedTotalOf(lines, serviceOf, priceOf);
   const totalInput = typedTotal ?? (suggestedTotal > 0 ? toSolesInput(suggestedTotal) : "");
+  /* Lo que le toca a cada línea del total escrito: suman siempre el total (RF-02a). */
+  const lineAmounts = lineAmountsOf(lines, parseSoles(totalInput) ?? 0, serviceOf, priceOf);
 
-  const addLine = (line: ICartLine): boolean => {
-    if (lines.length >= RENTAL_MAX_ITEMS) {
+  /** `false` si se pasaría del tope de perfiles por alquiler. */
+  const addLines = (added: ICartLine[]): boolean => {
+    if (lines.length + added.length > RENTAL_MAX_ITEMS) {
       return false;
     }
-    setLines((previous) => [...previous, line]);
+    setLines((previous) => [...previous, ...added]);
     setErrors((previous) => ({ ...previous, lines: undefined }));
     return true;
   };
@@ -92,7 +96,8 @@ export const useRentalCart = (serviceOf: (accountId: string) => string, priceOf:
 
   return {
     lines,
-    addLine,
+    lineAmounts,
+    addLines,
     changeLine,
     removeLine,
     clear,

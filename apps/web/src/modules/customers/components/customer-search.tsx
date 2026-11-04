@@ -14,6 +14,8 @@ import CustomerWhatsAppValue from "./customer-whatsapp-value";
 const MAX_RESULTS = 6;
 
 interface ICustomerSearchProps {
+  /** Para que un `<Label htmlFor>` apunte al buscador. */
+  id?: string;
   customers: ICustomerResource[];
   /** El elegido; `null` muestra el buscador. */
   value: ICustomerResource | null;
@@ -32,7 +34,14 @@ interface ICustomerSearchProps {
  * Filtra la lista ya cargada, sin debounce: es instantáneo. Cuando un negocio tenga cientos
  * de clientes, se pasa a buscar en el server con debounce, como id-pos.
  */
-export default function CustomerSearch({ customers, value, isInvalid, onChange, onCreated }: ICustomerSearchProps) {
+export default function CustomerSearch({
+  id,
+  customers,
+  value,
+  isInvalid,
+  onChange,
+  onCreated,
+}: ICustomerSearchProps) {
   const listId = useId();
   const [term, setTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +49,8 @@ export default function CustomerSearch({ customers, value, isInvalid, onChange, 
 
   if (value) {
     return (
-      <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2">
+      /* Tono de marca y sin sombra: se distingue de las cards de producto del catálogo. */
+      <div className="flex items-center gap-3 rounded-lg bg-primary/8 px-3 py-2 ring-1 ring-primary/20">
         <InitialsAvatar name={value.name} color={avatarColorOf(value.name)} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-heading font-bold text-foreground">{value.name}</p>
@@ -91,6 +101,7 @@ export default function CustomerSearch({ customers, value, isInvalid, onChange, 
     <>
       <div className="relative">
         <SearchInput
+          id={id}
           icon={UserRound}
           isCompact
           placeholder="Busca cliente por nombre o número"

@@ -13,14 +13,17 @@ interface IRentableAccountCardProps {
   freeCount: number;
   /** Cuántos perfiles de esta cuenta ya están en el carrito. */
   inCartCount: number;
+  /** Tocar la card: el detalle, para elegir perfiles y tiempo. */
+  onOpen: () => void;
+  /** El «+»: agrega el siguiente perfil libre por un mes, sin abrir nada. */
   onAdd: () => void;
 }
 
 /**
  * Una cuenta para alquilar, **como la card de un producto** del carrito de id-pos (acordado
  * 2026-11-04): horizontal, el logo a la izquierda, el correo, el precio por perfil y, abajo
- * a la derecha, cuántos van en el carrito y el «+». Toda la card agrega (el siguiente perfil
- * libre); el «+» es la señal de que se puede.
+ * a la derecha, cuántos van en el carrito y el «+». Como en id-pos, tocar la card abre su
+ * detalle (`RentalItemModal`) y el «+» agrega directo el siguiente perfil libre.
  *
  * Lleva además «3 libres» en chico: sin eso no se sabe qué cuenta tiene espacio antes de
  * tocarla. Va sobre el fondo gris del catálogo, para que se vea su sombra.
@@ -30,13 +33,21 @@ export default function RentableAccountCard({
   profilePrice,
   freeCount,
   inCartCount,
+  onOpen,
   onAdd,
 }: IRentableAccountCardProps) {
   return (
-    <button
-      type="button"
-      onClick={onAdd}
-      aria-label={`Agregar un perfil de ${account.email}`}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+      aria-label={`Ver los perfiles de ${account.email}`}
       className={cn(
         "flex w-full cursor-pointer items-stretch gap-3 rounded-lg bg-card p-2.5 text-left shadow-card",
         "transition-[transform,box-shadow] duration-150 ease-out active:scale-[0.98]",
@@ -70,12 +81,20 @@ export default function RentableAccountCard({
             >
               {inCartCount}
             </span>
-            <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+            <button
+              type="button"
+              aria-label={`Agregar un perfil de ${account.email}`}
+              onClick={(event) => {
+                event.stopPropagation();
+                onAdd();
+              }}
+              className="flex size-8 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform duration-150 ease-out active:scale-90"
+            >
               <Plus className="size-4.5" />
-            </span>
+            </button>
           </span>
         </div>
       </div>
-    </button>
+    </div>
   );
 }

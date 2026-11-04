@@ -1,13 +1,15 @@
 import { Button } from "@yiya/ui/components/button";
+import { IconButton } from "@yiya/ui/components/icon-button";
+import { cn } from "@yiya/ui/lib/utils";
 import type { IRentalCustomer, IRentalResource } from "@yiya/shared/rentals";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarClock, Eye, Plus, Search } from "lucide-react";
+import { CalendarClock, Eye, Plus, RefreshCw, Search } from "lucide-react";
 import { type ChangeEvent, useEffect, useState } from "react";
 
 import ConfirmModal from "@/common/components/confirm-modal";
 import EmptyState from "@/common/components/empty-state";
+import FloatingActionButton from "@/common/components/floating-action-button";
 import ListPagination, { ResultsCounter } from "@/common/components/list-pagination";
-import PageHeader from "@/common/components/page-header";
 import type { IRowAction } from "@/common/components/row-actions";
 import SearchInput from "@/common/components/search-input";
 import StickyToolbar from "@/common/components/sticky-toolbar";
@@ -35,9 +37,6 @@ export const Route = createFileRoute("/_app/alquileres")({
 });
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
-
-const pluralize = (count: number, singular: string, plural: string) =>
-  `${count} ${count === 1 ? singular : plural}`;
 
 /* Por cliente, servicio o correo de la cuenta. */
 const matchesSearch = (group: ICustomerRentals, term: string): boolean =>
@@ -121,6 +120,16 @@ function RentalsPage() {
     { icon: Eye, label: "Ver detalle", onClick: () => openDetail(group) },
   ];
 
+  const searchInput = (
+    <SearchInput
+      isCompact
+      placeholder="Buscar cliente o cuenta…"
+      aria-label="Buscar por cliente, servicio o correo de la cuenta"
+      value={term}
+      onChange={handleSearchChange}
+    />
+  );
+
   const pagination = (
     <ListPagination
       currentPage={pager.currentPage}
@@ -133,31 +142,34 @@ function RentalsPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 py-6">
-      <PageHeader
-        title="Alquileres"
-        subtitle={groups.length > 0 ? pluralize(groups.length, "cliente activo", "clientes activos") : undefined}
-        isLoadingSubtitle={isLoading}
-        action={
+    /* Abajo, espacio para que el «+» flotante no tape la última card en celular. */
+    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 pt-4 pb-24 md:py-6">
+      {/*
+        Simple, como el reporte de ventas de id-pos (acordado 2026-11-04). Celular: solo el
+        buscador, y crear es el «+» flotante. Escritorio: el título con recargar a la
+        izquierda; el buscador y Alquilar a la derecha.
+      */}
+      <div className="hidden items-center justify-between gap-4 md:flex">
+        <div className="flex min-w-0 items-center gap-1">
+          <h1 className="font-heading text-xl font-extrabold text-foreground">Alquileres</h1>
+          <IconButton label="Recargar alquileres" size="sm" onClick={() => !ListRentals.loading && ListRentals.handler()}>
+            <RefreshCw className={cn(ListRentals.loading && "animate-spin motion-reduce:animate-none")} />
+          </IconButton>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {groups.length > 0 && <div className="w-72">{searchInput}</div>}
           <Button type="button" onClick={() => openCreate()}>
             <Plus />
             Alquilar
           </Button>
-        }
-      />
+        </div>
+      </div>
 
       {groups.length > 0 && (
-        <StickyToolbar>
-          <div className="lg:ml-auto lg:w-72">
-            <SearchInput
-              placeholder="Buscar cliente o cuenta…"
-              aria-label="Buscar por cliente, servicio o correo de la cuenta"
-              value={term}
-              onChange={handleSearchChange}
-            />
-          </div>
-        </StickyToolbar>
+        <StickyToolbar className="md:hidden">{searchInput}</StickyToolbar>
       )}
+
+      <FloatingActionButton label="Alquilar" icon={Plus} onClick={() => openCreate()} />
 
       {!isLoading && groups.length === 0 && (
         <EmptyState

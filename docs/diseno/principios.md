@@ -82,6 +82,14 @@ Antes de diseñar o tocar UI, leer:
 - Animar con `transform` en texto (`"translateY(8px)"`), no con `x`/`y`/`scale` sueltos.
 - Respetar siempre `useReducedMotion()`.
 
+## Formularios largos: secciones separadas por gris (2026-11-04)
+
+Como el carrito de id-pos: cada parte del formulario (Cliente, Carrito, Cobro…) es una
+sección sobre blanco con **ícono + título** arriba, y entre sección y sección queda una
+franja gris (`bg-muted`), sin bordes. Se arma con `FormSections` y `FormSection`
+(`common/components/form-section.tsx`). El pie con los botones queda fijo, fuera de las
+secciones.
+
 ## Pendiente
 
 - Identidad visual propia: los colores y la tipografía de `globals.css` vienen de

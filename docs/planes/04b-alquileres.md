@@ -339,6 +339,44 @@ catálogo va sobre fondo gris y el carrito a todo el alto, con el cobro fijo aba
 - **Celular:** una columna; el carrito se abre desde una barra fija abajo («2 perfiles ·
   S/ 30.00»), en una hoja inferior.
 - Desde «Agregar perfil» de un cliente, llega con `?cliente=<id>` y el cliente ya elegido.
+- **Ajustes (Thony, 2026-11-04):**
+  - Arriba, sobre blanco: el cliente (en celular) y debajo el servicio (label arriba,
+    logos con scroll abajo). El cliente elegido va en tono de marca, distinto a las cards
+    de producto. Solo el catálogo va sobre gris.
+  - **Detalle de la cuenta, como la modal de producto de id-pos** (`RentalItemModal`): se
+    abre al tocar la card del catálogo o una línea del carrito. La imagen del servicio, al
+    lado los 4 tiempos como badges y abajo sus perfiles como cards: el libre con círculo
+    punteado, el ocupado con las iniciales de quien lo tiene y su nombre debajo. El «+» de
+    la card agrega directo, sin abrir el detalle.
+  - **Línea del carrito:** logo, el perfil asignado con el **badge** de su tiempo al lado,
+    el correo en chico, su parte del total y un tacho para quitarla.
+- **Segunda ronda (Thony, 2026-11-04):**
+  - Sin ✕ de salir: quitaba espacio y ya se sale con la navegación.
+  - El catálogo gris lleva sombra arriba y llega hasta el fondo en celular.
+  - Modal: el correo como subtítulo del encabezado; el precio grande debajo del logo.
+  - Tiempos: el elegido lleno con check, el resto en **outline** de marca (en gris
+    parecerían apagados). «Más…» con ícono de calendario es un badge más: abre las fechas
+    en un bloque de otro fondo. Debajo, «Del … al …» en color de marca.
+  - Perfil libre sin la palabra «Libre»: el círculo punteado y sin nombre ya lo dicen.
+- **Tercera ronda (Thony, 2026-11-04):**
+  - El rango dice «Del 04 nov → 04 dic» sobre `bg-muted`. Con «Más…», los inputs (delgados)
+    van **en su lugar**, en línea: «Del [ ] Al [ ]».
+  - Tiempos no elegidos en outline neutro (ajuste de Thony).
+  - El servicio del catálogo pasa a **chips con el nombre** y flechas en escritorio, como
+    las categorías de id-pos: con logos se confundían.
+- **Listado de Alquileres simplificado (Thony, 2026-11-04):** sin el título ni «3 clientes
+  activos» en celular: solo el buscador, y crear es un **«+» flotante** como en id-pos
+  (`FloatingActionButton`, baja con la barra de navegación cuando se esconde). Escritorio,
+  como el reporte de ventas de id-pos: título y recargar a la izquierda; buscador y
+  «Alquilar» a la derecha.
+- **Flujo en celular, como id-pos (Thony, 2026-11-04):** dos vistas.
+  1. El formulario: «Cliente» (con label), los perfiles ya agregados (vacío: «Elegir
+     perfiles»; con algo: «Agregar más perfiles») y el cobro en el cuerpo. Pie: **solo**
+     Cancelar y Alquilar.
+  2. El catálogo: flecha para volver, los servicios en chips y sus cuentas. Pie: «Agregar»,
+     que vuelve al formulario (sin perfiles nuevos, avisa en vez de volver).
+  - Escritorio no cambia de vistas: solo el pie pasa a Cancelar y Alquilar, y el cobro
+    sube al cuerpo del carrito.
 - Después: **«Enviar accesos»** al terminar (RF-24, porción 3).
 
 ### Detalle del cliente en Alquileres

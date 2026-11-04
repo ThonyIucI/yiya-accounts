@@ -1,27 +1,31 @@
 import { Button } from "@yiya/ui/components/button";
-import { iconButtonVariants } from "@yiya/ui/components/icon-button";
+import { IconButton } from "@yiya/ui/components/icon-button";
 import type { ICustomerResource } from "@yiya/shared/customers";
-import { formatSoles, parseSoles } from "@yiya/shared/money";
 import { RENTAL_MAX_ITEMS } from "@yiya/shared/rentals";
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { KeyRound, ShoppingBag, X } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { ArrowLeft, KeyRound, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import EmptyState from "@/common/components/empty-state";
 import FieldError from "@/common/components/field-error";
-import Modal from "@/common/components/modal";
+import { FormSection, FormSections } from "@/common/components/form-section";
 import { useMediaQuery } from "@/common/hooks/use-media-query";
 import { useListAccounts } from "@/modules/accounts/hooks/use-list-accounts";
 import CustomerSearch from "@/modules/customers/components/customer-search";
 import { useListCustomers } from "@/modules/customers/hooks/use-list-customers";
 import RentableAccountCard from "@/modules/rentals/components/rentable-account-card";
-import { RentalCartCheckout, RentalCartLines } from "@/modules/rentals/components/rental-cart";
+import {
+  RentalCartActions,
+  RentalCartLines,
+  RentalCartPayment,
+} from "@/modules/rentals/components/rental-cart";
+import RentalItemModal from "@/modules/rentals/components/rental-item-modal";
 import { useCreateRentals } from "@/modules/rentals/hooks/use-create-rentals";
 import { useListRentals } from "@/modules/rentals/hooks/use-list-rentals";
 import { useRentalCart } from "@/modules/rentals/hooks/use-rental-cart";
 import { profileHoldersOf } from "@/modules/rentals/utils/profile-options";
-import { buildLine, nextProfileOf } from "@/modules/rentals/utils/rental-cart";
+import { type ICartLine, buildLine, nextProfileOf } from "@/modules/rentals/utils/rental-cart";
 import ServicePicker from "@/modules/services/components/service-picker";
 import { useListBusinessServices } from "@/modules/services/hooks/use-list-business-services";
 
@@ -40,16 +44,28 @@ export const Route = createFileRoute("/_app/alquileres_/nuevo")({
 /* El mismo corte que `lg:`: desde ahí el carrito va en su columna. */
 const DESKTOP_QUERY = "(min-width: 1024px)";
 const CUSTOMER_MESSAGE = "Elige el cliente o crea uno nuevo.";
+/* Celular: el pie fijo tapa la barra de navegación mientras se arma el alquiler. */
+const MOBILE_FOOTER_CLASS =
+  "fixed inset-x-0 bottom-0 z-40 bg-card px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-edge-top";
+
+/** El detalle abierto: una cuenta del catálogo, o una línea del carrito para cambiarla. */
+interface IOpenItem {
+  accountId: string;
+  lineKey?: string;
+}
 
 /**
- * Alquilar, como crear una orden en id-pos (acordado 2026-11-04). **Sin encabezado ni
- * título**: todo el alto es para el carrito, y el ✕ de arriba sale a Alquileres.
+ * Alquilar, como crear una orden en id-pos (acordado 2026-11-04). **Sin encabezado, título
+ * ni ✕ de salir**: todo el alto es para el carrito; se sale con la navegación.
  *
- * - Izquierda, sobre fondo gris (para que se vea la sombra de las cards): el servicio como
- *   logos con scroll y sus cuentas como cards de producto; tocar una agrega un perfil.
- * - Derecha, a todo el alto: el cliente arriba, el carrito en el medio (scrollea) y el cobro
- *   fijo abajo, con **un solo total**.
- * - Celular: una columna; el carrito se abre desde la barra de abajo, en una hoja.
+ * - Escritorio: a la izquierda, sobre gris, los servicios como chips y sus cuentas como cards
+ *   de producto. A la derecha, el cliente, el carrito y el cobro (scrollean) y el pie fijo
+ *   con **solo** Cancelar y Alquilar.
+ * - Celular, como id-pos (acordado 2026-11-04), dos vistas:
+ *   1. **El formulario**: cliente, los perfiles ya agregados (o «Elegir perfiles» si está
+ *      vacío) y el cobro; al pie, Cancelar y Alquilar.
+ *   2. **El catálogo**: los servicios y sus cuentas; al pie, «Agregar», que vuelve al
+ *      formulario.
  */
 function NewRentalPage() {
   const search = Route.useSearch();
@@ -64,7 +80,10 @@ function NewRentalPage() {
   const [customer, setCustomer] = useState<ICustomerResource | null>(null);
   const [customerError, setCustomerError] = useState<string | undefined>();
   const [serviceId, setServiceId] = useState("");
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  /** Celular: el catálogo abierto, y cuántas líneas había al abrirlo (para contar las nuevas). */
+  const [browseFromCount, setBrowseFromCount] = useState<number | null>(null);
+  const isBrowsing = !isDesktop && browseFromCount !== null;
+  const [openItem, setOpenItem] = useState<IOpenItem | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -91,7 +110,6 @@ function NewRentalPage() {
   const currentServiceId = serviceId || rentableServices[0]?.id || "";
   const serviceAccounts = accounts.filter((account) => account.service.id === currentServiceId);
   const isLoading = ListAccounts.loading && ListAccounts.accounts.length === 0;
-  const total = parseSoles(cart.totalInput);
 
   /* `?cliente=` desde «Agregar perfil»: se elige apenas llega la lista. */
   useEffect(() => {
@@ -100,7 +118,16 @@ function NewRentalPage() {
     }
   }, [search.cliente, customers, customer]);
 
-  const handleAdd = (accountId: string) => {
+  const addLines = (added: ICartLine[]): boolean => {
+    if (!cart.addLines(added)) {
+      toast.error(`Puedes alquilar hasta ${RENTAL_MAX_ITEMS} perfiles de una vez.`);
+      return false;
+    }
+    return true;
+  };
+
+  /* El «+» de la card: el siguiente perfil libre por un mes, sin abrir el detalle. */
+  const handleQuickAdd = (accountId: string) => {
     const account = accountsById.get(accountId);
     if (!account) {
       return;
@@ -110,8 +137,7 @@ function NewRentalPage() {
       toast.error("Ya agregaste todos los perfiles de esta cuenta.");
       return;
     }
-    if (!cart.addLine(buildLine(account.id, profileId))) {
-      toast.error(`Puedes alquilar hasta ${RENTAL_MAX_ITEMS} perfiles de una vez.`);
+    if (!addLines([buildLine(account.id, profileId)])) {
       return;
     }
     const sharedWith = holders.get(profileId) ?? [];
@@ -119,6 +145,37 @@ function NewRentalPage() {
       toast.info(`No quedan libres: lo compartes con ${sharedWith.join(", ")}.`);
     }
   };
+
+  const openLine = (lineKey: string) => {
+    const line = cart.lines.find((item) => item.key === lineKey);
+    if (line) {
+      setOpenItem({ accountId: line.accountId, lineKey });
+    }
+  };
+
+  const openBrowse = () => {
+    setBrowseFromCount(cart.lines.length);
+    window.scrollTo({ top: 0 });
+  };
+
+  const closeBrowse = () => {
+    setBrowseFromCount(null);
+    window.scrollTo({ top: 0 });
+  };
+
+  const addedCount = browseFromCount === null ? 0 : Math.max(cart.lines.length - browseFromCount, 0);
+
+  /* «Agregar» nunca se apaga: sin perfiles nuevos, el clic dice qué hacer. */
+  const handleBrowseDone = () => {
+    if (addedCount === 0) {
+      toast.error("Toca una cuenta para agregar un perfil.");
+      return;
+    }
+    closeBrowse();
+  };
+
+  const openAccount = openItem ? (accountsById.get(openItem.accountId) ?? null) : null;
+  const openLineValue = openItem?.lineKey ? cart.lines.find((line) => line.key === openItem.lineKey) : undefined;
 
   const handleSubmit = async () => {
     /* El botón nunca se apaga: si falta algo, el clic lo dice; mientras guarda, no repite. */
@@ -141,7 +198,7 @@ function NewRentalPage() {
   };
 
   const customerField = (
-    <div className="space-y-1">
+    <FormSection icon={UserRound} title="Cliente" className="space-y-2">
       <CustomerSearch
         customers={customers}
         value={customer}
@@ -153,77 +210,127 @@ function NewRentalPage() {
         onCreated={ListCustomers.onUpsert}
       />
       <FieldError errors={customerError ? [{ message: customerError }] : []} />
+    </FormSection>
+  );
+
+  const cartLines = (
+    <RentalCartLines
+      cart={cart}
+      accountsById={accountsById}
+      holders={holders}
+      onOpenLine={openLine}
+      onBrowse={isDesktop ? undefined : openBrowse}
+    />
+  );
+  /* El cobro va en el cuerpo, y solo con algo en el carrito: sin perfiles no hay qué cobrar. */
+  const payment = cart.lines.length > 0 && <RentalCartPayment cart={cart} />;
+  const actions = (
+    <RentalCartActions
+      isSubmitting={CreateRentals.loading}
+      onCancel={() => navigate({ to: "/alquileres" })}
+      onSubmit={handleSubmit}
+    />
+  );
+
+  /* El catálogo, sobre gris y con sombra arriba: se lee como otra superficie (2026-11-04). */
+  const catalog = (
+    <div className="relative flex-1 space-y-3 rounded-t-2xl bg-muted px-4 pt-4 pb-28 shadow-edge-top lg:rounded-none lg:pb-6">
+      {!isLoading && rentableServices.length === 0 && (
+        <EmptyState
+          icon={KeyRound}
+          title="No tienes cuentas para alquilar"
+          description="Registra una cuenta activa en Cuentas, de un servicio que trabajes."
+        />
+      )}
+
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {serviceAccounts.map((account) => (
+          <li key={account.id}>
+            <RentableAccountCard
+              account={account}
+              profilePrice={priceOf(account.service.id)}
+              freeCount={account.profiles.filter((profile) => !holders.has(profile.id)).length}
+              inCartCount={cart.lines.filter((line) => line.accountId === account.id).length}
+              onOpen={() => setOpenItem({ accountId: account.id })}
+              onAdd={() => handleQuickAdd(account.id)}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 
-  const cartLines = <RentalCartLines cart={cart} accountsById={accountsById} holders={holders} />;
-  const checkout = <RentalCartCheckout cart={cart} isSubmitting={CreateRentals.loading} onSubmit={handleSubmit} />;
+  const servicePicker = rentableServices.length > 0 && (
+    <ServicePicker services={rentableServices} value={currentServiceId} onChange={setServiceId} />
+  );
 
-  return (
-    <div className="min-h-svh bg-muted lg:grid lg:h-svh lg:grid-cols-[minmax(0,1fr)_26rem]">
-      <section aria-label="Cuentas" className="min-w-0 space-y-4 px-4 pt-4 pb-28 lg:overflow-y-auto lg:pb-6">
-        <div className="flex items-center gap-2">
-          <Link to="/alquileres" aria-label="Salir a Alquileres" className={iconButtonVariants({ size: "md" })}>
-            <X />
-          </Link>
-          {rentableServices.length > 0 && (
-            <div className="min-w-0 flex-1">
-              <ServicePicker services={rentableServices} value={currentServiceId} onChange={setServiceId} />
-            </div>
-          )}
-        </div>
+  const itemModal = (
+    <RentalItemModal
+      account={openAccount}
+      line={openLineValue}
+      lines={cart.lines}
+      holders={holders}
+      profilePrice={openAccount ? priceOf(openAccount.service.id) : null}
+      onAdd={addLines}
+      onSave={cart.changeLine}
+      onClose={() => setOpenItem(null)}
+    />
+  );
 
-        {!isDesktop && customerField}
+  if (isDesktop) {
+    return (
+      <div className="grid h-svh grid-cols-[minmax(0,1fr)_26rem]">
+        <section aria-label="Cuentas" className="flex min-w-0 flex-col overflow-y-auto">
+          <div className="px-4 pt-4 pb-4">{servicePicker}</div>
+          {catalog}
+        </section>
 
-        {!isLoading && rentableServices.length === 0 && (
-          <EmptyState
-            icon={KeyRound}
-            title="No tienes cuentas para alquilar"
-            description="Registra una cuenta activa en Cuentas, de un servicio que trabajes."
-          />
-        )}
-
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {serviceAccounts.map((account) => (
-            <li key={account.id}>
-              <RentableAccountCard
-                account={account}
-                profilePrice={priceOf(account.service.id)}
-                freeCount={account.profiles.filter((profile) => !holders.has(profile.id)).length}
-                inCartCount={cart.lines.filter((line) => line.accountId === account.id).length}
-                onAdd={() => handleAdd(account.id)}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      {isDesktop && (
         <aside aria-label="Carrito" className="flex h-svh flex-col bg-card shadow-card">
-          <div className="px-4 pt-4 pb-3 shadow-edge-bottom">{customerField}</div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">{cartLines}</div>
-          <div className="px-4 pt-3 pb-4 shadow-edge-top">{checkout}</div>
+          {/* Secciones separadas por el gris, como el carrito de id-pos (2026-11-04). */}
+          <FormSections className="min-h-0 flex-1 overflow-y-auto">
+            {customerField}
+            {cartLines}
+            {payment}
+          </FormSections>
+          <div className="px-4 pt-3 pb-4 shadow-edge-top">{actions}</div>
         </aside>
-      )}
+        {itemModal}
+      </div>
+    );
+  }
 
-      {/* Celular: la barra del carrito tapa la de navegación mientras se arma el alquiler. */}
-      {!isDesktop && cart.lines.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-40 bg-card px-4 pt-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-edge-top">
-          <Button type="button" size="lg" className="w-full justify-between" onClick={() => setIsCartOpen(true)}>
-            <span className="flex items-center gap-2">
-              <ShoppingBag />
-              {cart.lines.length === 1 ? "1 perfil" : `${cart.lines.length} perfiles`}
-            </span>
-            <span className="tabular-nums">{total === null ? "Ver carrito" : formatSoles(total)}</span>
+  /* Celular, vista 2: el catálogo. El pie tapa la navegación mientras se elige. */
+  if (isBrowsing) {
+    return (
+      <div className="flex min-h-svh flex-col">
+        <div className="flex items-center gap-2 px-4 pt-4 pb-4">
+          <IconButton label="Volver al alquiler" className="-ml-1.5" onClick={closeBrowse}>
+            <ArrowLeft />
+          </IconButton>
+          <div className="min-w-0 flex-1">{servicePicker}</div>
+        </div>
+        {catalog}
+        <div className={MOBILE_FOOTER_CLASS}>
+          <Button type="button" size="lg" className="w-full justify-between" onClick={handleBrowseDone}>
+            <span>Agregar</span>
+            {addedCount > 0 && (
+              <span className="tabular-nums">{addedCount === 1 ? "1 perfil" : `${addedCount} perfiles`}</span>
+            )}
           </Button>
         </div>
-      )}
+        {itemModal}
+      </div>
+    );
+  }
 
-      {!isDesktop && (
-        <Modal open={isCartOpen} title="Carrito" footer={checkout} onClose={() => setIsCartOpen(false)}>
-          {cartLines}
-        </Modal>
-      )}
-    </div>
+  /* Celular, vista 1: el formulario, con todo lo del alquiler. */
+  return (
+    <FormSections className="min-h-svh pb-28">
+      {customerField}
+      {cartLines}
+      {payment}
+      <div className={MOBILE_FOOTER_CLASS}>{actions}</div>
+      {itemModal}
+    </FormSections>
   );
 }

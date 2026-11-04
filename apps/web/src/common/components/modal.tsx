@@ -31,6 +31,8 @@ interface IModalProps {
   open: boolean;
   title: string;
   description?: string;
+  /** Una línea corta bajo el título, fija en el encabezado (p. ej. el correo de la cuenta). */
+  subtitle?: string;
   children: ReactNode;
   /** Botones del pie. Van pegados abajo y no se van con el scroll del cuerpo. */
   footer?: ReactNode;
@@ -90,6 +92,7 @@ export default function Modal({
   open,
   title,
   description,
+  subtitle,
   children,
   footer,
   width = "md",
@@ -195,9 +198,10 @@ export default function Modal({
               </div>
 
               <div className="flex items-center justify-between gap-3 px-5 pt-2 pb-3 sm:pt-5">
-                <h2 className="min-w-0 font-heading text-xl font-extrabold wrap-break-word text-foreground">
-                  {title}
-                </h2>
+                <div className="min-w-0">
+                  <h2 className="font-heading text-xl font-extrabold wrap-break-word text-foreground">{title}</h2>
+                  {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
+                </div>
                 <IconButton label="Cerrar" className="-mr-1.5" onClick={onClose}>
                   <X />
                 </IconButton>
