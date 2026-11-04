@@ -33,6 +33,25 @@ export const parseSoles = (input: string): number | null => {
   return value > 0 ? roundSoles(value) : null;
 };
 
+/**
+ * Reparte un monto entre partes según su peso, en céntimos exactos: la suma de las partes da
+ * siempre el monto (lo que sobra por redondeo va a la última). Con todos los pesos en 0, en
+ * partes iguales. Lo usa el carrito de alquilar: se cobra **un** total y cada perfil guarda
+ * su parte (acordado 2026-11-04).
+ */
+export const splitAmount = (amount: number, weights: number[]): number[] => {
+  if (weights.length === 0) {
+    return [];
+  }
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  const shares = totalWeight > 0 ? weights.map((weight) => weight / totalWeight) : weights.map(() => 1 / weights.length);
+  const cents = Math.round(amount * DECIMALS_FACTOR);
+  const parts = shares.map((share) => Math.floor(cents * share));
+  const remainder = cents - parts.reduce((sum, part) => sum + part, 0);
+  const lastIndex = parts.length - 1;
+  return parts.map((part, index) => (index === lastIndex ? part + remainder : part) / DECIMALS_FACTOR);
+};
+
 /** `7.5` → «S/ 7.50». */
 export const formatSoles = (value: number): string => `S/ ${roundSoles(value).toFixed(2)}`;
 

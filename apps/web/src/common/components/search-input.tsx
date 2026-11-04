@@ -1,17 +1,30 @@
 import { Input } from "@yiya/ui/components/input";
 import { cn } from "@yiya/ui/lib/utils";
-import { Search } from "lucide-react";
+import { type LucideIcon, Search } from "lucide-react";
 import type { ComponentProps } from "react";
 
-/** Campo de búsqueda de un listado: el `Input` de siempre con la lupa a la izquierda. */
-export default function SearchInput({ className, ...props }: ComponentProps<typeof Input>) {
+interface ISearchInputProps extends ComponentProps<typeof Input> {
+  /**
+   * El ícono de la izquierda: la lupa en un listado; lo que se busca cuando es una cosa
+   * concreta (la persona en el buscador de clientes, como en id-pos).
+   */
+  icon?: LucideIcon;
+  /** Más bajo (44 px), para buscadores dentro de un panel, como el del carrito. */
+  isCompact?: boolean;
+}
+
+/** Campo de búsqueda: el `Input` de siempre con un ícono a la izquierda. */
+export default function SearchInput({ icon: Icon = Search, isCompact = false, className, ...props }: ISearchInputProps) {
   return (
     <div className="relative">
-      <Search
+      <Icon
         aria-hidden
-        className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground"
+        className={cn(
+          "pointer-events-none absolute top-1/2 -translate-y-1/2 text-muted-foreground",
+          isCompact ? "left-3.5 size-4.5" : "left-4 size-5",
+        )}
       />
-      <Input type="search" className={cn("pl-12", className)} {...props} />
+      <Input type="search" className={cn(isCompact ? "h-11 pl-10" : "pl-12", className)} {...props} />
     </div>
   );
 }

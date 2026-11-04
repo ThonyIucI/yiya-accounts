@@ -25,6 +25,16 @@ Antes de diseñar o tocar UI, leer:
   `border-border/60`.
 - Estado vacío: borde **punteado fino** (1 px), no grueso.
 
+## Cards con sombra: nunca sobre blanco (acordado 2026-11-04)
+
+- Una card que se separa solo con sombra va sobre un **fondo gris** (`bg-muted`), no sobre
+  la página blanca: sobre blanco casi no se ve su forma. Ejemplo: el catálogo de cuentas de
+  `/alquileres/nuevo`.
+- Las cards tipo producto (catálogo) van **menos redondeadas** (`rounded-lg`) y
+  **horizontales**, como las de id-pos: imagen a la izquierda, nombre, precio y el «+».
+- Los íconos dicen qué se busca: el buscador de clientes lleva la persona (`UserRound`),
+  no la lupa, como en id-pos.
+
 ## Botones: nunca desactivados (acordado 2026-10-13)
 
 - Un botón **nunca** lleva `disabled`, ni el de guardar, ni el de crear, ni los íconos de

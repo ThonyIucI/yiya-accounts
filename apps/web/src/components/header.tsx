@@ -8,8 +8,12 @@ import { useHasSidebar, useNavItems } from "@/common/hooks/use-nav-items";
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
 
-/** El login es pantalla completa y trae su propio control de tema. */
-const CHROMELESS_ROUTES: readonly string[] = ["/login"];
+/**
+ * Sin encabezado: el login, que es pantalla completa y trae su propio control de tema, y
+ * alquilar, que es un carrito y necesita todo el alto, como crear una orden en id-pos
+ * (acordado 2026-11-04). Esa vista trae su propio ✕ para salir.
+ */
+const CHROMELESS_ROUTES: readonly string[] = ["/login", "/alquileres/nuevo"];
 
 export default function Header() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });

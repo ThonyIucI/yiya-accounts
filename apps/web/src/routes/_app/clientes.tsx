@@ -19,6 +19,7 @@ import CustomerMobileList from "@/modules/customers/components/customer-mobile-l
 import CustomerTable from "@/modules/customers/components/customer-table";
 import { useDeleteCustomer } from "@/modules/customers/hooks/use-delete-customer";
 import { useListCustomers } from "@/modules/customers/hooks/use-list-customers";
+import { matchesCustomerSearch } from "@/modules/customers/utils/customer-search";
 
 interface ICustomersSearch {
   /** El cliente abierto en el detalle lateral: así se puede recargar o compartir el link. */
@@ -36,19 +37,6 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const pluralize = (count: number, singular: string, plural: string) =>
   `${count} ${count === 1 ? singular : plural}`;
-
-/* Busca por nombre, por número (con o sin espacios), por usuario (con o sin «@») y en la nota. */
-const matchesSearch = (customer: ICustomerResource, term: string): boolean => {
-  const digits = term.replace(/\D/g, "");
-  const username = term.replace(/^@/, "");
-  const phone = customer.phone ? `${customer.phone.countryPrefix}${customer.phone.number}` : "";
-  return (
-    customer.name.toLowerCase().includes(term) ||
-    (customer.note?.toLowerCase().includes(term) ?? false) ||
-    (username.length > 0 && (customer.whatsappUsername?.toLowerCase().includes(username) ?? false)) ||
-    (digits.length > 0 && phone.includes(digits))
-  );
-};
 
 /**
  * Clientes del negocio en el que se está: a quién le alquila perfiles. Los ve y los maneja
@@ -80,7 +68,7 @@ function CustomersPage() {
 
   const normalizedTerm = term.trim().toLowerCase();
   const visible = customers
-    .filter((customer) => !normalizedTerm || matchesSearch(customer, normalizedTerm))
+    .filter((customer) => !normalizedTerm || matchesCustomerSearch(customer, normalizedTerm))
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
   const pager = usePagination(visible, { initialPageSize: PAGE_SIZE_OPTIONS[0] });
   const hasContent = !isLoading && visible.length > 0;

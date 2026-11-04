@@ -58,9 +58,17 @@ const formSchema = z.object({
 
 const EMPTY_PHONE: IPhone = { countryPrefix: DEFAULT_COUNTRY_PREFIX, number: "" };
 
-const buildDefaults = (customer?: ICustomerResource) => ({
-  name: customer?.name ?? "",
-  phone: customer?.phone ?? EMPTY_PHONE,
+/** Lo que llega ya escrito al crear desde un buscador («Crear «Ana»»). */
+export interface ICustomerInitialValues {
+  name?: string;
+  phoneNumber?: string;
+}
+
+const buildDefaults = (customer?: ICustomerResource, initialValues?: ICustomerInitialValues) => ({
+  name: customer?.name ?? initialValues?.name ?? "",
+  phone:
+    customer?.phone ??
+    (initialValues?.phoneNumber ? { ...EMPTY_PHONE, number: initialValues.phoneNumber } : EMPTY_PHONE),
   whatsappUsername: customer?.whatsappUsername ?? "",
   note: customer?.note ?? "",
 });
@@ -69,12 +77,20 @@ interface ICustomerFormModalProps {
   open: boolean;
   /** Sin cliente: alta. Con cliente: edición. */
   customer?: ICustomerResource;
+  /** Solo al crear: lo que se escribió en el buscador. */
+  initialValues?: ICustomerInitialValues;
   onSaved: (customer: ICustomerResource) => void;
   onClose: () => void;
 }
 
 /** Alta y edición de un cliente: nombre, número y usuario de WhatsApp, y una nota. */
-export default function CustomerFormModal({ open, customer, onSaved, onClose }: ICustomerFormModalProps) {
+export default function CustomerFormModal({
+  open,
+  customer,
+  initialValues,
+  onSaved,
+  onClose,
+}: ICustomerFormModalProps) {
   const isEdit = Boolean(customer);
   const CreateCustomer = useCreateCustomer();
   const UpdateCustomer = useUpdateCustomer();
@@ -102,7 +118,7 @@ export default function CustomerFormModal({ open, customer, onSaved, onClose }: 
 
   useEffect(() => {
     if (open) {
-      form.reset(buildDefaults(customer));
+      form.reset(buildDefaults(customer, initialValues));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, customer]);

@@ -36,6 +36,7 @@ mensaje ya escrito, sin copiar datos a mano.
 | **Cambiar accesos** de una cuenta (correo, contraseña o los dos) con su historial, y avisar uno por uno a los que la tienen | Paso 4c, aparte (Thony, 2026-11-01). Ver sección 6, «Cambiar accesos» |
 | **Finanzas:** caja, otros gastos, varios métodos de pago | Paso propio, cuando haga falta (sección 6, «Finanzas») |
 | **Equipo** (ayudantes con su usuario) | Después. Cada alquiler ya guarda quién lo registró (RF-31) |
+| **Clientes que son revendedores** (Thony, 2026-11-04): a veces alquilan perfiles y a veces **la cuenta completa**, sin asignar perfil. Hoy `rentals.profile_id` es obligatorio; para esto, el alquiler tendría que apuntar a la **cuenta** y el perfil quedar opcional (vacío = la cuenta entera). Choca con «solo se venden perfiles» del [modelo](../negocio/modelo.md) (2026-10-12), que habría que cambiar | Cuando haya un cliente así. Anotado, sin construir |
 | Mandar varios avisos juntos («Seleccionar» en lote) | Después |
 | Avisos automáticos de vencimiento | Después del paso 5 |
 | Mensajes editados por cada negocio | Después: primero se usan fijos |
@@ -56,7 +57,8 @@ mensaje ya escrito, sin copiar datos a mano.
 | ID | Requisito |
 |---|---|
 | RF-01 | Un **alquiler** es **un perfil para un cliente**, con su **precio** (soles, 2 decimales), su **inicio** y su **vencimiento** (días sin hora, en hora de Perú, como las compras). Es el «producto» de la orden del cliente. |
-| RF-02 | El precio se llena con el de venta del servicio y se puede cambiar. El vencimiento se llena con inicio + 1 mes, con atajos de 1, 3, 6 y 12 meses, y se puede escribir cualquier fecha ([alquileres](../negocio/alquileres.md), punto 1). |
+| RF-02a | **Se cobra un solo total** (Thony, 2026-11-04): no se escribe un precio por perfil. El total se llena con el sugerido (precio de venta de cada servicio × sus meses) y se cambia a mano; combos y promociones llegarán después. Al guardar, el total se **reparte** entre los perfiles según lo que valdría cada uno, y cada alquiler guarda su parte: de ahí salen el margen por servicio y la renovación de cada perfil. Lo pagado se reparte igual. |
+| RF-02 | (Antes del 2026-11-04, reemplazado por RF-02a para alquilar; sigue al editar un perfil.) El precio se llena con el de venta del servicio y se puede cambiar. El vencimiento se llena con inicio + 1 mes, con atajos de 1, 3, 6 y 12 meses, y se puede escribir cualquier fecha ([alquileres](../negocio/alquileres.md), punto 1). |
 | RF-03 | **Cada alquiler vence por su lado** (Thony, 2026-10-31): un cliente puede tener Netflix desde el 3, Disney+ desde el 20 y dos perfiles de Max, y cada uno lleva su propio contador. |
 | RF-04 | **Agregar un perfil a un cliente que ya tiene** es como agregar un producto a su orden: se hace desde su fila o su detalle, y queda junto a lo demás. No se crea otra fila. |
 | RF-05 | **Un perfil puede estar alquilado a más de un cliente a la vez** (Thony, 2026-10-31): cuando hay mucha demanda, un perfil se presta por un tiempo a dos clientes, y una cuenta de 5 perfiles puede tener más de 5 clientes. **El sistema no lo impide**: lo avisa. |
@@ -319,16 +321,25 @@ se documenta en [componentes](../diseno/componentes.md) como `SwipeRow`.
   (botón de WhatsApp para avisar y `⋯` con lo mismo de la hoja inferior).
 - Tocar la fila abre el detalle.
 
-### Alquilar (porción propia)
+### Alquilar: página `/alquileres/nuevo`, como el carrito de id-pos (2026-11-04)
 
-Modal (en celular, pantalla completa), como armar una venta:
+Página propia y no modal: en escritorio necesita dos columnas. Editar un perfil sigue en una
+modal chica. **Sin encabezado, sin título y sin «‹ Alquileres»** (Thony, 2026-11-04): le
+quitaban alto al carrito; se sale con el ✕ de arriba a la izquierda, como en id-pos. El
+catálogo va sobre fondo gris y el carrito a todo el alto, con el cobro fijo abajo.
 
-1. **Cliente** (select con «Crear «…»»). Desde la fila o el detalle de un cliente, ya viene
-   elegido (RF-04).
-2. **Perfiles:** «Agregar perfil» abre una fila con servicio → perfil (RF-06) → precio
-   (lleno con el del servicio) → inicio (hoy) → vencimiento (atajos 1 · 3 · 6 · 12 meses).
-3. Pie con el **total** y «Alquilar».
-4. Al terminar, ofrece **«Enviar accesos»** (RF-24).
+- **Izquierda:** el **servicio** como una fila de logos con scroll horizontal al lado de su
+  label (`ServicePicker`), y sus **cuentas como cards de producto**: logo, correo, precio
+  por perfil y, en chico, «3 libres» (para saber cuál tiene espacio). Tocar una card agrega
+  al carrito su siguiente perfil libre; si no quedan libres, uno compartido, con aviso.
+- **Derecha:** el **cliente** con un buscador como `SearchClientMulti` de id-pos: «Crear
+  «…»» abre la modal de cliente con lo escrito. Debajo, el **carrito**: cada perfil con su
+  correo, el perfil (se cambia ahí mismo) y la duración (1 mes · 3 · 6 · 1 año, u otras
+  fechas); abajo **un solo total**, «Pagó completo» y «Alquilar».
+- **Celular:** una columna; el carrito se abre desde una barra fija abajo («2 perfiles ·
+  S/ 30.00»), en una hoja inferior.
+- Desde «Agregar perfil» de un cliente, llega con `?cliente=<id>` y el cliente ya elegido.
+- Después: **«Enviar accesos»** al terminar (RF-24, porción 3).
 
 ### Detalle del cliente en Alquileres
 

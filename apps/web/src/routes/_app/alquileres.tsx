@@ -11,10 +11,8 @@ import PageHeader from "@/common/components/page-header";
 import type { IRowAction } from "@/common/components/row-actions";
 import SearchInput from "@/common/components/search-input";
 import StickyToolbar from "@/common/components/sticky-toolbar";
-import { useBoolean } from "@/common/hooks/use-boolean";
 import { usePagination } from "@/common/hooks/use-pagination";
 import { useListAccounts } from "@/modules/accounts/hooks/use-list-accounts";
-import { useListCustomers } from "@/modules/customers/hooks/use-list-customers";
 import CustomerRentalsPanel from "@/modules/rentals/components/customer-rentals-panel";
 import RentalFormModal from "@/modules/rentals/components/rental-form-modal";
 import RentalMobileList from "@/modules/rentals/components/rental-mobile-list";
@@ -56,24 +54,20 @@ const matchesSearch = (group: ICustomerRentals, term: string): boolean =>
  */
 function RentalsPage() {
   const ListRentals = useListRentals();
-  const ListCustomers = useListCustomers();
   const ListServices = useListBusinessServices();
   const ListAccounts = useListAccounts();
   const DeleteRental = useDeleteRental();
-  const showForm = useBoolean();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
   const [editTarget, setEditTarget] = useState<IRentalResource | undefined>();
-  const [presetCustomer, setPresetCustomer] = useState<IRentalCustomer | undefined>();
   const [deleteTarget, setDeleteTarget] = useState<IRentalResource | null>(null);
   const [term, setTerm] = useState("");
 
-  /* Clientes, servicios y cuentas los usa la modal de alquilar; se piden juntos al entrar. */
+  /* Servicios y cuentas los usa la modal de editar; se piden juntos al entrar. */
   useEffect(() => {
     const controller = new AbortController();
     ListRentals.handler(controller.signal);
-    ListCustomers.handler(controller.signal);
     ListServices.handler(controller.signal);
     ListAccounts.handler(controller.signal);
     return () => controller.abort();
@@ -100,17 +94,9 @@ function RentalsPage() {
   const openDetail = (group: ICustomerRentals) => navigate({ search: { cliente: group.customer.id } });
   const closeDetail = () => navigate({ search: {} });
 
-  const openCreate = (customer?: IRentalCustomer) => {
-    setEditTarget(undefined);
-    setPresetCustomer(customer);
-    showForm.on();
-  };
-
-  const openEdit = (rental: IRentalResource) => {
-    setEditTarget(rental);
-    setPresetCustomer(undefined);
-    showForm.on();
-  };
+  /* Alquilar va en su página, como el carrito de id-pos (2026-11-04). Con cliente, ya elegido. */
+  const openCreate = (customer?: IRentalCustomer) =>
+    navigate({ to: "/alquileres/nuevo", search: customer ? { cliente: customer.id } : {} });
 
   const confirmDelete = async () => {
     if (!deleteTarget) {
@@ -215,22 +201,18 @@ function RentalsPage() {
       <CustomerRentalsPanel
         group={openGroup}
         onAdd={(group) => openCreate(group.customer)}
-        onEdit={openEdit}
+        onEdit={setEditTarget}
         onDelete={setDeleteTarget}
         onClose={closeDetail}
       />
 
       <RentalFormModal
-        open={showForm.active}
         rental={editTarget}
-        presetCustomer={presetCustomer}
-        customers={ListCustomers.customers}
         services={ListServices.services}
         accounts={ListAccounts.accounts}
         rentals={rentals}
-        onCustomerCreated={ListCustomers.onUpsert}
         onSaved={ListRentals.onUpsert}
-        onClose={showForm.off}
+        onClose={() => setEditTarget(undefined)}
       />
 
       <ConfirmModal

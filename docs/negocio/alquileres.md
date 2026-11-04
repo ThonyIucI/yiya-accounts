@@ -50,6 +50,15 @@ al abrirlo. Reemplaza la fila por alquiler con código `AL-000012` de la propues
 Un perfil vencido **sigue ocupado** hasta que se renueva o se libera. Detalle en el
 [ERS del 4b](../planes/04b-alquileres.md).
 
+## Un solo total, como un carrito (Thony, 2026-11-04)
+
+Alquilar es como armar un carrito: se eligen cuentas como productos y se cobra **un total**,
+no un precio por perfil. El total se sugiere con los precios de venta y se escribe como se
+acuerde. Cada perfil guarda su parte del total, repartida sola, para el margen y las
+renovaciones. Cada alquiler guarda también **la cuenta**, para cuando se alquilen cuentas
+enteras a clientes revendedores (sin construir). Detalle en el
+[ERS del 4b](../planes/04b-alquileres.md).
+
 ## Lo que se compra y lo que se vende, en vistas separadas (acordado 2026-10-22)
 
 **Cuentas** es lo que el negocio le compra al proveedor; **Alquileres** es lo que le vende

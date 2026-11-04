@@ -171,12 +171,17 @@ const assertCustomer = async (db: TDb, businessId: string, customerId: string) =
 
 /*
   Los perfiles tienen que ser de este negocio y de cuentas activas. **No** se mira si ya
-  están alquilados: un perfil se puede compartir (RF-05, acordado 2026-10-31).
+  están alquilados: un perfil se puede compartir (RF-05, acordado 2026-10-31). Devuelve la
+  cuenta de cada perfil: el `account_id` sale de acá, nunca del request.
 */
-const assertProfilesRentable = async (db: TDb, businessId: string, profileIds: string[]) => {
+const assertProfilesRentable = async (
+  db: TDb,
+  businessId: string,
+  profileIds: string[],
+): Promise<Map<string, string>> => {
   const uniqueIds = [...new Set(profileIds)];
   const rows = await db
-    .select({ id: profile.id, isActive: streamingAccount.isActive })
+    .select({ id: profile.id, accountId: profile.accountId, isActive: streamingAccount.isActive })
     .from(profile)
     .innerJoin(streamingAccount, eq(streamingAccount.id, profile.accountId))
     .where(and(eq(profile.businessId, businessId), inArray(profile.id, uniqueIds)));
@@ -186,6 +191,7 @@ const assertProfilesRentable = async (db: TDb, businessId: string, profileIds: s
   if (rows.some((row) => !row.isActive)) {
     throw badRequest(INACTIVE_ACCOUNT_MESSAGE);
   }
+  return new Map(rows.map((row) => [row.id, row.accountId]));
 };
 
 /* Pagó algo: el día del pago es hoy. Sin pago, sin día. */
@@ -214,7 +220,7 @@ export const rentalRoutes = new Hono<TAppEnv>()
       const db = createDb();
 
       await assertCustomer(db, businessId, customerId);
-      await assertProfilesRentable(
+      const accountOf = await assertProfilesRentable(
         db,
         businessId,
         items.map((item) => item.profileId),
@@ -224,6 +230,7 @@ export const rentalRoutes = new Hono<TAppEnv>()
         id: newId(),
         businessId,
         customerId,
+        accountId: accountOf.get(item.profileId)!,
         profileId: item.profileId,
         price: item.price,
         paidAmount: item.paidAmount,
@@ -266,9 +273,11 @@ export const rentalRoutes = new Hono<TAppEnv>()
       const db = createDb();
 
       const current = await findOpenRental(db, businessId, id);
-      if (body.profileId !== undefined && body.profileId !== current.profile.id) {
-        await assertProfilesRentable(db, businessId, [body.profileId]);
-      }
+      /* Cambiar de perfil puede cambiar de cuenta: la cuenta sigue al perfil. */
+      const newAccountId =
+        body.profileId !== undefined && body.profileId !== current.profile.id
+          ? (await assertProfilesRentable(db, businessId, [body.profileId])).get(body.profileId)
+          : undefined;
 
       const startsOn = body.startsOn ?? current.startsOn;
       const expiresOn = body.expiresOn ?? current.expiresOn;
@@ -287,6 +296,7 @@ export const rentalRoutes = new Hono<TAppEnv>()
         .update(rentals)
         .set({
           ...(body.profileId !== undefined && { profileId: body.profileId }),
+          ...(newAccountId !== undefined && { accountId: newAccountId }),
           price,
           paidAmount,
           /* Un pago nuevo (o corregido) es de hoy (RF-07d). */

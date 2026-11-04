@@ -1,7 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import { type AnySQLiteColumn, index, integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-import { profile } from "./accounts";
+import { profile, streamingAccount } from "./accounts";
 import { user } from "./auth";
 import { business } from "./businesses";
 import { customers } from "./customers";
@@ -25,6 +25,13 @@ export const rentals = sqliteTable(
     customerId: text("customer_id")
       .notNull()
       .references(() => customers.id, { onDelete: "restrict" }),
+    /*
+      La cuenta alquilada (acordado 2026-11-04). Hoy siempre es la del perfil; mañana, para
+      los clientes revendedores, un alquiler podrá ser de la cuenta entera, sin perfil.
+      Opcional solo porque SQLite no deja agregar una columna obligatoria a una tabla que ya
+      existe: la API la llena siempre. `restrict`, como el perfil.
+    */
+    accountId: text("account_id").references(() => streamingAccount.id, { onDelete: "restrict" }),
     /* `restrict`: no se borra un perfil (ni su cuenta) con alquileres (RF-30). */
     profileId: text("profile_id")
       .notNull()
@@ -59,6 +66,8 @@ export const rentals = sqliteTable(
     index("rentals_customerId_idx").on(table.customerId),
     /* Si un perfil está ocupado y con quién (y el bloqueo al eliminarlo). */
     index("rentals_profileId_idx").on(table.profileId),
+    /* Quiénes tienen una cuenta: avisar al cambiar sus accesos (4c) y el bloqueo al eliminarla. */
+    index("rentals_accountId_idx").on(table.accountId),
   ],
 );
 

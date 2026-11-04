@@ -1,5 +1,5 @@
-import { addMonths, isIsoDate, todayInLima } from "@yiya/shared/dates";
-import { INVALID_SOLES_MESSAGE, parseSoles, roundSoles, toSolesInput } from "@yiya/shared/money";
+import { isIsoDate } from "@yiya/shared/dates";
+import { INVALID_SOLES_MESSAGE, parseSoles, toSolesInput } from "@yiya/shared/money";
 import { INVALID_DATE_MESSAGE } from "@yiya/shared/purchases";
 import {
   type IRentalResource,
@@ -16,8 +16,8 @@ export const DEFAULT_RENTAL_MONTHS = 1;
 export const RENTAL_MONTH_SHORTCUTS = [1, 3, 6, 12] as const;
 
 /**
- * Un perfil del formulario de alquilar, como se escribe: texto. `key` es solo para React
- * (las filas se agregan y se quitan).
+ * Un perfil alquilado en la modal de editar, como se escribe: texto. Alquilar va en el
+ * carrito (`rental-cart.ts`); acá solo se corrige uno.
  */
 export interface IRentalItemValues {
   key: string;
@@ -32,23 +32,8 @@ export interface IRentalItemValues {
 
 export type TRentalItemErrors = Partial<Record<keyof IRentalItemValues, string>>;
 
-/* «0» es válido en lo pagado (alquiló sin pagar); `parseSoles` lo da como `null`. */
-const parsePaid = (input: string): number | null => (/^0+([.,]0{1,2})?$/.test(input.trim()) ? 0 : parseSoles(input));
-
-/** Uno nuevo: hoy, un mes, el precio de venta del servicio y pagado completo. */
-export const buildItemValues = (serviceId = "", price: number | null = null): IRentalItemValues => {
-  const startsOn = todayInLima();
-  return {
-    key: crypto.randomUUID(),
-    serviceId,
-    profileId: "",
-    price: toSolesInput(price),
-    paidAmount: toSolesInput(price),
-    payBy: "",
-    startsOn,
-    expiresOn: addMonths(startsOn, DEFAULT_RENTAL_MONTHS),
-  };
-};
+/** Lo pagado: «0» es válido (alquiló sin pagar), y `parseSoles` lo da como `null`. */
+export const parsePaid = (input: string): number | null => (/^0+([.,]0{1,2})?$/.test(input.trim()) ? 0 : parseSoles(input));
 
 /** Editar: lo guardado, tal cual. */
 export const toItemValues = (rental: IRentalResource): IRentalItemValues => ({
@@ -111,7 +96,3 @@ export const toItemPayload = (values: IRentalItemValues): IRentalItemPayload => 
   startsOn: values.startsOn,
   expiresOn: values.expiresOn,
 });
-
-/** El total de lo que se está alquilando, para el pie de la modal. Un precio sin llenar suma 0. */
-export const totalOf = (items: IRentalItemValues[]): number =>
-  roundSoles(items.reduce((total, item) => total + (parseSoles(item.price) ?? 0), 0));
