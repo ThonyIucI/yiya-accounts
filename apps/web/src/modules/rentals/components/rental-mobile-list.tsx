@@ -7,7 +7,7 @@ import { EXPIRY_TEXT_CLASSES } from "@/modules/accounts/utils/expiry";
 import { type ICustomerRentals, rentalExpiryStatus } from "@/modules/rentals/utils/rental-groups";
 
 import RentalDueBadge from "./rental-due-badge";
-import RentalServiceStack from "./rental-service-stack";
+import RentalServiceBadges from "./rental-service-badges";
 
 const SKELETON_COUNT = 5;
 
@@ -22,7 +22,8 @@ interface IRentalMobileListProps {
  * sin sombra por fila, separadas por una línea fina que empieza después del avatar. Es un
  * patrón propio de Alquileres, distinto de la card de listado del resto.
  *
- * Cada fila: el cliente, debajo los logos de lo que alquila y, a la derecha, su vencimiento
+ * Cada fila: el cliente, debajo lo que alquila como badges con el nombre del servicio
+ * (2026-11-04, antes logos) y, a la derecha, su vencimiento
  * más cercano y el monto a cobrar si toca. Los gestos (deslizar, mantener presionado) llegan
  * en la porción 4. Oculta desde `md`: allí se usa `RentalTable`.
  */
@@ -59,7 +60,7 @@ export default function RentalMobileList({ groups, isLoading, onOpen }: IRentalM
               <div className="flex min-w-0 flex-1 items-center justify-between gap-3 border-b border-border/60 py-3 pr-4">
                 <div className="min-w-0 space-y-1.5">
                   <p className="truncate font-heading font-bold text-foreground">{group.customer.name}</p>
-                  <RentalServiceStack rentals={group.rentals} />
+                  <RentalServiceBadges rentals={group.rentals} />
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1.5">
                   {nearest && (

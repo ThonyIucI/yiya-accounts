@@ -143,7 +143,7 @@ function RentalsPage() {
 
   return (
     /* Abajo, espacio para que el «+» flotante no tape la última card en celular. */
-    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 pt-4 pb-24 md:py-6">
+    <div className="mx-auto w-full max-w-7xl space-y-4 px-4 pt-2 pb-24 md:py-6">
       {/*
         Simple, como el reporte de ventas de id-pos (acordado 2026-11-04). Celular: solo el
         buscador, y crear es el «+» flotante. Escritorio: el título con recargar a la

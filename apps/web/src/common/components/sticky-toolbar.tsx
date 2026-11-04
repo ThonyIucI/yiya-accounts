@@ -41,7 +41,8 @@ export default function StickyToolbar({ children, className }: IStickyToolbarPro
 
   return (
     <>
-      <div ref={sentinelRef} aria-hidden />
+      {/* `mb-0`: dentro de un `space-y-*` el centinela vacío recibía margen y dejaba un hueco. */}
+      <div ref={sentinelRef} aria-hidden className="mb-0" />
       <div
         style={{ top: stickyTop }}
         className={cn(
