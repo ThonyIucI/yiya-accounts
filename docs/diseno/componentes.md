@@ -233,3 +233,32 @@ Como el detalle de cliente de id-pos. Referencia en Yiya: el detalle de una cuen
 - **Select con «Crear «…»»** (`CreatableSelect` de `common/components/select.tsx`): para
   agregar algo sin salir del formulario, como un proveedor desde la cuenta.
 - Validación con mensajes en español debajo del campo (`FieldError`).
+
+## Periodo de alquiler (Thony, 2026-11-06, `modules/rentals/components/rental-period-picker.tsx`)
+
+**Un solo campo para el inicio y el fin**, que dice «Del 05 nov al 05 dic · 1 mes». Abre un
+`Popover` (`packages/ui`) con dos pestañas, **Inicia** y **Finaliza**, como el «Fechas ·
+Flexible» de Airbnb:
+
+- **Inicia:** un mes de calendario (`common/components/month-calendar.tsx`). Se puede elegir
+  un día pasado (se alquiló antes de ayer). Al elegirlo pasa a Finaliza y conserva la
+  duración; si no eran meses exactos, pone 1 mes.
+- **Finaliza:** los tiempos (1 · 3 · 6 meses · 1 año) y debajo los 12 meses que siguen. Un mes
+  termina el mismo día del inicio (empieza el 1 feb y se toca mayo: 1 may; el 31 ene + 1 mes
+  es el 28 feb). Arriba, el switch **«Escribir la fecha»** (dd/mm/aaaa) cubre lo raro, como
+  una semana. Elegir un tiempo o un mes cierra el popover; escribir no.
+- **Escritorio:** las dos mitades a la vez. **Celular:** una a la vez.
+- **Colores sobrios, como Airbnb:** el elegido en borde o círculo del color del texto, el
+  rango en gris suave; nada de color de marca.
+- Las compras de cuentas siguen con su campo de fecha: no van por meses.
+
+## Fila con scroll horizontal (Thony, 2026-11-06, `common/components/horizontal-scroller.tsx`)
+
+Toda zona con scroll horizontal usa `HorizontalScroller`: **sin barra visible** (funciona,
+pero no se ve bien) y, en escritorio, **flechas a los lados** solo cuando hay más para ver.
+En celular se desliza con el dedo. Hoy: los servicios del catálogo y los meses del periodo.
+
+## Botón de cerrar (Thony, 2026-11-06)
+
+El ✕ de una modal o del menú lateral lleva **fondo gris** (`IconButton isFilled`), no solo
+el ícono: la vista lo encuentra rápido.

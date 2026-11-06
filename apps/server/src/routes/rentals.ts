@@ -8,11 +8,15 @@ import { hasAtMostTwoDecimals, roundSoles } from "@yiya/shared/money";
 import { INVALID_DATE_MESSAGE } from "@yiya/shared/purchases";
 import {
   type IRentalResource,
+  RENTAL_ALREADY_RELEASED_MESSAGE,
+  RENTAL_ALREADY_RENEWED_MESSAGE,
   RENTAL_EXPIRES_BEFORE_START_MESSAGE,
   RENTAL_INVALID_PAID_MESSAGE,
   RENTAL_MAX_ITEMS,
   RENTAL_NO_ITEMS_MESSAGE,
   RENTAL_PAID_OVER_PRICE_MESSAGE,
+  RENTAL_RENEW_ENDS_TOO_SOON_MESSAGE,
+  RENTAL_RENEW_STARTS_TOO_SOON_MESSAGE,
 } from "@yiya/shared/rentals";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { Hono } from "hono";
@@ -20,7 +24,7 @@ import { z } from "zod";
 
 import type { TDb } from "../lib/account-queries";
 import type { TAppEnv } from "../lib/app-env";
-import { badRequest, notFound } from "../lib/errors";
+import { badRequest, conflict, notFound } from "../lib/errors";
 import { newId } from "../lib/ids";
 import { ok } from "../lib/response";
 import { SERVICE_SUMMARY_COLUMNS } from "../lib/service-summary";
@@ -31,6 +35,7 @@ import { requireAuth } from "../middleware/require-role";
 export const RENTAL_ROUTES = {
   RENTALS: "/rentals",
   RENTAL: "/rentals/:id",
+  RENEW: "/rentals/:id/renew",
 } as const;
 
 const RENTAL_NOT_FOUND = "No encontramos ese alquiler.";
@@ -94,6 +99,25 @@ const updateRentalSchema = z
     message: NO_CHANGES_MESSAGE,
   });
 
+/*
+  Renovar (RF-11): por defecto empieza el día que vencía el anterior; puede empezar después
+  (volvió a los días), nunca antes: para eso se edita el alquiler (Thony, 2026-11-06). Sin
+  `paidAmount` se da por pagado completo, como al alquilar; con «Pagó todo» apagado llega lo
+  que pagó y, si quiere, cuándo paga el resto.
+*/
+const renewRentalSchema = z
+  .object({
+    price: priceSchema,
+    paidAmount: paidAmountSchema.optional(),
+    payBy: dateSchema.nullable().optional(),
+    startsOn: dateSchema.optional(),
+    expiresOn: dateSchema,
+  })
+  .refine((body) => body.paidAmount === undefined || body.paidAmount <= body.price, {
+    message: RENTAL_PAID_OVER_PRICE_MESSAGE,
+    path: ["paidAmount"],
+  });
+
 /**
  * Alquileres con su cliente, servicio, cuenta y perfil, lo que vence primero arriba. Solo los
  * abiertos: sin liberar ni renovar. Con `ids` (como mucho `RENTAL_MAX_ITEMS`), solo esos.
@@ -149,13 +173,28 @@ const toRentalResource = ({
 const findOpenRentals = async (db: TDb, businessId: string, ids: string[]) =>
   (await selectOpenRentals(db, businessId, ids)).map(toRentalResource);
 
-/** Un alquiler abierto de **este** negocio. El de otro negocio da 404, como si no existiera. */
+/**
+ * Un alquiler abierto de **este** negocio. El de otro negocio da 404, como si no existiera;
+ * uno ya renovado o liberado da 409, porque es historial y no se toca. Esa segunda lectura
+ * solo pasa cuando no se encontró abierto.
+ */
 const findOpenRental = async (db: TDb, businessId: string, id: string) => {
   const [found] = await findOpenRentals(db, businessId, [id]);
-  if (!found) {
-    throw notFound(RENTAL_NOT_FOUND);
+  if (found) {
+    return found;
   }
-  return found;
+  const closed = await db
+    .select({ renewedById: rentals.renewedById, releasedOn: rentals.releasedOn })
+    .from(rentals)
+    .where(and(eq(rentals.id, id), eq(rentals.businessId, businessId)))
+    .get();
+  if (closed?.renewedById) {
+    throw conflict(RENTAL_ALREADY_RENEWED_MESSAGE);
+  }
+  if (closed?.releasedOn) {
+    throw conflict(RENTAL_ALREADY_RELEASED_MESSAGE);
+  }
+  throw notFound(RENTAL_NOT_FOUND);
 };
 
 const assertCustomer = async (db: TDb, businessId: string, customerId: string) => {
@@ -311,7 +350,61 @@ export const rentalRoutes = new Hono<TAppEnv>()
     },
   )
 
-  /* Uno mal cargado. Renovar y liberar (porción 2) no borran: dejan historial. */
+  /*
+    Renueva: crea el alquiler que sigue (mismo cliente y perfil, desde el vencimiento de este)
+    y marca este como renovado, los dos en una transacción. Devuelve el nuevo; el front saca
+    el anterior de la lista y pone este (RNF-08).
+  */
+  .post(
+    RENTAL_ROUTES.RENEW,
+    requireAuth,
+    requireBusiness,
+    validateJson(renewRentalSchema),
+    async (context) => {
+      const id = context.req.param("id");
+      const body = context.req.valid("json");
+      const businessId = context.var.business.id;
+      const db = createDb();
+
+      const current = await findOpenRental(db, businessId, id);
+      const startsOn = body.startsOn ?? current.expiresOn;
+      if (startsOn < current.expiresOn) {
+        throw badRequest(RENTAL_RENEW_STARTS_TOO_SOON_MESSAGE);
+      }
+      if (body.expiresOn <= startsOn) {
+        throw badRequest(RENTAL_RENEW_ENDS_TOO_SOON_MESSAGE);
+      }
+      /* La cuenta puede haberse desactivado desde que se alquiló. */
+      const accountOf = await assertProfilesRentable(db, businessId, [current.profile.id]);
+
+      const paidAmount = body.paidAmount ?? body.price;
+      const renewedId = newId();
+      await db.batch([
+        db.insert(rentals).values({
+          id: renewedId,
+          businessId,
+          customerId: current.customer.id,
+          accountId: accountOf.get(current.profile.id)!,
+          profileId: current.profile.id,
+          price: body.price,
+          paidAmount,
+          paidOn: paidOnFor(paidAmount),
+          payBy: paidAmount < body.price ? (body.payBy ?? null) : null,
+          startsOn,
+          expiresOn: body.expiresOn,
+          createdById: context.var.user.id,
+        }),
+        db
+          .update(rentals)
+          .set({ renewedById: renewedId })
+          .where(and(eq(rentals.id, id), eq(rentals.businessId, businessId))),
+      ]);
+
+      return ok(context, await findOpenRental(db, businessId, renewedId), 201);
+    },
+  )
+
+  /* Uno mal cargado. Renovar y liberar no borran: dejan historial. */
   .delete(RENTAL_ROUTES.RENTAL, requireAuth, requireBusiness, async (context) => {
     const id = context.req.param("id");
     const businessId = context.var.business.id;

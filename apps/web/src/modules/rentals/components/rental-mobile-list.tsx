@@ -45,7 +45,7 @@ export default function RentalMobileList({ groups, isLoading, onOpen }: IRentalM
   }
 
   return (
-    <ul className="-mx-4 mds:hidden">
+    <ul className="-mx-4 md:hidden">
       {groups.map((group) => {
         const next = nextChargeOf(group);
         /* Al día va en gris, como la hora de un correo en Gmail; si toca cobrar, su color. */

@@ -170,12 +170,17 @@ export function RentalCartPayment({ cart }: { cart: TRentalCart }) {
 
 interface IRentalCartActionsProps {
   isSubmitting: boolean;
+  /** El total a cobrar; `null` si el carrito está vacío o el total no es válido. */
+  total: number | null;
   onCancel: () => void;
   onSubmit: () => void;
 }
 
-/** El pie: **solo** Cancelar y Alquilar (acordado 2026-11-04); los montos van en el cuerpo. */
-export function RentalCartActions({ isSubmitting, onCancel, onSubmit }: IRentalCartActionsProps) {
+/**
+ * El pie: **solo** Cancelar y Alquilar (acordado 2026-11-04). Alquilar lleva el total
+ * (Thony, 2026-11-06): es lo último que se mira antes de cobrar.
+ */
+export function RentalCartActions({ isSubmitting, total, onCancel, onSubmit }: IRentalCartActionsProps) {
   return (
     <div className="grid grid-cols-2 gap-2">
       <Button type="button" variant="outline" size="lg" onClick={onCancel}>
@@ -184,6 +189,7 @@ export function RentalCartActions({ isSubmitting, onCancel, onSubmit }: IRentalC
       <Button type="button" size="lg" onClick={onSubmit}>
         {isSubmitting && <Loader2 className="animate-spin motion-reduce:animate-none" />}
         Alquilar
+        {total !== null && total > 0 && <span className="tabular-nums">· {formatSoles(total)}</span>}
       </Button>
     </div>
   );

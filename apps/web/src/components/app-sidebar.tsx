@@ -40,7 +40,7 @@ function SidebarPanel({ onClose }: ISidebarPanelProps) {
             {role && <p className="text-sm text-muted-foreground">{userRoleLabels[role]}</p>}
           </div>
           {onClose && (
-            <IconButton size="md" label="Cerrar menú" onClick={onClose}>
+            <IconButton size="md" label="Cerrar menú" isFilled onClick={onClose}>
               <X />
             </IconButton>
           )}

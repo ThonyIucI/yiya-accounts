@@ -1,4 +1,5 @@
 import { Button } from "@yiya/ui/components/button";
+import { formatSoles, parseSoles } from "@yiya/shared/money";
 import { IconButton } from "@yiya/ui/components/icon-button";
 import type { ICustomerResource } from "@yiya/shared/customers";
 import { RENTAL_MAX_ITEMS } from "@yiya/shared/rentals";
@@ -164,6 +165,9 @@ function NewRentalPage() {
   };
 
   const addedCount = browseFromCount === null ? 0 : Math.max(cart.lines.length - browseFromCount, 0);
+  /* Lo que suman los perfiles agregados en esta vuelta (las líneas nuevas van al final). */
+  const addedAmount =
+    addedCount === 0 ? 0 : cart.lineAmounts.slice(-addedCount).reduce((sum, amount) => sum + amount, 0);
 
   /* «Agregar» nunca se apaga: sin perfiles nuevos, el clic dice qué hacer. */
   const handleBrowseDone = () => {
@@ -227,6 +231,7 @@ function NewRentalPage() {
   const actions = (
     <RentalCartActions
       isSubmitting={CreateRentals.loading}
+      total={cart.lines.length > 0 ? parseSoles(cart.totalInput) : null}
       onCancel={() => navigate({ to: "/alquileres" })}
       onSubmit={handleSubmit}
     />
@@ -319,7 +324,10 @@ function NewRentalPage() {
           <Button type="button" size="lg" className="w-full justify-between" onClick={handleBrowseDone}>
             <span>Agregar</span>
             {addedCount > 0 && (
-              <span className="tabular-nums">{addedCount === 1 ? "1 perfil" : `${addedCount} perfiles`}</span>
+              <span className="tabular-nums">
+                {addedCount === 1 ? "1 perfil" : `${addedCount} perfiles`}
+                {addedAmount > 0 && ` · ${formatSoles(addedAmount)}`}
+              </span>
             )}
           </Button>
         </div>

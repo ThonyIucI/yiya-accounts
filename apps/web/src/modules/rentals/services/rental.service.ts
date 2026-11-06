@@ -32,3 +32,19 @@ export const updateRentalRequest = (id: string, payload: TUpdateRentalPayload) =
 
 export const deleteRentalRequest = (id: string) =>
   apiRequest<{ id: string }>(`/rentals/${id}`, { method: "DELETE" });
+
+/** Desde cuándo, hasta cuándo y por cuánto (RF-11). */
+export interface IRenewRentalPayload {
+  price: number;
+  /** Lo que pagó; si no llega, el servidor lo da por pagado completo. */
+  paidAmount: number;
+  /** Cuándo paga lo que falta; solo si debe. */
+  payBy: string | null;
+  /** Desde el vencimiento anterior en adelante (si volvió después de unos días). */
+  startsOn: string;
+  expiresOn: string;
+}
+
+/** Crea el alquiler que sigue y marca este como renovado. Devuelve el nuevo. */
+export const renewRentalRequest = (id: string, payload: IRenewRentalPayload) =>
+  apiRequest<IRentalResource>(`/rentals/${id}/renew`, { method: "POST", body: payload });

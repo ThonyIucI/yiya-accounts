@@ -10,8 +10,8 @@ import type { TProfileHolders } from "@/modules/rentals/utils/profile-options";
 import { type ICartLine, buildLine, monthsOf, nextProfileOf } from "@/modules/rentals/utils/rental-cart";
 import ServiceAvatar from "@/modules/services/components/service-avatar";
 
-import { DurationBadges, DurationRange, shortcutOf } from "./duration-badges";
 import ProfilePicker from "./profile-picker";
+import RentalPeriodPicker from "./rental-period-picker";
 
 interface IRentalItemModalProps {
   /** La cuenta abierta; `null` cierra la modal. */
@@ -28,7 +28,7 @@ interface IRentalItemModalProps {
 
 /**
  * El detalle de una cuenta en el carrito, como la modal de producto de id-pos (acordado
- * 2026-11-04): la imagen del servicio, al lado los 4 tiempos como badges y, abajo, sus
+ * 2026-11-04): la imagen del servicio, al lado el periodo (`RentalPeriodPicker`) y, abajo, sus
  * perfiles como cards para elegir. Se abre al tocar la cuenta en el catálogo (agregar) o
  * una línea del carrito (cambiarla).
  */
@@ -46,7 +46,6 @@ export default function RentalItemModal({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [startsOn, setStartsOn] = useState(todayInLima());
   const [expiresOn, setExpiresOn] = useState(addMonths(todayInLima(), 1));
-  const [areDatesShown, setAreDatesShown] = useState(false);
 
   /* Al abrir: lo de la línea, o el siguiente perfil libre y un mes. */
   useEffect(() => {
@@ -57,8 +56,6 @@ export default function RentalItemModal({
       setSelectedIds([line.profileId]);
       setStartsOn(line.startsOn);
       setExpiresOn(line.expiresOn);
-      /* Fechas que no son un atajo: se abren las fechas para verlas. */
-      setAreDatesShown(shortcutOf(line) === null);
       return;
     }
     const next = nextProfileOf(account, lines, holders);
@@ -66,7 +63,6 @@ export default function RentalItemModal({
     setSelectedIds(next ? [next] : []);
     setStartsOn(today);
     setExpiresOn(addMonths(today, 1));
-    setAreDatesShown(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, line]);
 
@@ -148,28 +144,13 @@ export default function RentalItemModal({
             </div>
             <div className="min-w-0 flex-1 space-y-2">
               <p className="font-heading font-semibold text-foreground">Tiempo</p>
-              <DurationBadges
-                dates={{ startsOn, expiresOn }}
-                isCustomOpen={areDatesShown}
-                onChange={(next) => {
-                  setExpiresOn(next);
-                  setAreDatesShown(false);
+              {/* Un solo campo para inicio y fin (Thony, 2026-11-06): el tiempo se elige adentro. */}
+              <RentalPeriodPicker
+                value={{ startsOn, expiresOn }}
+                onChange={(period) => {
+                  setStartsOn(period.startsOn);
+                  setExpiresOn(period.expiresOn);
                 }}
-                onToggleCustom={() => setAreDatesShown((shown) => !shown)}
-              />
-              {/* Con «Más…», los inputs van en el lugar del rango: es lo mismo, editable. */}
-              <DurationRange
-                dates={{ startsOn, expiresOn }}
-                isEditable={areDatesShown}
-                onStartsOnChange={(next) => {
-                  /* Correr el inicio corre el vencimiento: se mantiene la duración. */
-                  const months = monthsOf({ startsOn, expiresOn });
-                  setStartsOn(next);
-                  if (isIsoDate(next)) {
-                    setExpiresOn(addMonths(next, months));
-                  }
-                }}
-                onExpiresOnChange={setExpiresOn}
               />
             </div>
           </div>

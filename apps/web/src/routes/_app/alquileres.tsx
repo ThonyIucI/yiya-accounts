@@ -17,6 +17,7 @@ import { usePagination } from "@/common/hooks/use-pagination";
 import { useListAccounts } from "@/modules/accounts/hooks/use-list-accounts";
 import CustomerRentalsPanel from "@/modules/rentals/components/customer-rentals-panel";
 import RentalFormModal from "@/modules/rentals/components/rental-form-modal";
+import RentalRenewModal from "@/modules/rentals/components/rental-renew-modal";
 import RentalMobileList from "@/modules/rentals/components/rental-mobile-list";
 import RentalTable from "@/modules/rentals/components/rental-table";
 import { useDeleteRental } from "@/modules/rentals/hooks/use-delete-rental";
@@ -60,6 +61,7 @@ function RentalsPage() {
   const navigate = Route.useNavigate();
 
   const [editTarget, setEditTarget] = useState<IRentalResource | undefined>();
+  const [renewTarget, setRenewTarget] = useState<IRentalResource | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<IRentalResource | null>(null);
   const [term, setTerm] = useState("");
 
@@ -197,13 +199,13 @@ function RentalsPage() {
             isLoading={isLoading}
             className="hidden md:block lg:text-right"
           />
-          {/* <RentalTable
+          <RentalTable
             groups={pager.pagedItems}
             isLoading={isLoading}
             buildActions={buildActions}
             onOpen={openDetail}
             footer={hasContent ? pagination : undefined}
-          /> */}
+          />
           {/*
             Celular sin «Mostrando» ni paginado (Thony, 2026-11-06): le quitaban espacio a
             las filas. La lista ya está cargada entera, así que se muestran todas.
@@ -217,8 +219,19 @@ function RentalsPage() {
         group={openGroup}
         onAdd={(group) => openCreate(group.customer)}
         onEdit={setEditTarget}
+        onRenew={setRenewTarget}
         onDelete={setDeleteTarget}
         onClose={closeDetail}
+      />
+
+      {/* El anterior pasa al historial: sale de la lista y entra el nuevo, sin volver a pedirla. */}
+      <RentalRenewModal
+        rental={renewTarget}
+        onRenewed={(previous, renewed) => {
+          ListRentals.onRemove(previous.id);
+          ListRentals.onUpsert([renewed]);
+        }}
+        onClose={() => setRenewTarget(null)}
       />
 
       <RentalFormModal

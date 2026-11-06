@@ -90,6 +90,9 @@ describe("/rentals", () => {
   const update = (id: string, body: unknown, cookie = ownerACookie) =>
     patchJson(`/api/v1/rentals/${id}`, body, { cookie });
 
+  const renew = (id: string, body: unknown, cookie = ownerACookie) =>
+    postJson(`/api/v1/rentals/${id}/renew`, body, { cookie });
+
   const remove = (path: string, cookie = ownerACookie) =>
     request(path, { method: "DELETE", headers: { cookie } });
 
@@ -258,6 +261,82 @@ describe("/rentals", () => {
     expect((await listFor()).some((item) => item.id === rental!.id)).toBe(false);
   });
 
+  it("renueva desde el vencimiento anterior y el anterior sale del listado", async () => {
+    // Arrange
+    const [rental] = await rentData(luisId, [itemFor(profileOf(maxAccount, 3), { price: 10, paidAmount: 5 })]);
+
+    // Act
+    const response = await renew(rental!.id, { price: 12, expiresOn: "2027-01-04" });
+    const renewed = (await response.json<IBody<IRentalData>>()).data;
+    const list = await listFor();
+
+    // Assert
+    expect(response.status).toBe(201);
+    expect(renewed.startsOn).toBe("2026-12-04");
+    expect(renewed.expiresOn).toBe("2027-01-04");
+    expect(renewed.profile.id).toBe(rental!.profile.id);
+    expect(renewed.customer.id).toBe(luisId);
+    expect(renewed.price).toBe(12);
+    expect(renewed.paidAmount).toBe(12);
+    expect(list.some((item) => item.id === rental!.id)).toBe(false);
+    expect(list.some((item) => item.id === renewed.id)).toBe(true);
+  });
+
+  it("renueva por otro tiempo y desde unos días después del vencimiento", async () => {
+    // Arrange
+    const [rental] = await rentData(luisId, [itemFor(profileOf(maxAccount, 2))]);
+
+    // Act
+    const response = await renew(rental!.id, { price: 40, startsOn: "2026-12-10", expiresOn: "2027-03-10" });
+    const renewed = (await response.json<IBody<IRentalData>>()).data;
+
+    // Assert
+    expect(response.status).toBe(201);
+    expect(renewed.startsOn).toBe("2026-12-10");
+    expect(renewed.expiresOn).toBe("2027-03-10");
+  });
+
+  it("renueva con una parte pagada y no acepta pagar más que el precio", async () => {
+    // Arrange
+    const [rental] = await rentData(luisId, [itemFor(profileOf(maxAccount, 1))]);
+
+    // Act
+    const overpaid = await renew(rental!.id, { price: 15, paidAmount: 20, expiresOn: "2027-01-04" });
+    const response = await renew(rental!.id, {
+      price: 15,
+      paidAmount: 5,
+      payBy: "2026-12-10",
+      expiresOn: "2027-01-04",
+    });
+    const renewed = (await response.json<IBody<IRentalData>>()).data;
+
+    // Assert
+    expect(overpaid.status).toBe(400);
+    expect(response.status).toBe(201);
+    expect(renewed.paidAmount).toBe(5);
+    expect(renewed.payBy).toBe("2026-12-10");
+  });
+
+  it("no renueva dos veces, ni edita lo renovado, ni termina antes del vencimiento", async () => {
+    // Arrange
+    const [rental] = await rentData(luisId, [itemFor(profileOf(maxAccount, 4))]);
+    await renew(rental!.id, { price: 15, expiresOn: "2027-01-04" });
+    const [other] = await rentData(luisId, [itemFor(profileOf(maxAccount, 5))]);
+
+    // Act
+    const again = await renew(rental!.id, { price: 15, expiresOn: "2027-02-04" });
+    const edit = await update(rental!.id, { price: 1 });
+    const tooSoon = await renew(other!.id, { price: 15, expiresOn: "2026-12-04" });
+    const startsBefore = await renew(other!.id, { price: 15, startsOn: "2026-12-01", expiresOn: "2027-01-01" });
+
+    // Assert
+    expect(again.status).toBe(409);
+    expect(await errorOf(again)).toBe("Este alquiler ya se renovó.");
+    expect(edit.status).toBe(409);
+    expect(tooSoon.status).toBe(400);
+    expect(startsBefore.status).toBe(400);
+  });
+
   it("no elimina un cliente, una cuenta ni un perfil con alquileres", async () => {
     // Act
     const customer = await remove(`/api/v1/customers/${anaId}`);
@@ -280,6 +359,7 @@ describe("/rentals", () => {
     const list = await listFor(ownerBCookie);
     const edit = await update(rental!.id, { price: 1 }, ownerBCookie);
     const deleted = await remove(`/api/v1/rentals/${rental!.id}`, ownerBCookie);
+    const renewed = await renew(rental!.id, { price: 15, expiresOn: "2027-01-04" }, ownerBCookie);
     const foreignProfile = await rent(otherCustomer, [itemFor(profileOf(disneyAccount, 4))], ownerBCookie);
     const foreignCustomer = await rent(anaId, [itemFor(profileOf(disneyAccount, 4))], ownerBCookie);
 
@@ -287,6 +367,7 @@ describe("/rentals", () => {
     expect(list).toEqual([]);
     expect(edit.status).toBe(404);
     expect(deleted.status).toBe(404);
+    expect(renewed.status).toBe(404);
     expect(foreignProfile.status).toBe(404);
     expect(foreignCustomer.status).toBe(404);
   });

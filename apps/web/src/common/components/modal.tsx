@@ -202,7 +202,8 @@ export default function Modal({
                   <h2 className="font-heading text-xl font-bold wrap-break-word text-foreground">{title}</h2>
                   {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
                 </div>
-                <IconButton label="Cerrar" className="-mr-1.5" onClick={onClose}>
+                {/* Con fondo gris, no solo la ✕: la vista lo encuentra rápido (Thony, 2026-11-06). */}
+                <IconButton label="Cerrar" isFilled onClick={onClose}>
                   <X />
                 </IconButton>
               </div>

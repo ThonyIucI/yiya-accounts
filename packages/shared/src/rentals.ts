@@ -12,6 +12,11 @@ export const RENTAL_NO_ITEMS_MESSAGE = "Agrega al menos un perfil.";
 export const RENTAL_EXPIRES_BEFORE_START_MESSAGE =
   "El vencimiento no puede ser antes del inicio.";
 export const RENTAL_PAID_OVER_PRICE_MESSAGE = "Lo pagado no puede ser más que el precio.";
+export const RENTAL_ALREADY_RENEWED_MESSAGE = "Este alquiler ya se renovó.";
+export const RENTAL_ALREADY_RELEASED_MESSAGE = "Este alquiler ya se liberó.";
+export const RENTAL_RENEW_STARTS_TOO_SOON_MESSAGE =
+  "La renovación no puede empezar antes del vencimiento actual. Para otras fechas, edita el alquiler.";
+export const RENTAL_RENEW_ENDS_TOO_SOON_MESSAGE = "La renovación tiene que terminar después de su inicio.";
 export const RENTAL_INVALID_PAID_MESSAGE =
   "Escribe lo pagado en soles, con hasta 2 decimales (por ejemplo, 7.50).";
 
