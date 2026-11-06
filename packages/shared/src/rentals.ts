@@ -54,6 +54,17 @@ export interface IRentalResource {
   createdAt: string;
 }
 
+/**
+ * Un alquiler del cliente, abierto o ya historial (RF-18): renovado (`renewedById`) o
+ * liberado (`releasedOn`). Lo devuelve `GET /customers/:id/rentals`.
+ */
+export interface IRentalHistoryResource extends IRentalResource {
+  /** El día en que se liberó; `null` si no se liberó. */
+  releasedOn: string | null;
+  /** El alquiler que lo renovó; `null` si no se renovó. */
+  renewedById: string | null;
+}
+
 /** Lo que falta pagar. 0 si está pagado. */
 export const rentalDebt = (rental: Pick<IRentalResource, "price" | "paidAmount">): number =>
   Math.max(0, Math.round((rental.price - rental.paidAmount) * 100) / 100);

@@ -22,6 +22,7 @@ import RentalMobileList from "@/modules/rentals/components/rental-mobile-list";
 import RentalTable from "@/modules/rentals/components/rental-table";
 import { useDeleteRental } from "@/modules/rentals/hooks/use-delete-rental";
 import { useListRentals } from "@/modules/rentals/hooks/use-list-rentals";
+import { useReleaseRental } from "@/modules/rentals/hooks/use-release-rental";
 import { type ICustomerRentals, groupByCustomer } from "@/modules/rentals/utils/rental-groups";
 import { useListBusinessServices } from "@/modules/services/hooks/use-list-business-services";
 
@@ -57,12 +58,14 @@ function RentalsPage() {
   const ListServices = useListBusinessServices();
   const ListAccounts = useListAccounts();
   const DeleteRental = useDeleteRental();
+  const ReleaseRental = useReleaseRental();
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
   const [editTarget, setEditTarget] = useState<IRentalResource | undefined>();
   const [renewTarget, setRenewTarget] = useState<IRentalResource | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<IRentalResource | null>(null);
+  const [releaseTarget, setReleaseTarget] = useState<IRentalResource | null>(null);
   const [term, setTerm] = useState("");
 
   /* Servicios y cuentas los usa la modal de editar; se piden juntos al entrar. */
@@ -99,22 +102,33 @@ function RentalsPage() {
   const openCreate = (customer?: IRentalCustomer) =>
     navigate({ to: "/alquileres/nuevo", search: customer ? { cliente: customer.id } : {} });
 
+  /* Sale de la lista; si era su único perfil, el cliente sale de Alquileres y el detalle se cierra. */
+  const removeFromList = (rental: IRentalResource) => {
+    ListRentals.onRemove(rental.id);
+    const isLast = !rentals.some((item) => item.id !== rental.id && item.customer.id === rental.customer.id);
+    if (isLast && search.cliente === rental.customer.id) {
+      closeDetail();
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deleteTarget) {
       return;
     }
-    const deleted = await DeleteRental.handler(deleteTarget);
-    if (deleted) {
-      ListRentals.onRemove(deleted.id);
-      /* Era su único perfil: el cliente sale de Alquileres y el detalle se cierra. */
-      const isLast = !rentals.some(
-        (item) => item.id !== deleted.id && item.customer.id === deleteTarget.customer.id,
-      );
-      if (isLast && search.cliente === deleteTarget.customer.id) {
-        closeDetail();
-      }
+    if (await DeleteRental.handler(deleteTarget)) {
+      removeFromList(deleteTarget);
     }
     setDeleteTarget(null);
+  };
+
+  const confirmRelease = async () => {
+    if (!releaseTarget) {
+      return;
+    }
+    if (await ReleaseRental.handler(releaseTarget)) {
+      removeFromList(releaseTarget);
+    }
+    setReleaseTarget(null);
   };
 
   const buildActions = (group: ICustomerRentals): IRowAction[] => [
@@ -220,6 +234,7 @@ function RentalsPage() {
         onAdd={(group) => openCreate(group.customer)}
         onEdit={setEditTarget}
         onRenew={setRenewTarget}
+        onRelease={setReleaseTarget}
         onDelete={setDeleteTarget}
         onClose={closeDetail}
       />
@@ -241,6 +256,17 @@ function RentalsPage() {
         rentals={rentals}
         onSaved={ListRentals.onUpsert}
         onClose={() => setEditTarget(undefined)}
+      />
+
+      {/* Liberar no borra: queda en el historial del cliente (RF-10). */}
+      <ConfirmModal
+        open={releaseTarget !== null}
+        title={`¿Liberar ${releaseTarget?.service.name ?? ""} de ${releaseTarget?.customer.name ?? ""}?`}
+        description={`${releaseTarget?.customer.name ?? ""} deja de tener el perfil ${releaseTarget?.profile.name ?? ""} de ${releaseTarget?.account.email ?? ""}. Sale de Alquileres y queda en su historial.`}
+        confirmLabel="Liberar"
+        loading={ReleaseRental.loading}
+        onConfirm={confirmRelease}
+        onCancel={() => setReleaseTarget(null)}
       />
 
       <ConfirmModal

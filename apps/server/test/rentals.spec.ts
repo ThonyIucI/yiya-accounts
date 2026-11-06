@@ -93,6 +93,16 @@ describe("/rentals", () => {
   const renew = (id: string, body: unknown, cookie = ownerACookie) =>
     postJson(`/api/v1/rentals/${id}/renew`, body, { cookie });
 
+  const release = (id: string, cookie = ownerACookie) =>
+    postJson(`/api/v1/rentals/${id}/release`, {}, { cookie });
+
+  const historyOf = async (customerId: string) =>
+    (
+      await (await request(`/api/v1/customers/${customerId}/rentals`, { headers: { cookie: ownerACookie } })).json<
+        IBody<(IRentalData & { releasedOn: string | null; renewedById: string | null })[]>
+      >()
+    ).data;
+
   const remove = (path: string, cookie = ownerACookie) =>
     request(path, { method: "DELETE", headers: { cookie } });
 
@@ -337,6 +347,44 @@ describe("/rentals", () => {
     expect(startsBefore.status).toBe(400);
   });
 
+  it("libera: sale del listado, queda en el historial y no se libera dos veces", async () => {
+    // Arrange
+    const customerId = await createCustomer("Rosa");
+    const [rental] = await rentData(customerId, [itemFor(profileOf(netflixAccount, 4))]);
+
+    // Act
+    const response = await release(rental!.id);
+    const again = await release(rental!.id);
+    const renewed = await renew(rental!.id, { price: 15, expiresOn: "2027-01-04" });
+    const list = await listFor();
+    const history = await historyOf(customerId);
+
+    // Assert
+    expect(response.status).toBe(200);
+    expect(again.status).toBe(409);
+    expect(await errorOf(again)).toBe("Este alquiler ya se liberó.");
+    expect(renewed.status).toBe(409);
+    expect(list.some((item) => item.id === rental!.id)).toBe(false);
+    expect(history).toHaveLength(1);
+    expect(history[0]!.releasedOn).not.toBeNull();
+  });
+
+  it("el historial de un cliente trae lo abierto y lo renovado, lo más nuevo arriba", async () => {
+    // Arrange
+    const customerId = await createCustomer("Pedro");
+    const [first] = await rentData(customerId, [itemFor(profileOf(netflixAccount, 5))]);
+    const renewedResponse = await renew(first!.id, { price: 15, expiresOn: "2027-01-04" });
+    const renewed = (await renewedResponse.json<IBody<IRentalData>>()).data;
+
+    // Act
+    const history = await historyOf(customerId);
+
+    // Assert
+    expect(history.map((item) => item.id)).toEqual([renewed.id, first!.id]);
+    expect(history[0]!.renewedById).toBeNull();
+    expect(history[1]!.renewedById).toBe(renewed.id);
+  });
+
   it("no elimina un cliente, una cuenta ni un perfil con alquileres", async () => {
     // Act
     const customer = await remove(`/api/v1/customers/${anaId}`);
@@ -360,6 +408,8 @@ describe("/rentals", () => {
     const edit = await update(rental!.id, { price: 1 }, ownerBCookie);
     const deleted = await remove(`/api/v1/rentals/${rental!.id}`, ownerBCookie);
     const renewed = await renew(rental!.id, { price: 15, expiresOn: "2027-01-04" }, ownerBCookie);
+    const released = await release(rental!.id, ownerBCookie);
+    const history = await request(`/api/v1/customers/${anaId}/rentals`, { headers: { cookie: ownerBCookie } });
     const foreignProfile = await rent(otherCustomer, [itemFor(profileOf(disneyAccount, 4))], ownerBCookie);
     const foreignCustomer = await rent(anaId, [itemFor(profileOf(disneyAccount, 4))], ownerBCookie);
 
@@ -368,6 +418,8 @@ describe("/rentals", () => {
     expect(edit.status).toBe(404);
     expect(deleted.status).toBe(404);
     expect(renewed.status).toBe(404);
+    expect(released.status).toBe(404);
+    expect(history.status).toBe(404);
     expect(foreignProfile.status).toBe(404);
     expect(foreignCustomer.status).toBe(404);
   });

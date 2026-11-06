@@ -249,11 +249,11 @@ negocio responde 404.
 | Método y ruta | Qué hace |
 |---|---|
 | `GET /api/v1/rentals` | Clientes con alquileres abiertos, cada uno con los suyos (servicio, cuenta, perfil), ordenados por el vencimiento más cercano |
-| `GET /api/v1/customers/:id/rentals` | Los alquileres de un cliente: abiertos e historial |
+| `GET /api/v1/customers/:id/rentals` | Los alquileres de un cliente: abiertos e historial (con `releasedOn` y `renewedById`), lo más nuevo arriba. Se pide al abrir el historial |
 | `POST /api/v1/rentals` | `{ customerId, items: [{ profileId, price, startsOn, expiresOn }] }`: alquila uno o varios perfiles juntos → 201 |
 | `PATCH /api/v1/rentals/:id` | Cambia `{ profileId?, price?, startsOn?, expiresOn? }` de uno abierto |
-| `POST /api/v1/rentals/:id/renew` | `{ price, expiresOn }` → crea el nuevo y marca el anterior |
-| `POST /api/v1/rentals/:id/release` | Libera hoy |
+| `POST /api/v1/rentals/:id/renew` | `{ price, paidAmount?, payBy?, startsOn?, expiresOn }` → crea el nuevo y marca el anterior. Sin `paidAmount`, pagado completo |
+| `POST /api/v1/rentals/:id/release` | Libera hoy → `{ id }`. Ya liberado o renovado: 409 |
 | `DELETE /api/v1/rentals/:id` | Elimina uno mal cargado |
 | `GET /api/v1/profiles/availability?serviceId=` | Perfiles del servicio por cuenta, con quién los tiene (para el select) |
 
@@ -415,8 +415,10 @@ En `apps/server/test/rentals.spec.ts`:
 - [ ] Una cuenta de 5 perfiles con 6 alquileres abiertos → se crean.
 - [ ] Sin perfiles → 400. Vence antes de empezar → 400. Cuenta desactivada → 400.
 - [ ] Renovar → uno nuevo desde el vencimiento anterior; el anterior pasa al historial.
+- [ ] Renovar con una parte pagada → guarda lo pagado y la fecha prometida; pagar más que el precio → 400.
 - [ ] Renovar dos veces el mismo → 409.
-- [ ] Liberar → sale del listado y el perfil queda libre en la disponibilidad.
+- [ ] Liberar → sale del listado y queda en el historial; liberarlo otra vez o renovarlo → 409.
+- [ ] Historial del cliente → lo abierto y lo renovado, lo más nuevo arriba.
 - [ ] Vencido sin liberar → el perfil sigue ocupado.
 - [ ] Listado ordenado por el vencimiento más cercano de cada cliente.
 - [ ] Eliminar cliente, cuenta o perfil con alquileres → 409.
@@ -432,9 +434,43 @@ Por funcionalidad, back y front juntos; Thony prueba cada una antes de seguir.
 | 2 | **Renovar y liberar**, el historial en el detalle, y lo alquilado en el detalle del cliente de `/clientes` | El ciclo completo de un perfil alquilado |
 | | *Acuerdos de la porción 2 (Thony, 2026-11-06):* la renovación empieza cuando vencía la anterior y dura lo mismo, con el precio anterior como sugerido; se **eligen los perfiles** a renovar (a veces renueva uno y suelta otro); antes de guardar, una **modal de confirmación** con servicio, correo, tiempo y precio de cada uno. Las fechas con `RentalPeriodPicker`. «Renovar todo lo vencido» va en la porción 4. **Ajuste (2026-11-06):** un botón «Renovar» por cada perfil del detalle, aunque no esté vencido; abre una modal que es la confirmación: logo, correo, «Del … al …» (no se edita: para otras fechas se edita el alquiler) y el monto en un input. Se da por pagado completo. API: `POST /rentals/:id/renew { price, startsOn?, expiresOn }` | |
 | | *Ajuste (2026-11-06, segunda vuelta):* «Renovar» es un ícono junto al `⋯` de cada perfil. La modal usa `RentalPeriodPicker`: se puede renovar por otro tiempo (3 meses) y empezar después del vencimiento, nunca antes (eso es editar). El monto sugerido es el precio mensual anterior × los meses nuevos, hasta que se escribe a mano. La card del perfil en el detalle: logo, servicio, estado y correo; debajo tres columnas **Perfil · Monto · Fechas** con el nombre arriba y el valor abajo. Monto: lo pagado en verde y lo que falta en amarillo (sin la palabra «pagado»). Fechas: el inicio con una flecha hacia abajo y el vencimiento en su color | |
-| 3 | **Avisar por WhatsApp:** los mensajes, desde el detalle y el botón de la tabla | Que el texto llegue bien armado al chat |
+| | *Ajuste (2026-11-06, tercera vuelta):* la modal de renovar lleva el switch **«Pagó todo»** como el carrito, prendido por defecto (por si acaso); apagado, pide «Pagó» y «Paga el (opcional)». **Liberar** va en el `⋯` de cada perfil, con confirmación: guarda el día y el alquiler pasa al historial. **Historial por perfil:** debajo de cada perfil, «Historial» plegado; al abrirlo se pide `GET /customers/:id/rentals` una vez por cliente y se muestran los alquileres anteriores de ese perfil (renovados o liberados), lo más nuevo arriba, en las mismas tres columnas: cuándo pagó (y si se renovó o liberó), el monto y de cuándo a cuándo. Lo liberado de un perfil que ya no tiene abierto se verá en el detalle de `/clientes` (RF-19). **Cada perfil es una card propia** con cabecera gris como la card de cuenta (logo, servicio, estado, correo, Renovar y `⋯`) y el cuerpo con las tres columnas y el historial; **«Agregar perfil»** pasa al encabezado del panel | |
+| 2b | **Menos llamados al abrir «Alquilar»** (Thony, 2026-11-06: después de Liberar). Hoy `/alquileres/nuevo` pide 5 cosas: `get-session` (en **cada** cambio de pantalla, desde el `beforeLoad` de `_app`), `customers` (**todos**, para el buscador), `business-services`, `accounts` y `rentals` (para el catálogo). Propuesta: recordar la sesión en vez de pedirla en cada pantalla; el buscador de clientes busca en el servidor; y un solo `GET /rentals/catalog` con servicios, cuentas, perfiles y quién los ocupa | Abrir «Alquilar» con 1 o 2 llamados |
+| 3 | **Avisar por WhatsApp:** los mensajes, desde el detalle y el botón de la tabla. **Y al confirmar un alquiler o una renovación, «Enviar al cliente»** (Thony, 2026-11-06): ver «Enviar por WhatsApp» abajo | Que el texto llegue bien armado al chat |
 | 4 | **Gestos en celular:** deslizar para avisar y mantener presionado para la hoja | Sentir el gesto en el celular |
 | 5 | Filtros y buscador | — |
+
+### Enviar por WhatsApp (acordado 2026-11-06)
+
+**«Enviar por WhatsApp» siempre es la app de WhatsApp, gratis:** un acceso directo o el menú
+de compartir del teléfono, como cuando se comparte la captura de un Yape. Yiya deja todo
+listo y abre WhatsApp; **el dueño elige el chat y toca enviar**. La API de WhatsApp Business
+(de pago) **no está en planes**: no tiene sentido habiendo una forma gratuita y fácil
+(Thony, 2026-11-06).
+
+Al confirmar un alquiler (o una renovación) se ofrece «Enviar al cliente», con dos partes:
+
+| Parte | Qué lleva | Por qué |
+|---|---|---|
+| **Imagen: el comprobante** | Logo del negocio, cliente, y por cada perfil: servicio, correo de la cuenta, perfil, precio y «Del … al …»; el total y lo que debe, si debe | Para el cliente es la constancia, y sirve de referencia visual en el chat |
+| **Mensaje de texto: los accesos** | De usted (RF-24): correo, contraseña, perfil y PIN de cada uno, y el vencimiento | **WhatsApp busca en el texto, no dentro de las fotos**: así el correo se encuentra buscando en el chat. Y la contraseña no queda en una foto, que se reenvía y se guarda en la galería |
+
+Cómo se abre WhatsApp:
+
+- **Celular:** el menú de compartir del teléfono (Web Share API con la imagen como archivo y
+  el mensaje como texto). El dueño elige WhatsApp y el chat.
+- **Escritorio:** `wa.me/<número>?text=…` abre el chat con el mensaje escrito, y la imagen
+  se copia al portapapeles (o se descarga) para pegarla.
+- **Sin verificar:** si WhatsApp respeta el texto cuando se comparte junto con una imagen
+  (en algunos teléfonos solo pasa la imagen). Se prueba en la porción 3; si no pasa, se
+  manda primero la imagen y luego el mensaje con `wa.me`.
+
+### Pagos a medias en el historial (2026-11-06)
+
+El historial muestra **un** «Pagó el» por alquiler: cada alquiler guarda el día de su
+último pago (`paid_on`). Si pagó S/ 5 un día y el resto otro, solo queda el último. Ver cada
+abono por separado necesita la tabla de pagos (sección 6, «Finanzas»): se hace cuando haya
+abonos seguidos de verdad, con su migración y conservando los datos.
 
 ## 11. Al terminar
 

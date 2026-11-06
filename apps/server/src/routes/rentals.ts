@@ -7,6 +7,7 @@ import { isIsoDate, todayInLima } from "@yiya/shared/dates";
 import { hasAtMostTwoDecimals, roundSoles } from "@yiya/shared/money";
 import { INVALID_DATE_MESSAGE } from "@yiya/shared/purchases";
 import {
+  type IRentalHistoryResource,
   type IRentalResource,
   RENTAL_ALREADY_RELEASED_MESSAGE,
   RENTAL_ALREADY_RENEWED_MESSAGE,
@@ -18,7 +19,7 @@ import {
   RENTAL_RENEW_ENDS_TOO_SOON_MESSAGE,
   RENTAL_RENEW_STARTS_TOO_SOON_MESSAGE,
 } from "@yiya/shared/rentals";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 
@@ -36,6 +37,9 @@ export const RENTAL_ROUTES = {
   RENTALS: "/rentals",
   RENTAL: "/rentals/:id",
   RENEW: "/rentals/:id/renew",
+  RELEASE: "/rentals/:id/release",
+  /* Todos los de un cliente, abiertos e historial (RF-18, RF-19). */
+  CUSTOMER_RENTALS: "/customers/:id/rentals",
 } as const;
 
 const RENTAL_NOT_FOUND = "No encontramos ese alquiler.";
@@ -118,11 +122,8 @@ const renewRentalSchema = z
     path: ["paidAmount"],
   });
 
-/**
- * Alquileres con su cliente, servicio, cuenta y perfil, lo que vence primero arriba. Solo los
- * abiertos: sin liberar ni renovar. Con `ids` (como mucho `RENTAL_MAX_ITEMS`), solo esos.
- */
-const selectOpenRentals = (db: TDb, businessId: string, ids?: string[]) =>
+/** Alquileres con su cliente, servicio, cuenta y perfil; el filtro lo pone quien la usa. */
+const selectRentals = (db: TDb) =>
   db
     .select({
       rental: rentals,
@@ -135,7 +136,14 @@ const selectOpenRentals = (db: TDb, businessId: string, ids?: string[]) =>
     .innerJoin(customers, eq(customers.id, rentals.customerId))
     .innerJoin(profile, eq(profile.id, rentals.profileId))
     .innerJoin(streamingAccount, eq(streamingAccount.id, profile.accountId))
-    .innerJoin(service, eq(service.id, streamingAccount.serviceId))
+    .innerJoin(service, eq(service.id, streamingAccount.serviceId));
+
+/**
+ * Los abiertos (sin liberar ni renovar), lo que vence primero arriba. Con `ids` (como mucho
+ * `RENTAL_MAX_ITEMS`), solo esos.
+ */
+const selectOpenRentals = (db: TDb, businessId: string, ids?: string[]) =>
+  selectRentals(db)
     .where(
       and(
         eq(rentals.businessId, businessId),
@@ -167,6 +175,12 @@ const toRentalResource = ({
   startsOn: rental.startsOn,
   expiresOn: rental.expiresOn,
   createdAt: rental.createdAt.toISOString(),
+});
+
+const toHistoryResource = (row: TRentalRow): IRentalHistoryResource => ({
+  ...toRentalResource(row),
+  releasedOn: row.rental.releasedOn,
+  renewedById: row.rental.renewedById,
 });
 
 /** Alquileres abiertos de **este** negocio, por id. */
@@ -245,6 +259,22 @@ export const rentalRoutes = new Hono<TAppEnv>()
   .get(RENTAL_ROUTES.RENTALS, requireAuth, requireBusiness, async (context) => {
     const rows = await selectOpenRentals(createDb(), context.var.business.id);
     return ok(context, rows.map(toRentalResource));
+  })
+
+  /*
+    Todos los alquileres de un cliente, abiertos y ya historial, lo más nuevo arriba. Se pide
+    solo al abrir el historial (RNF-08): la lista de Alquileres no lo carga.
+  */
+  .get(RENTAL_ROUTES.CUSTOMER_RENTALS, requireAuth, requireBusiness, async (context) => {
+    const customerId = context.req.param("id");
+    const businessId = context.var.business.id;
+    const db = createDb();
+
+    await assertCustomer(db, businessId, customerId);
+    const rows = await selectRentals(db)
+      .where(and(eq(rentals.businessId, businessId), eq(rentals.customerId, customerId)))
+      .orderBy(desc(rentals.startsOn), desc(rentals.createdAt));
+    return ok(context, rows.map(toHistoryResource));
   })
 
   /* Uno o varios perfiles para un cliente, de una vez. */
@@ -403,6 +433,25 @@ export const rentalRoutes = new Hono<TAppEnv>()
       return ok(context, await findOpenRental(db, businessId, renewedId), 201);
     },
   )
+
+  /*
+    Libera (RF-10): el cliente ya no sigue con ese perfil. Se guarda el día y pasa al
+    historial; el perfil deja de contar como ocupado por él. Devuelve el id para sacarlo de
+    la lista (RNF-08).
+  */
+  .post(RENTAL_ROUTES.RELEASE, requireAuth, requireBusiness, async (context) => {
+    const id = context.req.param("id");
+    const businessId = context.var.business.id;
+    const db = createDb();
+
+    await findOpenRental(db, businessId, id);
+    await db
+      .update(rentals)
+      .set({ releasedOn: todayInLima() })
+      .where(and(eq(rentals.id, id), eq(rentals.businessId, businessId)));
+
+    return ok(context, { id });
+  })
 
   /* Uno mal cargado. Renovar y liberar no borran: dejan historial. */
   .delete(RENTAL_ROUTES.RENTAL, requireAuth, requireBusiness, async (context) => {

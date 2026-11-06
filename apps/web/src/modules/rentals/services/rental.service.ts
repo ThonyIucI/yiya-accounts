@@ -1,4 +1,4 @@
-import type { IRentalResource } from "@yiya/shared/rentals";
+import type { IRentalHistoryResource, IRentalResource } from "@yiya/shared/rentals";
 
 import { apiRequest } from "@/lib/api";
 
@@ -48,3 +48,11 @@ export interface IRenewRentalPayload {
 /** Crea el alquiler que sigue y marca este como renovado. Devuelve el nuevo. */
 export const renewRentalRequest = (id: string, payload: IRenewRentalPayload) =>
   apiRequest<IRentalResource>(`/rentals/${id}/renew`, { method: "POST", body: payload });
+
+/** Libera hoy (RF-10): pasa al historial y sale de la lista. */
+export const releaseRentalRequest = (id: string) =>
+  apiRequest<{ id: string }>(`/rentals/${id}/release`, { method: "POST" });
+
+/** Todos los alquileres del cliente, abiertos e historial, lo más nuevo arriba (RF-18). */
+export const listCustomerRentalsRequest = (customerId: string, signal?: AbortSignal) =>
+  apiRequest<IRentalHistoryResource[]>(`/customers/${customerId}/rentals`, { signal });
