@@ -121,7 +121,7 @@ export default function InlineTextField({
         )}
       </div>
       {error && (
-        <p id={messageId} className="text-sm font-bold text-destructive">
+        <p id={messageId} className="text-sm font-semibold text-destructive">
           {error}
         </p>
       )}

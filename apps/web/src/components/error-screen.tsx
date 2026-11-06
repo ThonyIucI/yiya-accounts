@@ -40,7 +40,7 @@ export default function ErrorScreen({
         </div>
 
         <div className="space-y-2">
-          <h1 className="font-heading text-2xl font-extrabold text-foreground">{title}</h1>
+          <h1 className="font-heading text-2xl font-bold text-foreground">{title}</h1>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
 

@@ -18,7 +18,7 @@ function DashboardPage() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5 px-4 py-6">
       <div>
-        <h1 className="font-heading text-2xl font-extrabold text-foreground md:text-3xl">
+        <h1 className="font-heading text-2xl font-bold text-foreground md:text-3xl">
           Hola, {user.name}
         </h1>
         {isSuperadmin && (
@@ -58,7 +58,7 @@ function MyBusinessCard() {
         <Store className="size-5" />
       </span>
       <div className="min-w-0">
-        <p className="truncate font-heading text-base font-bold text-foreground">
+        <p className="truncate font-heading text-base font-semibold text-foreground">
           {MyBusiness.business.name}
         </p>
         <p className="text-sm text-muted-foreground">

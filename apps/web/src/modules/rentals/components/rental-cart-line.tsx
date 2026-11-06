@@ -55,7 +55,7 @@ export default function RentalCartLine({ line, account, amount, holders, onOpen,
             {sharedWith.length > 0 && <span className="text-orange"> · con {sharedWith.join(", ")}</span>}
           </p>
         </div>
-        <span className="shrink-0 font-heading font-bold text-foreground tabular-nums">{formatSoles(amount)}</span>
+        <span className="shrink-0 font-heading font-semibold text-foreground tabular-nums">{formatSoles(amount)}</span>
       </div>
       <IconButton tone="destructive" label="Quitar del carrito" onClick={onRemove}>
         <Trash2 />

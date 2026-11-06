@@ -99,7 +99,7 @@ export default function ConfirmModal({
           >
             {/* Escritorio: una sola tarjeta con los botones en fila. */}
             <div className="hidden rounded-3xl bg-card p-6 text-foreground shadow-sheet sm:block">
-              <h2 className="font-heading text-base font-extrabold text-foreground">{title}</h2>
+              <h2 className="font-heading text-base font-bold text-foreground">{title}</h2>
               {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
 
               <div className="mt-5 flex justify-end gap-2">
@@ -119,7 +119,7 @@ export default function ConfirmModal({
             <div className="flex flex-col gap-2 sm:hidden">
               <div className="overflow-hidden rounded-3xl bg-card text-foreground shadow-sheet">
                 <div className="px-6 pt-7 pb-5 text-center">
-                  <h2 className="font-heading text-base font-extrabold text-foreground">{title}</h2>
+                  <h2 className="font-heading text-base font-bold text-foreground">{title}</h2>
                   {description && (
                     <p className="mt-2 text-sm text-muted-foreground">{description}</p>
                   )}

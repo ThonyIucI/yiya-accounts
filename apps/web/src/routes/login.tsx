@@ -25,7 +25,7 @@ function LoginPage() {
       </div>
 
       <div className="w-full max-w-md">
-        <h1 className="mb-6 text-center font-heading text-3xl font-extrabold text-foreground">
+        <h1 className="mb-6 text-center font-heading text-3xl font-bold text-foreground">
           Yiya Accounts
         </h1>
 

@@ -51,7 +51,7 @@ export default function RentalServiceStack({ rentals }: { rentals: IRentalResour
       {hidden.length > 0 && (
         <li
           title={hidden.map((rental) => rental.service.name).join(", ")}
-          className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground ring-2 ring-background"
+          className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground ring-2 ring-background"
         >
           +{hidden.length}
           <span className="sr-only">: {hidden.map((rental) => rental.service.name).join(", ")}</span>

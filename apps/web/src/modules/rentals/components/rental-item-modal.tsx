@@ -140,14 +140,14 @@ export default function RentalItemModal({
                 className="size-24 rounded-lg sm:size-32"
               />
               <div>
-                <p className="font-heading text-xl font-extrabold text-foreground tabular-nums">
+                <p className="font-heading text-xl font-bold text-foreground tabular-nums">
                   {profilePrice === null ? "Sin precio" : formatSoles(profilePrice)}
                 </p>
                 {profilePrice !== null && <p className="text-xs text-muted-foreground">por perfil al mes</p>}
               </div>
             </div>
             <div className="min-w-0 flex-1 space-y-2">
-              <p className="font-heading font-bold text-foreground">Tiempo</p>
+              <p className="font-heading font-semibold text-foreground">Tiempo</p>
               <DurationBadges
                 dates={{ startsOn, expiresOn }}
                 isCustomOpen={areDatesShown}
@@ -175,7 +175,7 @@ export default function RentalItemModal({
           </div>
 
           <div className="space-y-2">
-            <p className="font-heading font-bold text-foreground">
+            <p className="font-heading font-semibold text-foreground">
               Perfiles
               <span className="font-semibold text-muted-foreground">
                 {" "}

@@ -232,9 +232,12 @@ function NewRentalPage() {
     />
   );
 
-  /* El catálogo, sobre gris y con sombra arriba: se lee como otra superficie (2026-11-04). */
+  /*
+    El catálogo va hundido: la sombra la proyecta la barra de servicios de arriba, no las
+    cards, que flotan sobre el fondo `canvas` (Thony, 2026-11-06).
+  */
   const catalog = (
-    <div className="relative flex-1 space-y-3 rounded-t-2xl bg-muted px-4 pt-4 pb-28 shadow-edge-top lg:rounded-none lg:pb-6">
+    <div className="flex-1 space-y-3 bg-canvas px-4 pt-4 pb-28 lg:pb-6">
       {!isLoading && rentableServices.length === 0 && (
         <EmptyState
           icon={KeyRound}
@@ -243,7 +246,8 @@ function NewRentalPage() {
         />
       )}
 
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      {/* Ancho mínimo por card: con poco espacio baja una columna, no se achata. */}
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3">
         {serviceAccounts.map((account) => (
           <li key={account.id}>
             <RentableAccountCard
@@ -281,11 +285,12 @@ function NewRentalPage() {
     return (
       <div className="grid h-svh grid-cols-[minmax(0,1fr)_26rem]">
         <section aria-label="Cuentas" className="flex min-w-0 flex-col overflow-y-auto">
-          <div className="px-4 pt-4 pb-4">{servicePicker}</div>
+          <div className="sticky top-0 z-10 bg-card px-4 py-3 shadow-edge-bottom">{servicePicker}</div>
           {catalog}
         </section>
 
-        <aside aria-label="Carrito" className="flex h-svh flex-col bg-card shadow-card">
+        {/* El borde va de arriba abajo: sin él, las franjas grises parecían cortar el carrito. */}
+        <aside aria-label="Carrito" className="flex h-svh flex-col border-l border-border bg-card">
           {/* Secciones separadas por el gris, como el carrito de id-pos (2026-11-04). */}
           <FormSections className="min-h-0 flex-1 overflow-y-auto">
             {customerField}
@@ -303,7 +308,7 @@ function NewRentalPage() {
   if (isBrowsing) {
     return (
       <div className="flex min-h-svh flex-col">
-        <div className="flex items-center gap-2 px-4 pt-4 pb-4">
+        <div className="sticky top-0 z-10 flex items-center gap-2 bg-card px-4 py-3 shadow-edge-bottom">
           <IconButton label="Volver al alquiler" className="-ml-1.5" onClick={closeBrowse}>
             <ArrowLeft />
           </IconButton>

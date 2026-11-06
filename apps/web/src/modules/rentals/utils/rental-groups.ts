@@ -98,6 +98,41 @@ export const dueOf = (rentals: IRentalResource[]): IRentalDue | null => {
   return null;
 };
 
+/** Lo próximo a cobrarle a un cliente, para la fila del celular. */
+export interface IRentalNextCharge {
+  amount: number;
+  /** El vencimiento más cercano. */
+  expiresOn: string;
+  /** Pinta la fecha y el monto: la deuda va en rojo, como lo vencido; al día, neutro. */
+  status: TExpiryStatus;
+  description: string;
+}
+
+/**
+ * **Siempre** hay un monto en la fila (Thony, 2026-11-06), no solo cuando toca cobrar: si
+ * hay algo urgente es eso (`dueOf`); si está al día, lo que vence en la fecha más cercana.
+ */
+export const nextChargeOf = (group: ICustomerRentals): IRentalNextCharge | null => {
+  const [nearest] = group.rentals;
+  if (!nearest) {
+    return null;
+  }
+  if (group.due) {
+    return {
+      amount: group.due.amount,
+      expiresOn: nearest.expiresOn,
+      status: group.due.status === "debt" ? "expired" : group.due.status,
+      description: group.due.description,
+    };
+  }
+  return {
+    amount: sumPrices(group.rentals.filter((rental) => rental.expiresOn === nearest.expiresOn)),
+    expiresOn: nearest.expiresOn,
+    status: "ok",
+    description: describeExpiry(nearest.expiresOn, expiryOf(nearest.expiresOn)),
+  };
+};
+
 /**
  * Agrupa por cliente, el que vence primero arriba. `rentals` ya viene por vencimiento. Sin
  * `Map.groupBy`: celulares con un navegador de antes de 2024 no lo tienen.

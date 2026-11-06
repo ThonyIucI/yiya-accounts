@@ -64,7 +64,7 @@ export default function RentalTable({ groups, isLoading, buildActions, onOpen, f
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-3">
                       <InitialsAvatar name={group.customer.name} color={avatarColorOf(group.customer.name)} />
-                      <span className="truncate font-heading font-bold text-foreground">
+                      <span className="truncate font-heading font-semibold text-foreground">
                         {group.customer.name}
                       </span>
                     </div>

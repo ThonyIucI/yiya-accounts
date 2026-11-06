@@ -45,7 +45,7 @@ export default function ProfilePicker({ profiles, holders, selectedIds, inCartId
               {holder ? (
                 <InitialsAvatar name={holder} color={avatarColorOf(holder)} />
               ) : (
-                <span className="flex size-14 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 font-heading text-sm font-extrabold text-muted-foreground">
+                <span className="flex size-14 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 font-heading text-sm font-bold text-muted-foreground">
                   {profileChipLabel(profile)}
                 </span>
               )}

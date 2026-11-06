@@ -21,7 +21,7 @@ export function FormSection({ icon: Icon, title, action, children, className }: 
   return (
     <section className={cn("space-y-3 bg-card px-4 py-4", className)}>
       <div className="flex min-h-8 items-center justify-between gap-2">
-        <h2 className="flex min-w-0 items-center gap-2 font-heading font-bold text-foreground">
+        <h2 className="flex min-w-0 items-center gap-2 font-heading font-semibold text-foreground">
           <Icon aria-hidden className="size-4.5 shrink-0 text-muted-foreground" />
           {title}
         </h2>

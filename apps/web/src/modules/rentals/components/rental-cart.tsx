@@ -44,7 +44,7 @@ export function RentalCartLines({ cart, accountsById, holders, onOpenLine, onBro
       }
       action={
         cart.lines.length > 0 && (
-          <Button type="button" variant="ghost" size="xs" className="text-destructive" onClick={cart.clear}>
+          <Button type="button" variant="ghost" size="xs" className="text-destructive" onClick={cart.clear} style={{ fontWeight: 400 }}>
             <Trash2 />
             Vaciar
           </Button>
@@ -60,7 +60,7 @@ export function RentalCartLines({ cart, accountsById, holders, onOpenLine, onBro
             {onBrowse ? "Elige los perfiles que va a alquilar." : "Toca una cuenta para agregar uno de sus perfiles."}
           </p>
           {onBrowse && (
-            <Button type="button" className="mt-1" onClick={onBrowse}>
+            <Button type="button" variant='link'  className="mt-1" onClick={onBrowse}>
               <Plus />
               Elegir perfiles
             </Button>
@@ -127,7 +127,7 @@ export function RentalCartPayment({ cart }: { cart: TRentalCart }) {
             aria-invalid={Boolean(cart.errors.total)}
             value={cart.totalInput}
             onChange={(event) => cart.setTotal(event.target.value)}
-            className="font-heading font-bold"
+            className="font-heading font-semibold"
           />
         </div>
         <label className="flex shrink-0 cursor-pointer flex-col items-center gap-1 pt-5">

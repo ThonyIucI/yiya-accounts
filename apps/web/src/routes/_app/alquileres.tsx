@@ -151,7 +151,7 @@ function RentalsPage() {
       */}
       <div className="hidden items-center justify-between gap-4 md:flex">
         <div className="flex min-w-0 items-center gap-1">
-          <h1 className="font-heading text-xl font-extrabold text-foreground">Alquileres</h1>
+          <h1 className="font-heading text-xl font-bold text-foreground">Alquileres</h1>
           <IconButton label="Recargar alquileres" size="sm" onClick={() => !ListRentals.loading && ListRentals.handler()}>
             <RefreshCw className={cn(ListRentals.loading && "animate-spin motion-reduce:animate-none")} />
           </IconButton>
@@ -195,17 +195,20 @@ function RentalsPage() {
             to={pager.rangeEnd}
             total={pager.totalItems}
             isLoading={isLoading}
-            className="lg:text-right"
+            className="hidden md:block lg:text-right"
           />
-          <RentalTable
+          {/* <RentalTable
             groups={pager.pagedItems}
             isLoading={isLoading}
             buildActions={buildActions}
             onOpen={openDetail}
             footer={hasContent ? pagination : undefined}
-          />
-          <RentalMobileList groups={pager.pagedItems} isLoading={isLoading} onOpen={openDetail} />
-          {hasContent && <div className="pt-2 md:hidden">{pagination}</div>}
+          /> */}
+          {/*
+            Celular sin «Mostrando» ni paginado (Thony, 2026-11-06): le quitaban espacio a
+            las filas. La lista ya está cargada entera, así que se muestran todas.
+          */}
+          <RentalMobileList groups={visible} isLoading={isLoading} onOpen={openDetail} />
         </>
       )}
 

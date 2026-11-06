@@ -40,7 +40,7 @@ export default function BottomNav() {
             <Link
               to={to}
               className={cn(
-                "flex flex-col items-center gap-1 px-2 py-2.5 font-heading text-xs font-bold text-muted-foreground transition-colors",
+                "flex flex-col items-center gap-1 px-2 py-2.5 font-heading text-xs font-semibold text-muted-foreground transition-colors",
                 "[&.active]:text-primary",
               )}
             >

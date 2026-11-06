@@ -140,7 +140,7 @@ export default function PriceField({
         onKeyDown={handleKeyDown}
       />
       {error && (
-        <p id={messageId} className="text-sm font-bold text-destructive">
+        <p id={messageId} className="text-sm font-semibold text-destructive">
           {error}
         </p>
       )}

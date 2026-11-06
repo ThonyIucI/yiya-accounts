@@ -377,6 +377,13 @@ catálogo va sobre fondo gris y el carrito a todo el alto, con el cobro fijo aba
      que vuelve al formulario (sin perfiles nuevos, avisa en vez de volver).
   - Escritorio no cambia de vistas: solo el pie pasa a Cancelar y Alquilar, y el cobro
     sube al cuerpo del carrito.
+- **Fila del listado en celular (Thony, 2026-11-06):** reemplaza RF-13, RF-13b y RF-14 en
+  celular. Los servicios **como texto**, separados por coma y sin repetirse; si no entran, un
+  badge neutro «+N» con los servicios que faltan. A la derecha, **siempre** lo próximo a
+  cobrar y su fecha, con el color del estado (rojo vencido o debe, naranja hoy, amarillo
+  pronto): la fecha en texto de color y el monto como badge de color. Al día, los dos
+  neutros y el monto sin fondo. Todo a 12 px. El estado de cada perfil se ve en el detalle. Sin
+  «Mostrando» ni paginado: se muestran todos.
 - Después: **«Enviar accesos»** al terminar (RF-24, porción 3).
 
 ### Detalle del cliente en Alquileres

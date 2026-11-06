@@ -69,7 +69,7 @@ export default function AccountCard({
           <ServiceAvatar name={account.service.name} imageUrl={account.service.imageUrl} />
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-1.5">
-              <p className="truncate font-heading font-bold text-foreground">{account.service.name}</p>
+              <p className="truncate font-heading font-semibold text-foreground">{account.service.name}</p>
               <ExpiryIcon expiresOn={accountExpiresOn(account.purchases)} />
             </div>
             <p className="truncate text-muted-foreground">{account.provider.name}</p>

@@ -199,7 +199,7 @@ export default function Modal({
 
               <div className="flex items-center justify-between gap-3 px-5 pt-2 pb-3 sm:pt-5">
                 <div className="min-w-0">
-                  <h2 className="font-heading text-xl font-extrabold wrap-break-word text-foreground">{title}</h2>
+                  <h2 className="font-heading text-xl font-bold wrap-break-word text-foreground">{title}</h2>
                   {subtitle && <p className="truncate text-sm text-muted-foreground">{subtitle}</p>}
                 </div>
                 <IconButton label="Cerrar" className="-mr-1.5" onClick={onClose}>

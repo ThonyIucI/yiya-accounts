@@ -1,12 +1,13 @@
+import { formatSoles } from "@yiya/shared/money";
+import { Badge } from "@yiya/ui/components/badge";
 import { Skeleton } from "@yiya/ui/components/skeleton";
 import { cn } from "@yiya/ui/lib/utils";
 
 import InitialsAvatar, { avatarColorOf } from "@/common/components/initials-avatar";
 import { formatCompactDate } from "@/common/utils/format-date";
-import { EXPIRY_TEXT_CLASSES } from "@/modules/accounts/utils/expiry";
-import { type ICustomerRentals, rentalExpiryStatus } from "@/modules/rentals/utils/rental-groups";
+import { EXPIRY_COLORS, EXPIRY_TEXT_CLASSES } from "@/modules/accounts/utils/expiry";
+import { type ICustomerRentals, nextChargeOf } from "@/modules/rentals/utils/rental-groups";
 
-import RentalDueBadge from "./rental-due-badge";
 import RentalServiceBadges from "./rental-service-badges";
 
 const SKELETON_COUNT = 5;
@@ -22,9 +23,8 @@ interface IRentalMobileListProps {
  * sin sombra por fila, separadas por una línea fina que empieza después del avatar. Es un
  * patrón propio de Alquileres, distinto de la card de listado del resto.
  *
- * Cada fila: el cliente, debajo lo que alquila como badges con el nombre del servicio
- * (2026-11-04, antes logos) y, a la derecha, su vencimiento
- * más cercano y el monto a cobrar si toca. Los gestos (deslizar, mantener presionado) llegan
+ * Cada fila: el cliente, debajo sus servicios como texto (2026-11-06, antes logos) y, a la
+ * derecha, su vencimiento más cercano y lo próximo a cobrar, los dos con el color del estado. Los gestos (deslizar, mantener presionado) llegan
  * en la porción 4. Oculta desde `md`: allí se usa `RentalTable`.
  */
 export default function RentalMobileList({ groups, isLoading, onOpen }: IRentalMobileListProps) {
@@ -45,10 +45,12 @@ export default function RentalMobileList({ groups, isLoading, onOpen }: IRentalM
   }
 
   return (
-    <ul className="-mx-4 md:hidden">
+    <ul className="-mx-4 mds:hidden">
       {groups.map((group) => {
-        const [nearest] = group.rentals;
-        const nearestStatus = nearest ? rentalExpiryStatus(nearest) : "ok";
+        const next = nextChargeOf(group);
+        /* Al día va en gris, como la hora de un correo en Gmail; si toca cobrar, su color. */
+        const toneClass =
+          !next || next.status === "ok" ? "text-muted-foreground" : EXPIRY_TEXT_CLASSES[next.status];
         return (
           <li key={group.customer.id}>
             <button
@@ -59,23 +61,21 @@ export default function RentalMobileList({ groups, isLoading, onOpen }: IRentalM
               <InitialsAvatar name={group.customer.name} color={avatarColorOf(group.customer.name)} />
               <div className="flex min-w-0 flex-1 items-center justify-between gap-3 border-b border-border/60 py-3 pr-4">
                 <div className="min-w-0 space-y-1.5">
-                  <p className="truncate font-heading font-bold text-foreground">{group.customer.name}</p>
+                  <p className="truncate font-heading font-semibold text-foreground">{group.customer.name}</p>
                   <RentalServiceBadges rentals={group.rentals} />
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
-                  {nearest && (
-                    <span
-                      className={cn(
-                        "text-xs font-semibold tabular-nums",
-                        /* Al día va en gris, como la hora de un correo en Gmail. */
-                        nearestStatus === "ok" ? "text-muted-foreground" : EXPIRY_TEXT_CLASSES[nearestStatus],
-                      )}
-                    >
-                      {formatCompactDate(nearest.expiresOn)}
-                    </span>
-                  )}
-                  <RentalDueBadge due={group.due} />
-                </div>
+                {next && (
+                  <div className="flex shrink-0 flex-col items-end gap-1.5 tabular-nums" title={next.description}>
+                    <span className={cn("text-xs font-medium", toneClass)}>{formatCompactDate(next.expiresOn)}</span>
+                    {/* Si toca cobrar, el monto es un badge de su color; al día, texto neutro (12 px los dos). */}
+                    {next.status === "ok" ? (
+                      <span className="text-xs font-semibold text-foreground">{formatSoles(next.amount)}</span>
+                    ) : (
+                      <Badge color={EXPIRY_COLORS[next.status]}>{formatSoles(next.amount)}</Badge>
+                    )}
+                    <span className="sr-only">: {next.description}</span>
+                  </div>
+                )}
               </div>
             </button>
           </li>

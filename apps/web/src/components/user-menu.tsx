@@ -47,7 +47,7 @@ export default function UserMenu() {
       <DropdownMenuContent className="w-60 bg-card">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="min-w-0">
-            <span className="block truncate font-bold text-foreground">{session.user.name}</span>
+            <span className="block truncate font-semibold text-foreground">{session.user.name}</span>
             <span className="block truncate text-sm font-normal text-muted-foreground">
               {session.user.email}
             </span>

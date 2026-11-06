@@ -36,7 +36,7 @@ export default function Header() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4">
         <div className="flex min-w-0 items-center gap-4">
-          <Link to="/dashboard" className="font-heading text-xl font-extrabold text-foreground">
+          <Link to="/dashboard" className="font-heading text-xl font-bold text-foreground">
             Yiya
           </Link>
 
@@ -46,7 +46,7 @@ export default function Header() {
           */}
           <nav
             className={cn(
-              "hidden gap-4 font-heading text-sm font-bold sm:flex",
+              "hidden gap-4 font-heading text-sm font-semibold sm:flex",
               hasSidebar && "md:hidden",
             )}
           >

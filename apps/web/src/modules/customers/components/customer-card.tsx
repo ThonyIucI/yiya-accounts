@@ -44,7 +44,7 @@ export default function CustomerCard({ customer, actions, onOpen }: ICustomerCar
         >
           <InitialsAvatar name={customer.name} color={avatarColorOf(customer.name)} />
           <div className="min-w-0">
-            <p className="truncate font-heading font-bold text-foreground">{customer.name}</p>
+            <p className="truncate font-heading font-semibold text-foreground">{customer.name}</p>
             <p className="text-muted-foreground">Cliente desde {formatMonthYear(customer.createdAt)}</p>
           </div>
         </div>

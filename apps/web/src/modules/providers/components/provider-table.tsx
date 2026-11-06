@@ -61,7 +61,7 @@ export default function ProviderTable({ providers, isLoading, buildActions, foot
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-3">
                       <InitialsAvatar name={provider.name} />
-                      <span className="truncate font-heading font-bold text-foreground">
+                      <span className="truncate font-heading font-semibold text-foreground">
                         {provider.name}
                       </span>
                     </div>

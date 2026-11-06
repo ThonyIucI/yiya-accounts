@@ -53,7 +53,7 @@ export default function CustomerSearch({
       <div className="flex items-center gap-3 rounded-lg bg-primary/8 px-3 py-2 ring-1 ring-primary/20">
         <InitialsAvatar name={value.name} color={avatarColorOf(value.name)} />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-heading font-bold text-foreground">{value.name}</p>
+          <p className="truncate font-heading font-semibold text-foreground">{value.name}</p>
           <CustomerWhatsAppValue customer={value} />
         </div>
         <IconButton label="Cambiar de cliente" onClick={() => onChange(null)}>

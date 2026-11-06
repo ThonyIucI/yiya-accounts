@@ -36,7 +36,7 @@ export default function ServiceAvatarStack({ services }: IServiceAvatarStackProp
       {hidden.length > 0 && (
         <li
           title={hidden.map((service) => service.name).join(", ")}
-          className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground ring-2 ring-card"
+          className="flex size-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground ring-2 ring-card"
         >
           +{hidden.length}
           <span className="sr-only">: {hidden.map((service) => service.name).join(", ")}</span>

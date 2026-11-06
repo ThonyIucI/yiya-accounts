@@ -21,7 +21,7 @@ export function DetailSection({ title, action, children, className }: IDetailSec
   return (
     <section className={cn("overflow-hidden rounded-2xl bg-card shadow-card", className)}>
       <div className="flex min-h-12 items-center justify-between gap-2 bg-muted px-4 py-1.5">
-        <h3 className="font-heading text-sm font-extrabold text-foreground">{title}</h3>
+        <h3 className="font-heading text-sm font-bold text-foreground">{title}</h3>
         {action}
       </div>
       <div className="px-4 py-3">{children}</div>

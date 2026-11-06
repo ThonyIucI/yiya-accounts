@@ -387,7 +387,7 @@ export default function AccountFormModal({
               >
                 {(field) => (
                   <section aria-labelledby="account-purchase-title" className="space-y-4 border-t border-border/60 pt-4">
-                    <h3 id="account-purchase-title" className="font-heading font-extrabold text-foreground">
+                    <h3 id="account-purchase-title" className="font-heading font-bold text-foreground">
                       Primera compra
                     </h3>
                     <PurchaseFields

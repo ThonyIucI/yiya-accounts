@@ -35,6 +35,25 @@ Antes de diseñar o tocar UI, leer:
 - Los íconos dicen qué se busca: el buscador de clientes lleva la persona (`UserRound`),
   no la lupa, como en id-pos.
 
+- **Catálogo hundido (Thony, 2026-11-06):** la sombra la proyecta la barra de arriba
+  (`shadow-edge-bottom`), no el contenido; el fondo es `bg-canvas` (`#F8F9FA`) y las cards
+  flotan encima con un ancho mínimo (`minmax(17rem, 1fr)`): con poco espacio baja una
+  columna, no se achatan.
+- **Columnas fijas** (menú lateral, carrito) se separan con un borde fino de arriba abajo,
+  no con sombra: con sombra, todas las páginas se veían sombreadas.
+
+## Pesos de letra (Thony, 2026-11-06)
+
+No todo es 400 o 700: con 700 en botones, precios e íconos se ve tosco. Como en id-pos:
+
+| Peso | Uso |
+|---|---|
+| 500 (`font-medium`) | Texto normal (el del `body`), lo escrito en un campo, fechas chicas |
+| 600 (`font-semibold`) | Botones, badges, labels, nombres en listas, precios, encabezados de tabla |
+| 700 (`font-bold`) | Solo títulos: de la página, de la modal, el precio grande del detalle |
+
+`font-extrabold` (800) no se usa.
+
 ## Botones: nunca desactivados (acordado 2026-10-13)
 
 - Un botón **nunca** lleva `disabled`, ni el de guardar, ni el de crear, ni los íconos de

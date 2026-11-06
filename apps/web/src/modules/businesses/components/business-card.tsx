@@ -39,7 +39,7 @@ export default function BusinessCard({
             <Store className="size-5" />
           </span>
           <div className="min-w-0">
-            <p className="truncate font-heading text-base font-bold text-foreground">{business.name}</p>
+            <p className="truncate font-heading text-base font-semibold text-foreground">{business.name}</p>
             <p className="truncate text-sm text-muted-foreground">
               {business.owner?.name ?? "Sin dueño"}
             </p>

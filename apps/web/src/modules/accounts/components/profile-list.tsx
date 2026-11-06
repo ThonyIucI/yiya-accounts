@@ -42,7 +42,7 @@ export default function ProfileList({ profiles, onSaved, onDelete }: IProfileLis
     <ul className="divide-y divide-border/60">
       {profiles.map((profile) => (
         <li key={profile.id} className="flex items-start gap-2 py-3 first:pt-0 last:pb-0">
-          <span className="mt-8 w-8 shrink-0 font-heading text-sm font-extrabold text-muted-foreground">
+          <span className="mt-8 w-8 shrink-0 font-heading text-sm font-bold text-muted-foreground">
             {profileChipLabel(profile)}
           </span>
           <InlineTextField

@@ -19,7 +19,7 @@ export default function ServiceProfit({ service, className }: IServiceProfitProp
   return (
     <p className={cn("text-sm text-muted-foreground tabular-nums", className)}>
       Cuenta llena: {formatSoles(result.revenue)} · ganancia{" "}
-      <span className={cn("font-bold", result.profit < 0 ? "text-destructive" : "text-primary")}>
+      <span className={cn("font-semibold", result.profit < 0 ? "text-destructive" : "text-primary")}>
         {formatSoles(result.profit)}
       </span>
     </p>

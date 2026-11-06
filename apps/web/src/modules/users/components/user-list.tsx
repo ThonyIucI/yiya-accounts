@@ -66,7 +66,7 @@ function UserTable({ users, isLoading }: IUserListProps) {
             : users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
-                    <p className="truncate font-heading font-bold text-foreground">{user.name}</p>
+                    <p className="truncate font-heading font-semibold text-foreground">{user.name}</p>
                     <p className="truncate text-sm text-muted-foreground">{user.email}</p>
                   </TableCell>
                   <TableCell className={user.business ? "text-foreground" : "text-muted-foreground"}>
@@ -105,13 +105,13 @@ function UserCards({ users, isLoading }: IUserListProps) {
                 <UserRound className="size-5" />
               </span>
               <div className="min-w-0">
-                <p className="truncate font-heading text-base font-bold text-foreground">{user.name}</p>
+                <p className="truncate font-heading text-base font-semibold text-foreground">{user.name}</p>
                 <p className="truncate text-sm text-muted-foreground">{user.email}</p>
               </div>
             </div>
 
             <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3 text-sm">
-              <span className={user.business ? "font-bold text-foreground" : "text-muted-foreground"}>
+              <span className={user.business ? "font-semibold text-foreground" : "text-muted-foreground"}>
                 {businessLabel(user)}
               </span>
               <span className="text-muted-foreground">

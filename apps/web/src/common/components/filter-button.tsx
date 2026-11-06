@@ -22,7 +22,7 @@ export default function FilterButton({ activeCount, onClick }: IFilterButtonProp
     >
       <SlidersHorizontal className="size-5" />
       {activeCount > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+        <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
           {activeCount}
         </span>
       )}

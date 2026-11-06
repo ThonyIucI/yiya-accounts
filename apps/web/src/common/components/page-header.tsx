@@ -15,7 +15,7 @@ export default function PageHeader({ title, subtitle, isLoadingSubtitle, action 
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-heading text-2xl font-extrabold text-foreground md:text-3xl">{title}</h1>
+        <h1 className="font-heading text-2xl font-bold text-foreground md:text-3xl">{title}</h1>
         {isLoadingSubtitle ? (
           <Skeleton className="mt-1.5 h-4 w-32 rounded-md" />
         ) : (

@@ -65,7 +65,7 @@ export default function RentableAccountCard({
         </p>
         <div className="flex items-end justify-between gap-2">
           <div className="min-w-0">
-            <p className="font-heading font-extrabold text-foreground tabular-nums">
+            <p className="font-heading font-semibold text-foreground tabular-nums">
               {profilePrice === null ? "Sin precio" : formatSoles(profilePrice)}
             </p>
             <p className={cn("text-xs font-semibold", freeCount > 0 ? "text-muted-foreground" : "text-orange")}>
@@ -75,7 +75,7 @@ export default function RentableAccountCard({
           <span className="flex shrink-0 items-center gap-1.5">
             <span
               className={cn(
-                "min-w-7 rounded-full px-2 py-1 text-center text-xs font-bold tabular-nums",
+                "min-w-7 rounded-full px-2 py-1 text-center text-xs font-semibold tabular-nums",
                 inCartCount > 0 ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground",
               )}
             >

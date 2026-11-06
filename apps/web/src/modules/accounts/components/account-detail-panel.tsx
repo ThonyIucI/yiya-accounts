@@ -172,7 +172,7 @@ export default function AccountDetailPanel({
             />
             <div className="min-w-0">
               <div className="flex min-w-0 items-center gap-2">
-                <h2 className="truncate font-heading text-xl font-extrabold text-foreground">
+                <h2 className="truncate font-heading text-xl font-bold text-foreground">
                   {current.service.name}
                 </h2>
                 <ExpiryBadge expiresOn={accountExpiresOn(current.purchases)} />

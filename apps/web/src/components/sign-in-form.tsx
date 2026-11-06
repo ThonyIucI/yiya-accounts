@@ -80,7 +80,7 @@ export default function SignInForm() {
                 />
               </div>
               {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-sm font-bold text-destructive">
+                <p key={error?.message} className="text-sm font-semibold text-destructive">
                   {error?.message}
                 </p>
               ))}
@@ -120,7 +120,7 @@ export default function SignInForm() {
                 </IconButton>
               </div>
               {field.state.meta.errors.map((error) => (
-                <p key={error?.message} className="text-sm font-bold text-destructive">
+                <p key={error?.message} className="text-sm font-semibold text-destructive">
                   {error?.message}
                 </p>
               ))}

@@ -12,7 +12,7 @@ export default function CountryFlag({ country, className }: ICountryFlagProps) {
   const Flag = flags[country as keyof typeof flags];
 
   if (!Flag) {
-    return <span className={cn("text-xs font-bold text-muted-foreground", className)}>{country}</span>;
+    return <span className={cn("text-xs font-semibold text-muted-foreground", className)}>{country}</span>;
   }
 
   return <Flag aria-hidden className={cn("h-3.5 w-5 shrink-0 rounded-[2px] shadow-xs", className)} />;

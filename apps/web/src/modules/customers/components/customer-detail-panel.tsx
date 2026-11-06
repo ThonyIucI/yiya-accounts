@@ -71,7 +71,7 @@ export default function CustomerDetailPanel({ customer, onEdit, onDelete, onClos
               color={avatarColorOf(current.name)}
               className="size-14 text-lg"
             />
-            <h2 className="min-w-0 truncate font-heading text-xl font-extrabold text-foreground">
+            <h2 className="min-w-0 truncate font-heading text-xl font-bold text-foreground">
               {current.name}
             </h2>
           </div>

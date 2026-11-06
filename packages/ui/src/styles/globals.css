@@ -37,6 +37,8 @@
 
   --muted: oklch(0.9574 0.0116 264.51);
   --muted-foreground: oklch(0.508 0.0628 269.54);
+  /* Fondo hundido de un catálogo: más claro que muted, para que las cards floten (2026-11-06). */
+  --canvas: #f8f9fa;
   --accent: oklch(0.9547 0.0199 267.29);
   --accent-foreground: oklch(0.2285 0.0954 260.42);
 
@@ -133,6 +135,7 @@
 
   --muted: oklch(0.2312 0.0664 264.5);
   --muted-foreground: oklch(0.7518 0.0436 268.92);
+  --canvas: oklch(0.2 0.06 264.5);
   --accent: oklch(0.315 0.0845 264.13);
   --accent-foreground: oklch(0.9432 0.0154 269.98);
 
@@ -190,6 +193,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-canvas: var(--canvas);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-spark: var(--spark);

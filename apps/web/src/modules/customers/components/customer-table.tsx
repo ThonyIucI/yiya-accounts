@@ -70,7 +70,7 @@ export default function CustomerTable({
                   <TableCell>
                     <div className="flex min-w-0 items-center gap-3">
                       <InitialsAvatar name={customer.name} color={avatarColorOf(customer.name)} />
-                      <span className="truncate font-heading font-bold text-foreground">
+                      <span className="truncate font-heading font-semibold text-foreground">
                         {customer.name}
                       </span>
                     </div>

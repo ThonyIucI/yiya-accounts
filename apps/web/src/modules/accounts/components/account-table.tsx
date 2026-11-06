@@ -84,7 +84,7 @@ export default function AccountTable({
                         imageUrl={account.service.imageUrl}
                         className="size-10"
                       />
-                      <p className="truncate font-heading font-bold text-foreground">
+                      <p className="truncate font-heading font-semibold text-foreground">
                         {account.service.name}
                       </p>
                       <ExpiryIcon expiresOn={accountExpiresOn(account.purchases)} />

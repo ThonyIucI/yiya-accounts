@@ -67,7 +67,7 @@ function RentalItem({
       <ServiceAvatar name={rental.service.name} imageUrl={rental.service.imageUrl} className="size-10" />
       <div className="min-w-0 flex-1 space-y-0.5">
         <div className="flex items-center gap-2">
-          <p className="truncate font-heading font-bold text-foreground">{rental.service.name}</p>
+          <p className="truncate font-heading font-semibold text-foreground">{rental.service.name}</p>
           <ExpiryBadge expiresOn={rental.expiresOn} labels={RENTAL_EXPIRY_LABELS} />
         </div>
         <p className="truncate text-muted-foreground">{rental.account.email}</p>
@@ -124,7 +124,7 @@ export default function CustomerRentalsPanel({ group, onAdd, onEdit, onDelete, o
               color={avatarColorOf(current.customer.name)}
               className="size-14 text-lg"
             />
-            <h2 className="min-w-0 truncate font-heading text-xl font-extrabold text-foreground">
+            <h2 className="min-w-0 truncate font-heading text-xl font-bold text-foreground">
               {current.customer.name}
             </h2>
           </div>

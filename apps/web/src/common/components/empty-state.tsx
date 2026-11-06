@@ -16,7 +16,7 @@ export default function EmptyState({ icon: Icon, title, description, action }: I
       <div className="flex size-14 items-center justify-center rounded-xl bg-muted">
         <Icon className="size-7 text-muted-foreground" strokeWidth={1.5} />
       </div>
-      <p className="mt-4 font-heading text-base font-bold text-foreground">{title}</p>
+      <p className="mt-4 font-heading text-base font-semibold text-foreground">{title}</p>
       {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>

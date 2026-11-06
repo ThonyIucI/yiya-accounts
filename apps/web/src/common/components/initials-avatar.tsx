@@ -53,7 +53,7 @@ export default function InitialsAvatar({ name, color = "primary", className }: I
     <span
       aria-hidden
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-full font-heading font-extrabold",
+        "flex size-10 shrink-0 items-center justify-center rounded-full font-heading font-bold",
         COLOR_CLASSES[color],
         className,
       )}

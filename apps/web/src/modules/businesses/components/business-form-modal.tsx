@@ -148,7 +148,7 @@ export default function BusinessFormModal({
 
         {isEdit ? (
           <div className="space-y-1 rounded-xl bg-muted px-4 py-3">
-            <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">Dueño</p>
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Dueño</p>
             <p className="text-sm font-semibold text-foreground">
               {business?.owner ? `${business.owner.name} · ${business.owner.email}` : "Sin dueño"}
             </p>
